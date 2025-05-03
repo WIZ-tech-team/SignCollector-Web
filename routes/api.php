@@ -1,13 +1,8 @@
 <?php
 
-use App\Http\Controllers\Mobile\AIAgentsController;
-use App\Http\Controllers\Mobile\AISettingsController;
-use App\Http\Controllers\Mobile\AIVoicesController;
 use App\Http\Controllers\Mobile\AuthController;
-use App\Http\Controllers\Mobile\Paddle\ProductsController;
-use App\Http\Controllers\Mobile\PlansController;
+use App\Http\Controllers\Mobile\DetailedSignsController;
 use App\Http\Controllers\Mobile\SignsController;
-use App\Http\Controllers\Mobile\SubscriptionsController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('mobile')->group(function () {
@@ -25,5 +20,8 @@ Route::prefix('mobile')->group(function () {
         Route::post('/', 'store');
     });
 
-
+    Route::prefix('signs/detailed')->controller(DetailedSignsController::class)->group(function () {
+        Route::get('/', 'index');
+        Route::post('/', 'store');
+    });
 });
