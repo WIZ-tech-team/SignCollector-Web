@@ -1,0 +1,258 @@
+:root {
+    --dashboard-header-height: 3rem;
+    --dashboard-header-t-padding: 1rem;
+    --dashboard-header-b-padding: 1rem;
+    --dashboard-header-l-padding: 2rem;
+    --dashboard-header-r-padding: 2rem;
+    --dashboard-aside-width: 260px;
+    --dashboard-aside-l-padding: 2rem;
+    --dashboard-aside-r-padding: 2rem;
+    --dashboard-aside-t-padding: 1rem;
+    --dashboard-aside-b-padding: 1rem;
+    --lighted-gray: #d9d9d9;
+    --muted-gray: #A9A9A9;
+    --input-border: #EBF0F4;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    min-height: 100vh;
+    background-color: #fafafa;
+}
+
+#ttk_dashboard_layout {
+    display: flex;
+    flex-direction: column;
+    align-items: start;
+    justify-content: start;
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow-x: hidden;
+}
+
+#ttk_dashboard_layout #ttk_sm_screen_show_aside_layer {
+    display: none;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    right: 0;
+    background-color: rgb(0, 0, 0, 0.25);
+    z-index: 1049;
+}
+
+#ttk_dashboard_layout.hide-ttk-dashboard-sidebar #ttk_sm_screen_show_aside_layer {
+    /* position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    background-color: rgb(0,0,0,0.25); */
+    display: none;
+    /* z-index: 1049; */
+}
+
+#ttk_dashboard_header {
+    /* box-sizing: content-box; */
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: fixed;
+    top: 0;
+    right: 0;
+    z-index: 1050;
+    width: 100%;
+    min-height: var(--dashboard-header-height);
+    /* padding-left: var(--dashboard-header-l-padding);
+    padding-right: var(--dashboard-header-r-padding);
+    padding-top: var(--dashboard-header-t-padding);
+    padding-bottom: var(--dashboard-header-b-padding); */
+}
+
+/* #ttk_dashboard_aside_main_footer_container {
+    display: flex;
+    align-items: start;
+    justify-content: start;
+    gap: 0;
+    margin-top: calc(var(--dashboard-header-height));
+    width: 100%;
+    height: calc(100vh - var(--dashboard-header-height));
+} */
+
+#ttk_dashboard_aside {
+    display: flex;
+    width: var(--dashboard-aside-width);
+    /* height: calc(100vh - var(--dashboard-header-height)); */
+    /* padding-left: var(--dashboard-aside-l-padding);
+    padding-right: var(--dashboard-aside-r-padding);
+    padding-top: var(--dashboard-aside-t-padding);
+    padding-bottom: var(--dashboard-aside-b-padding); */
+    background-color: white;
+    position: fixed;
+    top: var(--dashboard-header-height);
+    right: 0;
+    z-index: 1050;
+    /* left: calc(-1 * var(--dashboard-aside-width)); */
+}
+
+#ttk_dashboard_main_footer_container {
+    display: flex;
+    flex-direction: column;
+    align-items: start;
+    justify-content: space-between;
+    margin-top: calc(var(--dashboard-header-height));
+    /* min-height: 100vh; */
+    /* width: calc((100%) - var(--dashboard-aside-width)); */
+    /* margin-left: var(--dashboard-aside-width); */
+}
+
+#ttk_dashboard_main {
+    display: flex;
+    flex-direction: column;
+    align-items: start;
+    justify-content: start;
+    background-color: bisque;
+    width: 100%;
+}
+
+#ttk_dashboard_footer {
+    width: 100%;
+    height: 3rem;
+    padding-left: 2rem;
+    padding-right: 2rem;
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+    background-color: white;
+}
+
+#ttk_dashboard_layout.hide-ttk-dashboard-sidebar #ttk_dashboard_aside {
+    right: calc(-1 * var(--dashboard-aside-width));
+}
+
+#ttk_dashboard_layout.hide-ttk-dashboard-sidebar #ttk_dashboard_main_footer_container {
+    margin-right: 0;
+    width: 100%;
+}
+
+@media(max-width: 920px) {
+
+    #ttk_dashboard_main_footer_container {
+        margin-right: 0 !important;
+        width: 100%;
+    }
+
+    #ttk_dashboard_layout #ttk_sm_screen_show_aside_layer {
+        display: block;
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        top: 0;
+        right: 0;
+        background-color: rgb(0, 0, 0, 0.25);
+        z-index: 1049;
+    }
+
+    /* #ttk_dashboard_aside {
+        left: calc(-1 * var(--dashboard-aside-width));
+    }
+
+    #ttk_dashboard_layout.hide-ttk-dashboard-sidebar #ttk_dashboard_aside {
+        left: 0;
+    }
+
+    #ttk_dashboard_main_footer_container {
+        margin-left: 0;
+        width: 100%;
+    }
+
+    /* #ttk_dashboard_layout.hide-ttk-dashboard-sidebar #ttk_dashboard_main_footer_container {
+        width: calc((100%) - var(--dashboard-aside-width));
+        margin-left: var(--dashboard-aside-width);
+    } *
+
+    #ttk_dashboard_layout.hide-ttk-dashboard-sidebar #ttk_sm_screen_show_aside_layer {
+        display: block;
+    } */
+
+}
+
+#ttk_dashboard_layout,
+#ttk_dashboard_header,
+#ttk_dashboard_aside,
+#ttk_dashboard_main_footer_container,
+#ttk_dashboard_main,
+#ttk_dashboard_footer {
+    transition: .5s all ease-in-out;
+}
+
+/* Form Styling */
+.input-group {
+    display: flex;
+    flex-direction: column;
+    gap:.25rem;
+}
+
+.input-group label, .label {
+    font-size: 1rem;
+    color: var(--cdark);
+    font-weight: 500;
+}
+
+.input {
+    border: 1px solid var(--lighted-gray) !important;
+    border-radius: .25rem;
+    padding: .35rem .5rem;
+}
+
+.dashboard-input {
+    border: 1px solid var(--input-border) !important;
+    border-radius: .5rem !important;
+    padding: .75rem .75rem !important;
+}
+
+input.input:focus {
+    border-color: var(--muted-gray) !important;
+    outline: 1px solid var(--lighted-gray) !important;
+}
+
+input.dashboard-input:focus, textarea.dashboard-input:focus {
+    border-color: 0 !important;
+    outline: none !important;
+}
+
+.dashboard-input .vti__dropdown {
+    padding: 0 !important;
+}
+
+.input::placeholder, .dashboard-input::placeholder {
+    font-size: smaller;
+    color: var(--muted-gray);
+}
+
+.input-group .error-message {
+    font-size: .75rem;
+}
+
+.error-message {
+    font-size: .75rem;
+    color: red;
+}
+
+.sign-in-form {
+    width: 22rem;
+}
+
+.input:focus-within, .dashboard-input:focus-within{
+    box-shadow:inset 0 1px 1px #00000013,0 0 8px #66afe999;
+    border-color:#66afe9;
+}
+
+textarea.dashboard-input {
+    height: 25rem;
+}
