@@ -3,13 +3,13 @@
 
         <!-- Detailed Signs Table -->
         <!-- Data Table: Detailed Signs -->
-        <TableComponent title="بيانات الإشارات" :data-paginated="(signsPaginated as PaginatedData<UserInterface>)"
+        <TableComponent title="بيانات الإشارات" :data-paginated="(signsPaginated as PaginatedData<DetailedSign>)"
             :columns="signsTableColumns">
 
             <template v-for="(sign, index) in signsPaginated?.data" v-slot:[`row_${index}_image_slot_value`]>
-                <div class="shrink-0">
-                    <img id='sign_image_preview' class="h-16 w-16 object-cover rounded-full"
-                        :src="sign?.image_url" alt="photo" />
+                <div v-if="sign?.image" class="h-16 w-16 object-cover rounded-full">
+                    <img id='sign_image_preview' class="w-full h-full"
+                        :src="sign.image.original_url" alt="photo" />
                 </div>
             </template>
 
@@ -20,23 +20,19 @@
 
 <script setup lang="ts">
 import { computed, onBeforeMount, ref } from "vue";
-import resolveConfig from "tailwindcss/resolveConfig";
-import tailwindConfig from "@/../../tailwind.config";
 import { useUsersStore } from "@/store/stores/usersStore";
 import { TableColumn } from "@/core/types/elements/Table";
 import { PaginatedData } from "@/core/types/data/PaginatedDataInterface";
-import { UserInterface } from "@/core/types/data/UserInterface";
 import TableComponent from "@/components/table/TableComponent.vue";
 import { useDetailedSignsStore } from "@/store/stores/detailedSignsStore";
+import { DetailedSign } from "@/core/types/data/DetailedSign";
 
 // Lifecycle hooks
 onBeforeMount(async () => {
-    await usersStore.fetchUsersPaginated('?type=Mobile');
     await detailedSignsStore.fetchDetailedSignsPaginated();
 });
 
 // Stores
-const usersStore = useUsersStore();
 const detailedSignsStore = useDetailedSignsStore();
 
 
@@ -72,19 +68,6 @@ const signsTableColumns = ref<TableColumn[]>([
         key: 'sign_type'
     }
 ]);
-
-const tcssConfig = resolveConfig(tailwindConfig);
-
-const series1 = ref<ApexAxisChartSeries>([
-    {
-        name: 'Sales',
-        data: [30, 40, 35, 50, 49, 60],
-    },
-    {
-        name: 'Revenue',
-        data: [10, 15, 15, 20, 10, 25],
-    }
-])
 
 const signsPaginated = computed(() => {
     return detailedSignsStore.detailedSignsPaginated;

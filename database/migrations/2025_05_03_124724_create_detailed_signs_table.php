@@ -26,12 +26,12 @@ return new class extends Migration
             // Road
             $table->string('road_classification')->nullable();
             $table->string('road_name')->nullable();
-            $table->float('road_number')->nullable();
+            $table->string('road_number')->nullable();
             $table->string('road_type')->nullable();
             $table->text('road_direction')->nullable();
             // Location
-            $table->decimal('latitude', 10, 8)->nullable();
-            $table->decimal('longitude', 11, 8)->nullable();
+            $table->decimal('latitude', 10, 8);
+            $table->decimal('longitude', 11, 8);
             $table->string('governorate')->nullable();
             $table->string('willayat')->nullable();
             $table->string('village')->nullable();
