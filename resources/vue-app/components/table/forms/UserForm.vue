@@ -3,9 +3,9 @@
         class="flex flex-col items-top justify-start gap-8 bg-white shadow-md rounded-md px-12 py-8">
         <div class="flex w-full items-middle justify-between">
             <div class="text-2xl font-bold text-gray-700">
-                Manage Users Data:
-                <span v-if="isEditForm" class="font-normal text-lg">Update User</span>
-                <span v-else class="font-normal text-lg">Create User</span>
+                ادارة المستخدمين:
+                <span v-if="isEditForm" class="font-normal text-lg">تحديث حساب المستخدم</span>
+                <span v-else class="font-normal text-lg">انشاء حساب جديد</span>
             </div>
             <button type="button" @click.prevent="onReturnArrowClick" title="back"
                 class="group cursor-pointer p-1 rounded-md hover:bg-light-primary">
@@ -15,26 +15,22 @@
 
         <div class="flex flex-col w-full gap-4">
             <div class="flex flex-col md:flex-row w-full gap-4">
-                <ColumnInputGroup name="name_input" label="Name" :show-error="true">
+                <ColumnInputGroup name="name_input" label="الاسم" :show-error="true">
                     <Field id="name_input" name="name_input" type="text" v-model="userModel.name"
                         class="dashboard-input w-full"></Field>
                 </ColumnInputGroup>
-                <ColumnInputGroup name="email_input" :show-error="true" label="Email">
+                <ColumnInputGroup name="email_input" :show-error="true" label="الإيميل">
                     <Field id="email_input" name="email_input" type="email" v-model="userModel.email"
                         class="dashboard-input w-full"></Field>
                 </ColumnInputGroup>
             </div>
 
             <div class="flex flex-col md:flex-row w-full gap-4">
-                <ColumnInputGroup name="phone_input" :show-error="true" label="Phone">
+                <ColumnInputGroup name="phone_input" :show-error="true" label="رقم الجوال">
                     <Field id="phone_input" name="phone_input" type="text" v-model="userModel.phone"
                         class="dashboard-input w-full"></Field>
                 </ColumnInputGroup>
-                <!-- <ColumnInputGroup name="type_input" :show-error="true" label="Type">
-                    <Field id="type_input" name="type_input" type="text" v-model="userModel.type"
-                        class="dashboard-input w-full"></Field>
-                </ColumnInputGroup> -->
-                <ColumnInputGroup name="type_input" label="Type" :show_error="true">
+                <ColumnInputGroup name="type_input" label="النوع" :show_error="true">
                     <Field name="type_input" type="text" v-model="userModel.type" v-slot="{ field }">
                         <select v-bind="field" class="dashboard-input w-full" :class="{ 'placeholder': !userModel.type }">
                             <option disabled selected hidden value="" class="" label="select masjid">
@@ -46,7 +42,7 @@
                 </ColumnInputGroup>
             </div>
 
-            <ImageInput label="Avatar" preview-id="avatar_preview_img" :image-url="userModel.avatar_url"
+            <ImageInput label="الصورة" preview-id="avatar_preview_img" :image-url="userModel.avatar_url"
                 :is-note-displayed="true" @onImageChange="loadFile">
                 <span v-if="!userModel.avatar" class="error-message">
                     Note: avatar field required
@@ -54,36 +50,15 @@
                 <Field name="avatar_input" type="file" v-model="userModel.avatar" class="hidden"></Field>
             </ImageInput>
 
-            <!-- <div class="flex flex-col gap-2">
-                <div class="">Avatar</div>
-                
-                <div class="flex items-center space-x-6">
-                    <div class="shrink-0">
-                        <img id='avatar_preview_img' class="h-16 w-16 object-cover rounded-full"
-                            :src="userModel.avatar_url" alt="avatar" />
-                    </div>
-                    <label class="block">
-                        <input type="file" :onchange="loadFile" class="block w-full text-sm text-slate-500
-                            file:mr-4 file:py-2 file:px-4
-                            file:rounded-full file:border-0
-                            file:text-sm file:font-semibold
-                            file:bg-violet-50 file:text-violet-700
-                            hover:file:bg-violet-100" :accept="ALLOWED_IMAGE_TYPES.toString()" />
-                    </label>
-                    <span v-if="!userModel.avatar" name="avatar_input" class="error-message">
-                        
-                    </span>
-                </div>
-            </div> -->
         </div>
 
         <div v-if="isEditForm" class="flex items-center justify-between w-full">
             <span class="text-lg font-semibold">
-                Account Password
+                كلمة سر الحساب
             </span>
             <button v-if="!editPassword" type="button" @click.prevent="editPassword = true"
                 class="px-6 py-2 text-brand hover:text-light-brand hover:bg-brand bg-light-brand rounded-md">
-                <span>Edit Password</span>
+                <span>تحديث كلمة السر</span>
             </button>
             <button v-else type="button" @click.prevent="editPassword = false"
                 class="group p-1 text-danger hover:text-light-danger hover:bg-danger bg-light-danger rounded-md">
@@ -93,21 +68,21 @@
 
         <div class="flex flex-col md:flex-row w-full gap-4">
             <template v-if="isEditForm && editPassword">
-                <ColumnInputGroup name="old_password_input" label="Old Password" :show-error="true"
+                <ColumnInputGroup name="old_password_input" label="كلمة السر القديمة" :show-error="true"
                     class="input-group w-full md:w-1/3">
                     <Field id="old_password_input" name="old_password_input" type="password"
                         v-model="userModel.old_password" class="dashboard-input w-full"></Field>
                 </ColumnInputGroup>
             </template>
             <template v-if="!isEditForm || (isEditForm && editPassword)">
-                <ColumnInputGroup name="password_input" label="Password" :show-error="true"
+                <ColumnInputGroup name="password_input" label="كلمة السر" :show-error="true"
                     class="input-group w-full md:w-1/2" :class="{ 'md:w-1/3': (isEditForm && editPassword) }">
                     <Field id="password_input" name="password_input" type="password" v-model="userModel.password"
                         class="dashboard-input w-full"></Field>
                 </ColumnInputGroup>
             </template>
             <template v-if="!isEditForm || (isEditForm && editPassword)">
-                <ColumnInputGroup name="password_confirm_input" label="Old Password" :show-error="true"
+                <ColumnInputGroup name="password_confirm_input" label="تأكيد كلمة السر" :show-error="true"
                     class="input-group w-full md:w-1/2" :class="{ 'md:w-1/3': (isEditForm && editPassword) }">
                     <Field id="password_confirm_input" name="password_confirm_input" type="password"
                         v-model="userModel.password_confirmation" class="dashboard-input w-full"></Field>
@@ -120,20 +95,20 @@
             <!-- Submit button -->
             <LoadingButton type="submit" :is-loading="submitLoading"
                 class="px-4 py-2 bg-primary hover:bg-active-primary text-light-primary rounded-md">
-                <span v-if="isEditForm">Update User</span>
-                <span v-else="isEditForm">Submit Create</span>
+                <span v-if="isEditForm">تحديث الحساب</span>
+                <span v-else="isEditForm">تأكيد الإنشاء</span>
             </LoadingButton>
 
             <!-- Reset button -->
             <button v-if="isEditForm" type="button" @click.prevent="resetEditModel"
                 class="px-4 py-2 text-primary hover:text-light-primary hover:bg-primary bg-light-primary rounded-md">
-                <span>reset</span>
+                <span>إعادة تعيين</span>
             </button>
 
             <!-- Reset button -->
             <button v-else type="reset"
                 class="px-4 py-2 text-primary hover:text-light-primary hover:bg-primary bg-light-primary rounded-md">
-                <span>reset</span>
+                <span>إعادة تعيين</span>
             </button>
 
         </div>
@@ -145,11 +120,10 @@ import ColumnInputGroup from "@/components/form/ColumnInputGroup.vue";
 import ImageInput from "@/components/form/ImageInput.vue";
 import LoadingButton from "@/components/form/LoadingButton.vue";
 import SolidHeroIcon from "@/components/icons/SolidHeroIcon.vue";
-import { ALLOWED_IMAGE_TYPES } from "@/core/constants/allowedImageProperties";
 import { UserInterface } from "@/core/types/data/UserInterface";
 import { UpdatableUserData, useUsersStore } from "@/store/stores/usersStore";
 import { ArrowLeftIcon } from "@heroicons/vue/24/solid";
-import { Form, Field, ErrorMessage, useForm, useField } from "vee-validate";
+import { Form, Field, useForm, useField } from "vee-validate";
 import { computed, onBeforeMount, PropType, ref, toRefs, watch } from "vue";
 import { object, string, ref as yupRef } from "yup";
 

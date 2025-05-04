@@ -13,6 +13,12 @@ export const DASHBOARD_ASIDE_MENU_ITEMS: Array<AsideMenuItem|AsideSubmenu> = [
         to: '/users',
         allowed_types: ['Admin']
     },
+    {
+        title: "الخريطة",
+        heroicon_name: "MapIcon",
+        to: '/map',
+        allowed_types: ['Admin']
+    }
     // {
     //     title: "Reports",
     //     heroicon_name: "ClipboardDocumentIcon",

@@ -18,4 +18,5 @@ export type DashboardRoute =
 `/reports/subscriptions` |
 `/elabs-config` |
 `/elabs-config/voices` |
-`/elabs-config/agents`
+`/elabs-config/agents` |
+`/map`

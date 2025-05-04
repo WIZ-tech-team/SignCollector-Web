@@ -1,10 +1,7 @@
 <?php
 
-use App\Http\Controllers\AdminDashboard\AIAgentsController;
-use App\Http\Controllers\AdminDashboard\AIVoicesController;
 use App\Http\Controllers\AdminDashboard\AuthController;
-use App\Http\Controllers\AdminDashboard\StatisticsController;
-use App\Http\Controllers\AdminDashboard\SubscriptionsController;
+use App\Http\Controllers\AdminDashboard\DetailedSignsController;
 use App\Http\Controllers\AdminDashboard\UsersController;
 use Illuminate\Support\Facades\Route;
 
@@ -29,4 +26,8 @@ Route::prefix('users')->controller(UsersController::class)->middleware(['auth:sa
     Route::delete('/{user_id}', 'destroy');
     Route::delete('/{user_id}/soft', 'moveToTrash');
     Route::get('/{user_id}/restore', 'restore');
+});
+
+Route::prefix('signs/detailed')->controller(DetailedSignsController::class)->middleware(['auth:sanctum', 'admin'])->group(function () {
+    Route::get('/', 'index');
 });

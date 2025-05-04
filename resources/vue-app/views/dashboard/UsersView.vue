@@ -21,7 +21,7 @@
                     <button @click.prevent="createUser = true" class="px-4 py-2 bg-brand hover:bg-active-brand
                     flex flex-row gap-2 items-center justify-center rounded-md">
                         <SolidHeroIcon name="PlusIcon" classes="text-light-brand w-5 h-5" />
-                        <span class="font-semibold text-md text-light-brand">Create</span>
+                        <span class="font-semibold text-md text-light-brand">حساب جديد</span>
                     </button>
                     <DropdownMenu :items="dropdownMenuItems" @item-clicked="onDropdownItemClicked"></DropdownMenu>
                 </div>
@@ -80,29 +80,29 @@ const displayedUsers = ref<'archived' | 'not-archived'>('not-archived');
 
 const usersTableColumns = ref<TableColumn[]>([
     {
-        title: 'ID',
+        title: 'المعرّف',
         key: 'id'
     },
     {
-        title: 'Avatar',
+        title: 'الصورة الشخصية',
         key: 'avatar_slot',
         isSlot: true
     },
     {
-        title: 'Name',
+        title: 'الاسم',
         key: 'name',
         valueClasses: "text-sm font-medium text-gray-900"
     },
     {
-        title: 'Email',
+        title: 'الإيميل',
         key: 'email'
     },
     {
-        title: 'Phone',
+        title: 'رقم الهاتف',
         key: 'phone'
     },
     {
-        title: 'Type',
+        title: 'النوع',
         key: 'type_slot',
         isSlot: true
     }
@@ -119,19 +119,19 @@ const usersTableAllowedActions = computed(() => {
 
 const dropdownMenuItems = ref<DropdownMenuItem[]>([
     {
-        title: 'Users List',
+        title: 'المستخدمين',
         key: 'all'
     },
     {
-        title: 'Admins',
+        title: 'المسؤولين',
         key: 'admin'
     },
     {
-        title: 'Mobile Users',
+        title: 'مستخدمين التطبيق',
         key: 'mobile'
     },
     {
-        title: 'Archived List',
+        title: 'الحسابات المؤرشفة',
         key: 'archived',
         classes: 'border-t disabled:bg-gray-50 disabled:text-gray-500'
     }
@@ -142,7 +142,7 @@ const usersPaginated = computed(() => {
 });
 
 const tableTitle = computed(() => {
-    return displayedUsers.value === 'not-archived' ? 'Users Management' : 'Archived Users Management';
+    return displayedUsers.value === 'not-archived' ? 'المستخدمين' : 'حسابات المستخدمين المؤرشفة';
 })
 
 const showUserForm = computed(() => {
