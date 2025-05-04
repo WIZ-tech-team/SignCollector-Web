@@ -48,6 +48,16 @@ const routes: RouteRecordRaw[] = [
                             auth: true,
                             allowedUsers: ['Admin']
                         }
+                    },
+                    {
+                        path: '/map',
+                        name: 'map',
+                        component: () => import("@/views/dashboard/MapView.vue"),
+                        meta: {
+                            pageTitle: "Map",
+                            auth: true,
+                            allowedUsers: ['Admin']
+                        }
                     }
                 ]
             },

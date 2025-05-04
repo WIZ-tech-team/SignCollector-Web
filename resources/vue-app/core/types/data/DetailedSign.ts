@@ -1,0 +1,44 @@
+import { Media } from "@/core/types/data/Media";
+
+export type DetailedSign = {
+    id: number;
+    sign_name: string;
+    sign_code: string;
+    sign_code_gcc: string;
+    sign_type: string;
+    sign_shape: string;
+    sign_length: number;
+    sign_width: number;
+    sign_radius: number;
+    sign_color: string;
+    road_classification: string;
+    road_name: string;
+    road_number: number;
+    road_type: string;
+    road_direction: string;
+    latitude: string;
+    longitude: string;
+    governorate: string;
+    willayat: string;
+    village: string;
+    signs_count: number; 
+    columns_description: string;
+    sign_location_from_road: string;
+    sign_base: string;
+    distance_from_road_edge_meter: number;
+    sign_column_radius_mm: number;
+    column_height: number;
+    column_colour: string;
+    column_type: string;
+    sign_content_shape_description: string;
+    sign_content_arabic_text: string;
+    sign_content_english_text: string;
+    sign_condition: string;
+    comments: string;
+    created_by: string;
+    created_at: string;
+    updated_at: string;
+    photo_url?: string;
+    image_url?: string;
+    image: Media;
+}

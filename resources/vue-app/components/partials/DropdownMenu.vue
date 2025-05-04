@@ -8,7 +8,7 @@
 
         <!-- Dropdown menu -->
         <div id="dropdown"
-            class="z-10 absolute bg-white divide-y divide-gray-100 border rounded-lg shadow-sm w-44 right-0 top-full" :class="{'hidden': !isDisplayed}">
+            class="z-10 absolute bg-white divide-y divide-gray-100 border rounded-lg shadow-sm w-44 left-0 top-full" :class="{'hidden': !isDisplayed}">
             <ul class="py-2 text-sm text-gray-700" aria-labelledby="dropdownDefaultButton">
                 <li v-for="item in items">
                     <slot v-if="item.isSlot" :name="`item_${item.key}_slot`"></slot>

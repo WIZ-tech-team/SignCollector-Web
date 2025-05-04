@@ -5,9 +5,11 @@ namespace App\Http\Controllers\Mobile;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\DetailedSignResource;
 use App\Models\DetailedSign;
+use App\Rules\Base64Image;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
+use Spatie\MediaLibrary\MediaCollections\Exceptions\FileCannotBeAdded;
 use Symfony\Component\HttpFoundation\Response;
 
 class DetailedSignsController extends Controller
@@ -69,7 +71,8 @@ class DetailedSignsController extends Controller
                 'sign_condition' => 'string|max:255',
                 'comments' => 'string',
                 // Image
-                'image' => 'image|mimes:jpeg,png,jpg,gif|max:2048'
+                'image' => ['required', new Base64Image],
+                'image_name' => 'required|string|max:255'
             ]);
 
             if ($validator->fails()) {
@@ -85,10 +88,14 @@ class DetailedSignsController extends Controller
                 $sign = DetailedSign::create($request->except('image'));
 
                 // Save sign image
-                if ($request->hasFile('image')) {
-                    $sign->addMedia($request->file('image'))
+                try {
+                    $sign->addMediaFromBase64($request['image'])
+                        ->usingFileName($request['image_name'])
                         ->toMediaCollection('detailed_signs');
+                } catch (FileCannotBeAdded $e) {
+                    throw new \Exception("Failed to add media: " . $e->getMessage());
                 }
+
 
                 DB::commit();
 
@@ -105,5 +112,4 @@ class DetailedSignsController extends Controller
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
-
 }

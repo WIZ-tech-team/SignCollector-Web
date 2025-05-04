@@ -37,11 +37,11 @@ export const useUsersStore = defineStore('usersStore', () => {
                 if (res.data.status === 'success' && res.data.data) {
                     usersPaginated.value = res.data.data;
                 } else {
-                    MSwal.fire('Unexpected Response', getMessageFromObj(res), 'warning');
+                    MSwal.fire('رد غير متوقع', getMessageFromObj(res), 'warning');
                 }
             })
             .catch((e: AxiosError<BackendResponseData>) => {
-                MSwal.fire('Unexpected Error', getMessageFromObj(e), 'error');
+                MSwal.fire('خطأ غير متوقع', getMessageFromObj(e), 'error');
             });
     }
 
@@ -53,18 +53,18 @@ export const useUsersStore = defineStore('usersStore', () => {
                 if (res.data.status === 'success' && res.data.data) {
                     archivedUsersPaginated.value = res.data.data;
                 } else {
-                    MSwal.fire('Unexpected Response', getMessageFromObj(res), 'warning');
+                    MSwal.fire('رد غير متوقع', getMessageFromObj(res), 'warning');
                 }
             })
             .catch((e: AxiosError<BackendResponseData>) => {
-                MSwal.fire('Unexpected Error', getMessageFromObj(e), 'error');
+                MSwal.fire('خطأ غير متوقع', getMessageFromObj(e), 'error');
             });
     }
 
     const storeUser = async (data: UpdatableUserData, action: 'create' | 'update') => {
         let message = {
-            title: action === 'create' ? 'create User ?' : 'Update User ?',
-            message: action === 'create' ? "New user account will be created." : "This user account will be updated.",
+            title: action === 'create' ? 'إنشاء الحساب ؟' : 'تحديث الحساب ؟',
+            message: action === 'create' ? "سيتم إنشاء حساب جديد." : "سيتم تحديث معلومات الحساب.",
             icon: action === 'create' ? "warning" : "question"
         }
         await QSwal.fire(message.title, message.message, message.icon as 'warning' | 'question')
@@ -74,13 +74,13 @@ export const useUsersStore = defineStore('usersStore', () => {
                     await ApiService.post(api, data)
                         .then((res: AxiosResponse<BackendResponseData>) => {
                             if (res.data.status === 'success') {
-                                MSwal.fire('Success', `User ${action} process done successfully.`, 'success');
+                                MSwal.fire('نجحت العملية', `تمت العملية بنجاح.`, 'success');
                             } else {
-                                MSwal.fire('Unexpected Response', getMessageFromObj(res), 'warning');
+                                MSwal.fire('رد غير متوقع', getMessageFromObj(res), 'warning');
                             }
                         })
                         .catch((e: AxiosError<BackendResponseData>) => {
-                            MSwal.fire('Unexpected Error', getMessageFromObj(e), 'error');
+                            MSwal.fire('خطأ غير متوقع', getMessageFromObj(e), 'error');
                         }).finally(async () => {
                             await fetchUsersPaginated();
                         });
@@ -90,8 +90,8 @@ export const useUsersStore = defineStore('usersStore', () => {
 
     const removeUser = async (id: number, action: 'delete' | 'archive') => {
         let message = {
-            title: action === 'delete' ? 'Delete User ?' : 'Archive User ?',
-            message: action === 'delete' ? "Deleted account data can't be restored." : "Archived user data will be hidden from app data.",
+            title: action === 'delete' ? 'حذف الحساب ؟' : 'أرشفة الحساب ؟',
+            message: action === 'delete' ? "سيتم حذف الحساب." : "سيتم أرشفة الحساب.",
             icon: action === 'delete' ? "warning" : "question"
         }
         await QSwal.fire(message.title, message.message, message.icon as 'warning' | 'question')
@@ -101,13 +101,13 @@ export const useUsersStore = defineStore('usersStore', () => {
                     await ApiService.delete(api)
                         .then((res: AxiosResponse<BackendResponseData>) => {
                             if (res.data.status === 'success') {
-                                MSwal.fire('Success', `User account ${action} done successfully.`, 'success');
+                                MSwal.fire('نجحت العملية', `تمت العملية بنجاخ.`, 'success');
                             } else {
-                                MSwal.fire('Unexpected Response', getMessageFromObj(res), 'warning');
+                                MSwal.fire('رد غير متوقع', getMessageFromObj(res), 'warning');
                             }
                         })
                         .catch((e: AxiosError<BackendResponseData>) => {
-                            MSwal.fire('Unexpected Error', getMessageFromObj(e), 'error');
+                            MSwal.fire('خطأ غير متوقع', getMessageFromObj(e), 'error');
                         }).finally(async () => {
                             await fetchUsersPaginated();
                             await fetchArchivedUsersPaginated();
@@ -117,19 +117,19 @@ export const useUsersStore = defineStore('usersStore', () => {
     }
 
     const restoreUser = async (id: number) => {
-        await QSwal.fire('Restore User ?', "Restored user data will be shown with users list.", 'question')
+        await QSwal.fire('استرجاع الحساب ؟', "سيتم استرجاع الحساب إلى قائمة المستخدمين.", 'question')
             .then(async result => {
                 if (result.isConfirmed) {
                     await ApiService.get(`/api/spa/users/${id}/restore`)
                         .then((res: AxiosResponse<BackendResponseData>) => {
                             if (res.data.status === 'success') {
-                                MSwal.fire('Success', `User account restored successfully.`, 'success');
+                                MSwal.fire('نجحت العملية', `تم استرجاع الحساب بنجاح.`, 'success');
                             } else {
-                                MSwal.fire('Unexpected Response', getMessageFromObj(res), 'warning');
+                                MSwal.fire('رد غير متوقع', getMessageFromObj(res), 'warning');
                             }
                         })
                         .catch((e: AxiosError<BackendResponseData>) => {
-                            MSwal.fire('Unexpected Error', getMessageFromObj(e), 'error');
+                            MSwal.fire('خطأ غير متوقع', getMessageFromObj(e), 'error');
                         }).finally(async () => {
                             await fetchArchivedUsersPaginated();
                             await fetchUsersPaginated();
