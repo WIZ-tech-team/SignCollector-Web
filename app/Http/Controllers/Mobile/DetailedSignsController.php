@@ -44,12 +44,12 @@ class DetailedSignsController extends Controller
                 // Road data
                 'road_classification' => 'string|max:255',
                 'road_name' => 'string|max:255',
-                'road_number' => 'numeric',
+                'road_number' => 'string|max:255',
                 'road_type' => 'string|max:255',
                 'road_direction' => 'string',
                 // Location
-                'latitude' => 'numeric',
-                'longitude' => 'numeric',
+                'latitude' => 'numeric|required',
+                'longitude' => 'numeric|required',
                 'governorate' => 'string|max:255',
                 'willayat' => 'string|max:255',
                 'village' => 'string|max:255',
@@ -89,9 +89,18 @@ class DetailedSignsController extends Controller
 
                 // Save sign image
                 try {
+                    // Extract the image type from base64 string
+                    preg_match('/^data:image\/(\w+);base64,/', $request['image'], $matches);
+                    $extension = $matches[1] ?? 'png'; // Default to png if no match
+                    
+                    // Clean up the filename (remove existing extension if present)
+                    $filename = pathinfo($request['image_name'], PATHINFO_FILENAME);
+                    
                     $sign->addMediaFromBase64($request['image'])
-                        ->usingFileName($request['image_name'])
+                        ->usingFileName("{$filename}.{$extension}")  // Force correct extension
+                        ->withCustomProperties(['mime_type' => "image/{$extension}"]) // Set MIME type
                         ->toMediaCollection('detailed_signs');
+                        
                 } catch (FileCannotBeAdded $e) {
                     throw new \Exception("Failed to add media: " . $e->getMessage());
                 }

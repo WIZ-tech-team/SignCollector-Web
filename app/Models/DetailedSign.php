@@ -59,6 +59,15 @@ class DetailedSign extends Model implements HasMedia
         return $this->getFirstMediaUrl('detailed_signs') ?? null;
     }
 
+    public function registerMediaConversions(?Media $media = null): void
+    {
+        $this->addMediaConversion('thumb')
+            ->width(300)
+            ->height(300)
+            ->optimize()
+            ->performOnCollections('detailed_signs');
+    }
+
     public function image()
     {
         return $this->morphOne(Media::class, 'model')

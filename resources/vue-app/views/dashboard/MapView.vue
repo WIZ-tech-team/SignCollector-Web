@@ -1,6 +1,18 @@
 <template>
     <div class="flex flex-col items-center gap-4">
         <SignCard v-if="signs[locationIndex]" :sign="signs[locationIndex]" />
+        <div class="flex items-center gap-2">
+            <button type="button" @click.prevent="changeLocation('prev')" class="p-2 rounded-md bg-light-brand text-brand hover:bg-brand focus:outline-none
+                hover:text-light-brand disabled:opacity-50" @click="showPopup = !showPopup"
+                :disabled="locationIndex === 0">
+                <SolidHeroIcon name="ArrowRightIcon" classes="h-6 w-6" />
+            </button>
+            <button type="button" @click.prevent="changeLocation('next')" class="p-2 rounded-md bg-light-brand text-brand hover:bg-brand focus:outline-none
+                hover:text-light-brand disabled:opacity-50" @click="showPopup = !showPopup"
+                :disabled="locationIndex === points.length - 1">
+                <SolidHeroIcon name="ArrowLeftIcon" classes="h-6 w-6" />
+            </button>
+        </div>
         <div class="map-container rounded-md overflow-hidden">
             <div id="map" ref="mapRef"></div>
             <div id="street-view" ref="streetViewRef"></div>
@@ -18,18 +30,6 @@
                 </select>
                 <button @click="savePoint">Save</button>
             </div> -->
-        </div>
-        <div class="flex items-center gap-2">
-            <button type="button" @click.prevent="changeLocation('prev')" class="p-2 rounded-md bg-light-brand text-brand hover:bg-brand focus:outline-none
-                hover:text-light-brand disabled:opacity-50" @click="showPopup = !showPopup"
-                :disabled="locationIndex === 0">
-                <SolidHeroIcon name="ArrowRightIcon" classes="h-6 w-6" />
-            </button>
-            <button type="button" @click.prevent="changeLocation('next')" class="p-2 rounded-md bg-light-brand text-brand hover:bg-brand focus:outline-none
-                hover:text-light-brand disabled:opacity-50" @click="showPopup = !showPopup"
-                :disabled="locationIndex === points.length - 1">
-                <SolidHeroIcon name="ArrowLeftIcon" classes="h-6 w-6" />
-            </button>
         </div>
     </div>
 </template>
