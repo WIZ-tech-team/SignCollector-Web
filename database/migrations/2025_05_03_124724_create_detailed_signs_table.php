@@ -52,8 +52,9 @@ return new class extends Migration
             // Other
             $table->string('sign_condition')->nullable();
             $table->text('comments')->nullable();
-            $table->foreign('created_by')->references('id')->on('users')->onDelete('cascade');
-            $table->unsignedBigInteger('created_by')->nullable();
+            // $table->foreign('created_by')->references('id')->on('users')->onDelete('cascade');
+            // $table->unsignedBigInteger('created_by')->nullable();
+            $table->string('created_by')->nullable();
             $table->timestamps();
         });
     }

@@ -86,7 +86,6 @@ class DetailedSignsController extends Controller
             if ($validator->passes()) {
 
                 // Create Sign
-                $request['created_by'] = Auth::user()->id;
                 $sign = DetailedSign::create($request->except('image'));
 
                 // Save sign image
