@@ -44,7 +44,9 @@ class DetailedSign extends Model implements HasMedia
         'sign_content_arabic_text',
         'sign_content_english_text',
         'sign_condition',
-        'comments'
+        'comments',
+        'created_by',
+        'created_at'
     ];
 
     public function registerMediaCollections(): void
