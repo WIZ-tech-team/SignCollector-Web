@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('detailed_signs', function (Blueprint $table) {
             $table->id();
             // Sign
-            $table->string('sign_name')->unique();
+            $table->string('sign_name')->nullable();
             $table->string('sign_code')->nullable();
             $table->string('sign_code_gcc')->nullable();
             $table->string('sign_type')->nullable();
