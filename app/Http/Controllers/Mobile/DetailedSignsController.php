@@ -7,6 +7,7 @@ use App\Http\Resources\DetailedSignResource;
 use App\Models\DetailedSign;
 use App\Rules\Base64Image;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Spatie\MediaLibrary\MediaCollections\Exceptions\FileCannotBeAdded;
@@ -85,6 +86,7 @@ class DetailedSignsController extends Controller
             if ($validator->passes()) {
 
                 // Create Sign
+                $request['created_by'] = Auth::user()->id;
                 $sign = DetailedSign::create($request->except('image'));
 
                 // Save sign image
