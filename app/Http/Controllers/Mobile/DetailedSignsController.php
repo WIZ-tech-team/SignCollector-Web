@@ -71,6 +71,7 @@ class DetailedSignsController extends Controller
                 // Other Detail
                 'sign_condition' => 'string|max:255',
                 'comments' => 'string',
+                'created_by' => 'string',
                 // Image
                 'image' => ['required', new Base64Image],
                 'image_name' => 'required|string|max:255'
