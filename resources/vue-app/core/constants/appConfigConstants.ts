@@ -1,5 +1,5 @@
 export const LOCAL_STORAGE_KEYS = {
-    token: 'TELETALKER_APP_AUTH_TOKEN'
+    token: 'SIGNS_APP_MS_AUTH_TOKEN'
 }
 
 export const API_CONFIG = {

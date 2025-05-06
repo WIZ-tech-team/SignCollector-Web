@@ -97,7 +97,7 @@ class DetailedSignsExport implements FromCollection, WithHeadings
             'وصف الإشارة بالإنجليزية',
             'حالة الإشارة',
             'تعليقات',
-            'أنشأ بواسطة',
+            'أنشئ بواسطة',
             'تاريخ الإنشاء',
             'تاريخ التحديث'
         ];

@@ -68,7 +68,7 @@ class AuthController extends Controller
                     // Authenticate user after registration
                     if (Auth::attempt($credentials)) {
                         $user = Auth::user();
-                        $token = $user->createToken('Teletalker_Mobile')->plainTextToken;
+                        $token = $user->createToken('Signs_MS_Mobile')->plainTextToken;
                         return response()->json([
                             'status' => 'success',
                             'data' => [
@@ -114,7 +114,7 @@ class AuthController extends Controller
 
         if (Auth::attempt($credentials)) {
             $user = Auth::user();
-            $token = $user->createToken('Teletalker_Mobile')->plainTextToken;
+            $token = $user->createToken('Signs_MS_Mobile')->plainTextToken;
             return response()->json([
                 'status' => 'success',
                 'data' => [

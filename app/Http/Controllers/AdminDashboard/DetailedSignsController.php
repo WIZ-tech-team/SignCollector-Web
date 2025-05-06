@@ -15,7 +15,7 @@ class DetailedSignsController extends Controller
 {
     public function index()
     {
-        $signs = DetailedSign::with('image')->paginate(10);
+        $signs = DetailedSign::with('image')->paginate(DetailedSign::count());
 
         return response()->json([
             'status' => 'success',
