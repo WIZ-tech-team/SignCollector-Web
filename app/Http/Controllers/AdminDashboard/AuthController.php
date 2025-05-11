@@ -11,29 +11,33 @@ class AuthController extends Controller
 {
     public function login(Request $request)
     {
+        // 1) Validate ‘name’ instead of ‘email’
         $request->validate([
-            'email' => 'required|email',
-            'password' => 'required|string'
+            'name'     => 'required|string',
+            'password' => 'required|string',
         ]);
-
-        $credentials = $request->only('email', 'password');
-
+    
+        // 2) Pull in name & password
+        $credentials = $request->only('name', 'password');
+    
+        // 3) Attempt login by username
         if (Auth::attempt($credentials)) {
-            $user = Auth::user();
+            $user  = Auth::user();
             $token = $user->createToken('Teletalker_Mobile')->plainTextToken;
+    
             return response()->json([
                 'status' => 'success',
-                'data' => [
-                    'user' => $user->load('avatar'),
-                    'token' => $token
-                ]
+                'data'   => [
+                    'user'  => $user->load('avatar'),
+                    'token' => $token,
+                ],
             ], Response::HTTP_OK);
-        } else {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Invalid credentials.'
-            ], Response::HTTP_BAD_REQUEST);
         }
+    
+        return response()->json([
+            'status'  => 'error',
+            'message' => 'Invalid credentials.',
+        ], Response::HTTP_BAD_REQUEST);
     }
 
     public function user()

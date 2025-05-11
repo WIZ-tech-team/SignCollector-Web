@@ -1,6 +1,6 @@
 <template>
     <div class="input-group w-full md:w-1/2" :class="containerClasses">
-        <label for="email_input" class="text-lg font-semibold">{{ label }}</label>
+        <label for="name_input" class="text-lg font-semibold">{{ label }}</label>
         <div class="flex flex-col items-start justify-start gap-1">
             <slot />
             <ErrorMessage v-if="showError" :name="name" class="error-message" />

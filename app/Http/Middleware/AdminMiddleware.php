@@ -30,21 +30,24 @@ class AdminMiddleware
 
     protected function validateLogin(Request $request, Closure $next)
     {
-        $request->validate(['email' => 'required|email|exists:users,email']);
-
-        // Check if email belongs to an Admin user
-        $user = User::where('email', $request['email'])->first();
-
+        // 1) Validate 'name' instead of 'email'
+        $request->validate([
+            'name' => 'required|string|exists:users,name',
+            'password' => 'required|string',
+        ]);
+    
+        // 2) Check if this user is actually an Admin
+        $user = User::where('name', $request->input('name'))->first();
+    
         if (!$user || $user->type !== 'Admin') {
             return response()->json([
-                'status' => 'failed',
-                'message' => 'Login restricted to Admin users.'
+                'status'  => 'failed',
+                'message' => 'Login restricted to Admin users.',
             ], Response::HTTP_UNAUTHORIZED);
         }
-
+    
         return $next($request);
     }
-
     protected function unauthorizedResponse()
     {
         return response()->json([

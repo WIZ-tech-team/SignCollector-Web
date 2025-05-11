@@ -12,4 +12,5 @@ export type BackendApiRoute =
     `/api/spa/admin/elevenlabs/voices/${number}` |
     `/api/spa/admin/elevenlabs/voices${string}` |
     `/api/spa/signs/detailed${string}` |
-    `/api/mobile/signs/detailed`
+    `/api/mobile/signs/detailed`|
+    `/spa/signs/detailed/${number}` 

@@ -103,32 +103,37 @@ class AuthController extends Controller
      * @param Illuminate\Http\Request $request
      * @return Illuminate\Http\JsonResponse
      */
-    public function login(Request $request)
-    {
-        $request->validate([
-            'email' => 'required|email',
-            'password' => 'required|string'
-        ]);
+   public function login(Request $request)
+{
+    // 1. Validate “name” + password
+    $request->validate([
+        'name'     => 'required|string',
+        'password' => 'required|string',
+    ]);
 
-        $credentials = $request->only('email', 'password');
+    // 2. Grab only the name & password
+    $credentials = $request->only('name', 'password');
 
-        if (Auth::attempt($credentials)) {
-            $user = Auth::user();
-            $token = $user->createToken('Teletalker_Mobile')->plainTextToken;
-            return response()->json([
-                'status' => 'success',
-                'data' => [
-                    'user' => $user->load('avatar'),
-                    'token' => $token
-                ]
-            ], Response::HTTP_OK);
-        } else {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Invalid credentials.'
-            ], Response::HTTP_BAD_REQUEST);
-        }
+    // 3. Attempt auth by name
+    if (Auth::attempt($credentials)) {
+        $user  = Auth::user();
+        $token = $user->createToken('Teletalker_Mobile')->plainTextToken;
+
+        return response()->json([
+            'status' => 'success',
+            'data'   => [
+                'user'  => $user->load('avatar'),
+                'token' => $token,
+            ],
+        ], Response::HTTP_OK);
     }
+
+    // 4. Failed login
+    return response()->json([
+        'status'  => 'error',
+        'message' => 'Invalid credentials.',
+    ], Response::HTTP_BAD_REQUEST);
+}
 
     /**
      * Get the authenticated user.
