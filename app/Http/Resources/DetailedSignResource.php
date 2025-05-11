@@ -75,7 +75,7 @@ class DetailedSignResource extends JsonResource
             'image_log'                       => $this->image_log,
             'image_lar'                       => $this->image_lar,
             // array of ALL uploaded images
-            'image_urls'                      => $allMedia->map(fn($media) => $media->getUrl())->toArray(),
+            // 'image_urls'                      => $allMedia->map(fn($media) => $media->getUrl())->toArray(),
         ];
     }
 }
