@@ -76,7 +76,7 @@ async function simpleLogin() {
   try {
     // 1) Hit the login endpoint
     const res = await axios.post(
-      'http://206.189.62.53:8070/api/spa/admin/auth/login',
+      `${import.meta.env.VITE_APP_URL}/api/spa/admin/auth/login`,
       { name: name.value, password: password.value },
       { headers: { Accept: 'application/json' } }
     );

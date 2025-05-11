@@ -2,7 +2,6 @@
   <div id="ttk_dashboard_layout" class="hide-ttk-dashboard-sidebar">
     <!-- overlay still in markup but never shown/clickable -->
     <div
-      v-if="false"
       id="ttk_sm_screen_show_aside_layer"
     ></div>
 
@@ -10,7 +9,7 @@
     <DashboardHeader></DashboardHeader>
 
     <!-- aside stays in markup but never rendered -->
-    <DashboardAside v-if="false"></DashboardAside>
+    <DashboardAside></DashboardAside>
 
     <div id="ttk_dashboard_main_footer_container">
       <DashboardMain>

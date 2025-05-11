@@ -41,6 +41,7 @@ export type DetailedSign = {
     photo_url?: string;
     image_url?: string;
     image: Media;
+    image_urls: String[];
 }
 
 export const detailedSignKeysTitles = [
