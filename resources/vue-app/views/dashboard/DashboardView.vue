@@ -462,17 +462,18 @@
               <!-- 14–17 Number entries -->
               <div class="flex flex-col">
                 <label class="font-medium mb-1">المسافة من نهاية كتف الطريق حتى اللوحة (م)</label>
-                <input v-model.number="editActiveSign.distance_from_road_edge_meter" type="number"
+                <input v-model.number="editActiveSign.distance_from_road_edge_meter" type="number" step="0.1"
                   class="border rounded px-2 py-1" />
               </div>
               <div class="flex flex-col">
                 <label class="font-medium mb-1">نصف قطر أنبوب اللوحة (مم)</label>
-                <input v-model.number="editActiveSign.sign_column_radius_mm" type="number"
+                <input v-model.number="editActiveSign.sign_column_radius_mm" type="number" step="0.1"
                   class="border rounded px-2 py-1" />
               </div>
               <div class="flex flex-col">
                 <label class="font-medium mb-1">طول الأنبوب (م)</label>
-                <input v-model.number="editActiveSign.column_height" type="number" class="border rounded px-2 py-1" />
+                <input v-model.number="editActiveSign.column_height" type="number" step="0.1"
+                  class="border rounded px-2 py-1" />
               </div>
 
               <!-- 18. Column Colour -->
@@ -1071,11 +1072,11 @@ async function submitEditUpdate() {
     ApiService.setHeader(authStore.token as string);
     form.append('_method', 'PATCH');
     await ApiService.post(`/api/spa/signs/detailed/${id}`, form);
-    await Swal.fire('Updated!', 'Sign updated successfully.', 'success');
+    await Swal.fire('تم!', 'تم تحديث الإشارة بنجاح.', 'success');
     await detailedSignsStore.fetchDetailedSignsPaginated(signsPaginated.value!.current_page);
     showEditModal.value = false;
   } catch (err: any) {
-    await Swal.fire('Error', err.message || 'Update failed.', 'error');
+    await Swal.fire('خطأ!', err.message || 'فشل التحديث.', 'error');
   }
 }
 
@@ -1254,26 +1255,26 @@ onMounted(async () => {
 
 function prevSign() {
   if (modalIndex.value! > 0) {
-    const prev = signsPaginated.value!.data[--modalIndex.value!];
+    const prev = signsFiltered.value[--modalIndex.value!];
     openModal(prev);
   }
 }
 function nextSign() {
-  if (modalIndex.value! < signsPaginated.value!.data.length - 1) {
-    const nxt = signsPaginated.value!.data[++modalIndex.value!];
+  if (modalIndex.value! < signsFiltered.value.length - 1) {
+    const nxt = signsFiltered.value[++modalIndex.value!];
     openModal(nxt);
   }
 }
 
 function prevEditSign() {
   if (editModalIndex.value! > 0) {
-    const prev = signsPaginated.value!.data[--editModalIndex.value!];
+    const prev = signsFiltered.value[--editModalIndex.value!];
     openEditModal(prev);
   }
 }
 function nextEditSign() {
-  if (editModalIndex.value! < signsPaginated.value!.data.length - 1) {
-    const nxt = signsPaginated.value!.data[++editModalIndex.value!];
+  if (editModalIndex.value! < signsFiltered.value.length - 1) {
+    const nxt = signsFiltered.value[++editModalIndex.value!];
     openEditModal(nxt);
   }
 }
