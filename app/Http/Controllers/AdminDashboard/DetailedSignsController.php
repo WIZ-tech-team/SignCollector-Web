@@ -23,7 +23,8 @@ public function index()
 {
     // 1) eager-load the entire media collection
     // 1) eager‐load the entire media collection, order by id
-    $paginator = DetailedSign::orderBy('id', 'asc')
+    $paginator = DetailedSign::with('media')
+        ->orderBy('id', 'asc')
         ->paginate(DetailedSign::count());
 
     // 2) transform each item with the Resource, and carry over status/meta/links

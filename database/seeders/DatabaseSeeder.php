@@ -20,13 +20,13 @@ class DatabaseSeeder extends Seeder
         $this->call(StaticMobileUsersSeeder::class);
         $this->call(DetailedSignsTableSeeder::class);
 
-        // User::factory()->create([
-        //     'name' => 'Test Admin',
-        //     'email' => 'admin@example.test',
-        //     'type' => 'Admin',
-        //     'phone' => '+2011123456789',
-        //     'password' => Hash::make('password')
-        // ]);
+        User::factory()->create([
+            'name' => 'Test Admin',
+            'email' => 'admin@example.test',
+            'type' => 'Admin',
+            'phone' => '+2011123456789',
+            'password' => Hash::make('password')
+        ]);
 
     }
 }
