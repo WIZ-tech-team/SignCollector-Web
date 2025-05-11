@@ -444,7 +444,7 @@
 
               <div v-for="field in roadFields" :key="field.key" class="flex flex-col">
                 <label class="font-medium mb-1">{{ field.label }}</label>
-                <input type="text" :value="editActiveSign[field.key]"
+                <input :type="(field.key == 'road_direction') ? 'number' : 'text'" v-model="editActiveSign[field.key]"
                   :readonly="!['road_direction', 'sign_location_from_road'].includes(field.key)"
                   :required="['road_direction', 'sign_location_from_road'].includes(field.key)"
                   class="border rounded px-2 py-1 bg-gray-100" />
@@ -1071,7 +1071,7 @@ async function submitEditUpdate() {
 
   try {
     ApiService.setHeader(authStore.token as string);
-    form.append('_method', 'PATCH');
+    // form.append('_method', 'PATCH');
     await ApiService.post(`/api/spa/signs/detailed/${id}`, form);
     await Swal.fire('تم!', 'تم تحديث الإشارة بنجاح.', 'success');
     await detailedSignsStore.fetchDetailedSignsPaginated(signsPaginated.value!.current_page);
