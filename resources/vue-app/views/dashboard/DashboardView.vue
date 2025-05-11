@@ -425,14 +425,14 @@
               <!-- 3. Signs Count (select 0–4) -->
               <div class="flex flex-col">
                 <label class="font-medium mb-1">عدد (تسلسل) اللوحات</label>
-                <select v-model.number="editActiveSign.signs_count" class="border rounded px-2 py-1">
+                <select v-model.number="editActiveSign.signs_count" required class="border rounded px-2 py-1">
                   <option v-for="n in 5" :key="n - 1" :value="n - 1">{{ n - 1 }}</option>
                 </select>
               </div>
               <!-- 4. Columns Description -->
               <div class="flex flex-col">
                 <label class="font-medium mb-1">وصف الأعمدة</label>
-                <select v-model="editActiveSign.columns_description" class="border rounded px-2 py-1">
+                <select v-model="editActiveSign.columns_description" required class="border rounded px-2 py-1">
                   <!-- optional placeholder -->
                   <option disabled value="">— اختر وصف الأعمدة —</option>
                   <option v-for="opt in columnOptions" :key="opt" :value="opt"
@@ -446,12 +446,13 @@
                 <label class="font-medium mb-1">{{ field.label }}</label>
                 <input type="text" :value="editActiveSign[field.key]"
                   :readonly="!['road_direction', 'sign_location_from_road'].includes(field.key)"
+                  :required="['road_direction', 'sign_location_from_road'].includes(field.key)"
                   class="border rounded px-2 py-1 bg-gray-100" />
               </div>
               <!-- 13. Sign Base -->
               <div class="flex flex-col">
                 <label class="font-medium mb-1">قاعدة اللوحة</label>
-                <select v-model="editActiveSign.sign_base" class="border rounded px-2 py-1">
+                <select v-model="editActiveSign.sign_base" required class="border rounded px-2 py-1">
 
                   <option value="بقاعدة اسمنتية" :selected="editActiveSign.sign_base === 'بقاعدة اسمنتية'">بقاعدة
                     اسمنتية
@@ -463,23 +464,23 @@
               <div class="flex flex-col">
                 <label class="font-medium mb-1">المسافة من نهاية كتف الطريق حتى اللوحة (م)</label>
                 <input v-model.number="editActiveSign.distance_from_road_edge_meter" type="number" step="0.1"
-                  class="border rounded px-2 py-1" />
+                  class="border rounded px-2 py-1" required />
               </div>
               <div class="flex flex-col">
                 <label class="font-medium mb-1">نصف قطر أنبوب اللوحة (مم)</label>
-                <input v-model.number="editActiveSign.sign_column_radius_mm" type="number" step="0.1"
+                <input v-model.number="editActiveSign.sign_column_radius_mm" required type="number" step="0.1"
                   class="border rounded px-2 py-1" />
               </div>
               <div class="flex flex-col">
                 <label class="font-medium mb-1">طول الأنبوب (م)</label>
-                <input v-model.number="editActiveSign.column_height" type="number" step="0.1"
+                <input v-model.number="editActiveSign.column_height" required type="number" step="0.1"
                   class="border rounded px-2 py-1" />
               </div>
 
               <!-- 18. Column Colour -->
               <div class="flex flex-col">
                 <label class="font-medium mb-1">لون الأنبوب</label>
-                <select v-model="editActiveSign.column_colour" class="border rounded px-2 py-1">
+                <select v-model="editActiveSign.column_colour" required class="border rounded px-2 py-1">
                   <option value="رمادي" :selected="editActiveSign.column_colour === 'رمادي'">رمادي</option>
                   <option value="أبيض وأسود" :selected="editActiveSign.column_colour === 'أبيض وأسود'">أبيض وأسود
                   </option>
@@ -492,7 +493,7 @@
               <!-- 19. Column Type -->
               <div class="flex flex-col">
                 <label class="font-medium mb-1">نوع الأعمدة </label>
-                <select v-model="editActiveSign.column_type" class="border rounded px-2 py-1">
+                <select v-model="editActiveSign.column_type" required class="border rounded px-2 py-1">
                   <option value="خشب" :selected="editActiveSign.column_type === 'خشب'">خشب</option>
                   <option value="حديد" :selected="editActiveSign.column_type === 'حديد'">حديد</option>
                 </select>
@@ -502,7 +503,7 @@
               <div class="flex flex-col">
                 <label class="font-medium mb-1">اسم اللوحة </label>
 
-                <select v-model="editActiveSign.sign_name" class="border rounded px-2 py-1">
+                <select v-model="editActiveSign.sign_name" class="border rounded px-2 py-1" required>
                   <option disabled value="">— اختر رمز اللوحة —</option>
                   <option v-for="code in signCodeOptions" :key="code" :value="code">{{ code }}</option>
                 </select>
@@ -512,25 +513,25 @@
               <div class="flex flex-col">
                 <label class="font-medium mb-1">الرمز (2010)</label>
 
-                <input v-model="editActiveSign.sign_code" readonly class="border rounded px-2 py-1 bg-gray-100" />
+                <input v-model="editActiveSign.sign_code" required class="border rounded px-2 py-1 bg-gray-100" />
               </div>
 
               <!-- Sign Code GCC (auto-filled, read-only) -->
               <div class="flex flex-col">
                 <label class="font-medium mb-1">الرمز (GCC)</label>
-                <input v-model="editActiveSign.sign_code_gcc" readonly class="border rounded px-2 py-1 bg-gray-100" />
+                <input v-model="editActiveSign.sign_code_gcc" required class="border rounded px-2 py-1 bg-gray-100" />
               </div>
 
               <!-- Sign Type (auto-filled, read-only) -->
               <div class="flex flex-col">
                 <label class="font-medium mb-1">نوعية للوحة</label>
-                <input v-model="editActiveSign.sign_type" readonly class="border rounded px-2 py-1 bg-gray-100" />
+                <input v-model="editActiveSign.sign_type" required class="border rounded px-2 py-1 bg-gray-100" />
               </div>
 
               <!-- Sign Shape (auto-filled, read-only) -->
               <div class="flex flex-col">
                 <label class="font-medium mb-1">الشكل</label>
-                <input v-model="editActiveSign.sign_shape" readonly class="border rounded px-2 py-1 bg-gray-100" />
+                <input v-model="editActiveSign.sign_shape" required class="border rounded px-2 py-1 bg-gray-100" />
               </div>
               <!-- Sign Length (number) -->
               <div class="flex flex-col">
@@ -556,7 +557,7 @@
               <!-- Sign Color (select) -->
               <div class="flex flex-col">
                 <label class="font-medium mb-1">لون الخلفية</label>
-                <select v-model="editActiveSign.sign_color" class="border rounded px-2 py-1">
+                <select v-model="editActiveSign.sign_color" required class="border rounded px-2 py-1">
                   <option disabled value="">— اختر لون اللوحة —</option>
                   <option value="أزرق">أزرق</option>
                   <option value="أبيض">أبيض</option>
@@ -592,7 +593,7 @@
               <!-- Sign Condition (select) -->
               <div class="flex flex-col">
                 <label class="font-medium mb-1">حالة اللوحة</label>
-                <select v-model="editActiveSign.sign_condition" class="border rounded px-2 py-1">
+                <select v-model="editActiveSign.sign_condition" required class="border rounded px-2 py-1">
                   <option disabled value="">— اختر حالة اللوحة —</option>
                   <option value="جيدة">جيدة</option>
                   <option value="متوسطة">متوسطة</option>
@@ -1077,6 +1078,11 @@ async function submitEditUpdate() {
     showEditModal.value = false;
   } catch (err: any) {
     await Swal.fire('خطأ!', err.message || 'فشل التحديث.', 'error');
+  } finally {
+    await detailedSignsStore.fetchDetailedSignsPaginated();
+    await loadGoogle();
+    await initMap();
+    watch(signsPaginated, () => placeAllSignMarkers());
   }
 }
 
