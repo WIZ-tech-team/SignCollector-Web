@@ -28,7 +28,7 @@ class AuthController extends Controller
             return response()->json([
                 'status' => 'success',
                 'data'   => [
-                    'user'  => $user->load('avatar'),
+                    'user'  => $user,
                     'token' => $token,
                 ],
             ], Response::HTTP_OK);
@@ -43,7 +43,6 @@ class AuthController extends Controller
     public function user()
     {
         $user = Auth::user();
-        $user->avatar;
         return response()->json([
             'status' => 'success',
             'data' => $user
