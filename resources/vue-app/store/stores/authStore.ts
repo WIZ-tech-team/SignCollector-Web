@@ -36,10 +36,10 @@ export const useAuthStore = defineStore('authStore', () => {
         ApiService.setHeader();
     }
 
-    async function login(email: string, password: string): Promise<SystemRoute | void> {
+    async function login(name: string, password: string): Promise<SystemRoute | void> {
 
         const formdata = new FormData();
-        formdata.append('email', email);
+        formdata.append('name', name);
         formdata.append('password', password);
 
         await ApiService.post('/api/spa/admin/auth/login', formdata)

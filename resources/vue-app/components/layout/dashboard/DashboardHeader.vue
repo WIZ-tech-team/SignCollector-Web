@@ -2,10 +2,7 @@
     <header id="ttk_dashboard_header" class="shadow-md">
         <div class="flex items-center justify-start gap-8 w-full bg-white p-0">
             <div class="flex items-center justify-start gap-4 w-[260px] px-4 py-4 bg-brand h-[72px]">
-                <button type="button" @click.prevent="emits('toggleSidebar')"
-                    class="px-1 py-0 rounded-md text-white bg-white hover:bg-white">
-                    <Bars3Icon class="w-6 h-8 text-brand text-bold bg-white rounded-md"></Bars3Icon>
-                </button>
+             
                 <span class="text-white text-lg font-bold">
                     <!-- <img src="@/assets/images/" alt="" class="w-100"> -->
                     <span class="font-bold text-2xl">
@@ -15,7 +12,7 @@
             </div>
             <div class="flex items-center justify-between py-4 px-8 user-section">
                 <span v-if="authStore.user" class="font-semibold text-brand capitalize">
-                    {{ `لوحة التحكم` }}
+                   
                 </span>
                 <button type="button" @click.prevent="logout" :disabled="logoutDisabled"
                     class="p-2 bg-white hover:bg-light-brand cursor-pointer rounded-md disabled:cursor-default">

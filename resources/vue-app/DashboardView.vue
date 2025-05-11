@@ -11,10 +11,10 @@
             <thead>
               <tr class="bg-gray-100">
                 <th class="p-2 border">ID</th>
-                <th class="p-2 border">اسم اللوحة </th>
-                <th class="p-2 border">المحافظة</th>
-                <th class="p-2 border">تاريخ إدخال البيانات</th>
-                <th class="p-2 border">الحالة</th>
+                <th class="p-2 border">Name</th>
+                <th class="p-2 border">Governorate</th>
+                <th class="p-2 border">Created At</th>
+                <th class="p-2 border">Status</th>
                 <th class="p-2 border">Actions</th>
               </tr>
             </thead>
@@ -38,7 +38,7 @@
     ? 'bg-green-100 text-green-800'
     : 'bg-red-100 text-red-800'"
 >
-  {{ isComplete(sign) ? 'Complete' : 'Not Complete' }}
+  {{ isComplete(sign) ? 'Complete' : 'Incomplete' }}
 </td>
                 <td class="p-2 border">
                   <div class="flex justify-center space-x-2">
@@ -78,7 +78,7 @@
             @click="changePage(signsPaginated.current_page - 1)"
             :disabled="!signsPaginated.prev_page_url"
             class="px-3 py-1 border rounded disabled:opacity-50"
-         >السابق</button>
+          >Previous</button>
           <button
             v-for="p in pageNumbers"
             :key="p"
@@ -89,7 +89,7 @@
             @click="changePage(signsPaginated.current_page + 1)"
             :disabled="!signsPaginated.next_page_url"
             class="px-3 py-1 border rounded disabled:opacity-50"
-          >التالي</button>
+          >Next</button>
         </nav>
       </div>
       <!-- Left half: toggles, map, lat/lng -->
@@ -129,6 +129,7 @@
 
     </div>
 
+        <pre class="whitespace-pre-wrap break-all">{{ JSON.stringify(activeSign, null, 2) }}</pre>
 
     <!-- SHOW MODAL -->
     <div
@@ -144,357 +145,17 @@
 
         <div class="flex h-full">
           <!-- Data Table -->
-         <div class="w-1/3 p-4 overflow-auto space-y-4">
-  <div class="flex justify-between items-center mb-4"style="
-    margin-top: 50px;
-">
-  <button 
-    @click="prevSign" 
-    :disabled="modalIndex === 0"
-    class="px-2 py-1 bg-gray-200 rounded disabled:opacity-50"
-  >&larr; السابق</button>
-
-
- <h2
-  class="text-2xl font-bold"
-  :class="isComplete(activeSign) ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'"
->
-  Sign #{{ activeSign.id }}
-</h2>
-
-  <button 
-    @click="nextSign" 
-    :disabled="modalIndex === signsPaginated.data.length - 1"
-    class="px-2 py-1 bg-gray-200 rounded disabled:opacity-50"
-  >التالي&rarr;</button>
-</div>
-
-  <!-- 1. ID -->
-  <div class="flex flex-col">
-    <label class="font-medium mb-1">ID</label>
-    <input
-      type="text"
-      :value="activeSign.id"
-      readonly
-      class="border rounded px-2 py-1 bg-gray-100"
-    />
-  </div>
-
-  <!-- 2. Latitude / Longitude -->
-  <div class="flex flex-col">
-    <label class="font-medium mb-1">خط العرض</label>
-    <input
-      type="text"
-      :value="activeSign.latitude"
-      readonly
-      class="border rounded px-2 py-1 bg-gray-100"
-    />
-  </div>
-
-  <div class="flex flex-col">
-    <label class="font-medium mb-1">خط الطول</label>
-    <input
-      type="text"
-      :value="activeSign.longitude"
-      readonly
-      class="border rounded px-2 py-1 bg-gray-100"
-    />
-  </div>
-  <!--  gps_accuracy -->
-  <div class="flex flex-col">
-    <label class="font-medium mb-1">دقة الجي بي أس</label>
-    <input
-      type="text"
-      :value="activeSign.gps_accuracy"
-      readonly
-      class="border rounded px-2 py-1 bg-gray-100"
-    />
-  </div>
-
-  <!-- 3. Signs Count -->
-  <div class="flex flex-col">
-    <label class="font-medium mb-1">عدد (تسلسل) اللوحات</label>
-    <input
-      type="text"
-      :value="activeSign.signs_count"
-      readonly
-      class="border rounded px-2 py-1 bg-gray-100"
-    />
-  </div>
-
-  <!-- 4. Columns Description -->
-  <div class="flex flex-col">
-    <label class="font-medium mb-1">وصف الأعمدة</label>
-    <input
-      type="text"
-      :value="activeSign.columns_description"
-      readonly
-      class="border rounded px-2 py-1 bg-gray-100"
-    />
-  </div>
-
-  <!-- 5–12. Road fields -->
-  <div
-    v-for="field in roadFields"
-    :key="field.key"
-    class="flex flex-col"
-  >
-    <label class="font-medium mb-1">{{ field.label }}</label>
-    <input
-      type="text"
-      :value="activeSign[field.key]"
-      readonly
-      class="border rounded px-2 py-1 bg-gray-100"
-    />
-  </div>
-
-  <!-- 13. Sign Base -->
-  <div class="flex flex-col">
-    <label class="font-medium mb-1">قاعدة اللوحة</label>
-    <input
-      type="text"
-      :value="activeSign.sign_base"
-      readonly
-      class="border rounded px-2 py-1 bg-gray-100"
-    />
-  </div>
-
-  <!-- 14–17. Numeric fields -->
-  <div class="flex flex-col">
-    <label class="font-medium mb-1">المسافة من نهاية كتف الطريق حتى اللوحة (م)</label>
-    <input
-      type="text"
-      :value="activeSign.distance_from_road_edge_meter"
-      readonly
-      class="border rounded px-2 py-1 bg-gray-100"
-    />
-  </div>
-  <div class="flex flex-col">
-    <label class="font-medium mb-1">نصف قطر أنبوب اللوحة (مم)</label>
-    <input
-      type="text"
-      :value="activeSign.sign_column_radius_mm"
-      readonly
-      class="border rounded px-2 py-1 bg-gray-100"
-    />
-  </div>
-  <div class="flex flex-col">
-    <label class="font-medium mb-1">طول الأنبوب (م)</label>
-    <input
-      type="text"
-      :value="activeSign.column_height"
-      readonly
-      class="border rounded px-2 py-1 bg-gray-100"
-    />
-  </div>
-
-  <!-- 18. Column Colour -->
-  <div class="flex flex-col">
-    <label class="font-medium mb-1">لون الأنبوب</label>
-    <input
-      type="text"
-      :value="activeSign.column_colour"
-      readonly
-      class="border rounded px-2 py-1 bg-gray-100"
-    />
-  </div>
-
-  <!-- 19. Column Type -->
-  <div class="flex flex-col">
-    <label class="font-medium mb-1">نوع الأعمدة</label>
-    <input
-      type="text"
-      :value="activeSign.column_type"
-      readonly
-      class="border rounded px-2 py-1 bg-gray-100"
-    />
-  </div>
-
-  <!-- 20. Sign Name -->
-  <div class="flex flex-col">
-    <label class="font-medium mb-1">اسم اللوحة</label>
-    <input
-      type="text"
-      :value="activeSign.sign_name"
-      readonly
-      class="border rounded px-2 py-1 bg-gray-100"
-    />
-  </div>
-    <!-- 20. Sign Name -->
-  <div class="flex flex-col">
-    <label class="font-medium mb-1">اسم اللوحة</label>
-    <input
-      type="text"
-      :value="activeSign.sign_name"
-      readonly
-      class="border rounded px-2 py-1 bg-gray-100"
-    />
-  </div>
-  <div class="flex flex-col">
-  <label class="font-medium mb-1">الرمز (2010)</label>
-    <input
-      type="text"
-      :value="activeSign.sign_code"
-      readonly
-      class="border rounded px-2 py-1 bg-gray-100"
-    />
-  </div>
-
-
-
-<div class="flex flex-col">
-  <label class="font-medium mb-1">الرمز (GCC)</label>
-  <input
-    v-model="activeSign.sign_code_gcc"
-    readonly
-    class="border rounded px-2 py-1 bg-gray-100"
-  />
-   
-</div>
-
-<!-- Sign Type (auto-filled, read-only) -->
-<div class="flex flex-col">
-  <label class="font-medium mb-1">نوعية للوحة</label>
-  <input
-    v-model="activeSign.sign_type"
-    readonly
-    class="border rounded px-2 py-1 bg-gray-100"
-  />
-</div>
-
-<!-- Sign Shape (auto-filled, read-only) -->
-<div class="flex flex-col">
-  <label class="font-medium mb-1">الشكل</label>
-  <input
-    v-model="activeSign.sign_shape"
-    readonly
-    class="border rounded px-2 py-1 bg-gray-100"
-  />
-  </div>
-  <!-- Sign Length (number) -->
-<div class="flex flex-col">
-  <label class="font-medium mb-1">طول اللوحة (م)</label>
-  <input
-    v-model.number="activeSign.sign_length"
-    type="number"
-    step="any"
-    readonly
-    class="border rounded px-2 py-1"
-  />
-</div>
-
-<!-- Sign Width (number) -->
-<div class="flex flex-col">
-  <label class="font-medium mb-1">عرض اللوحة (م)</label>
-  <input
-    v-model.number="activeSign.sign_width"
-    type="number"
-    step="any"
-    readonly
-    class="border rounded px-2 py-1"
-  />
-</div>
-
-<!-- Sign Radius (number) -->
-<div class="flex flex-col">
-  <label class="font-medium mb-1">نصف قطر اللوحة (مم)</label>
-  <input
-    v-model.number="activeSign.sign_radius"
-    type="number"
-    step="any"
-    readonly
-    class="border rounded px-2 py-1"
-  />
-</div>
-
-<!-- Sign Color (select) -->
-<div class="flex flex-col">
-  <label class="font-medium mb-1">لون الخلفية</label>
-   <input
-    v-model.number="activeSign.sign_color"
-    type="number"
-    step="any"
-    readonly
-    class="border rounded px-2 py-1"
-  />
-
-</div>
-
-<!-- Content Shape Description (text) -->
-<div class="flex flex-col">
-  <label class="font-medium mb-1">(المحتوى) الشكل المرسوم </label>
-  <input
-    v-model="activeSign.sign_content_shape_description"
-    type="text"
-    readonly
-    class="border rounded px-2 py-1"
-  />
-</div>
-
-<!-- Content Arabic Text (text) -->
-<div class="flex flex-col">
-  <label class="font-medium mb-1">(المحتوى) المكتوب بالعربي</label>
-  <input
-    v-model="activeSign.sign_content_arabic_text"
-    type="text"
-    readonly
-    class="border rounded px-2 py-1"
-  />
-</div>
-
-<!-- Content English Text (text) -->
-<div class="flex flex-col">
-  <label class="font-medium mb-1">(المحتوى) المكتوب بالإنجليزي</label>
-  <input
-    v-model="activeSign.sign_content_english_text"
-    type="text"
-    readonly
-    class="border rounded px-2 py-1"
-  />
-</div>
-
-<!-- Sign Condition (select) -->
-<div class="flex flex-col">
-  <label class="font-medium mb-1">حالة اللوحة</label>
-    <input
-    v-model="activeSign.sign_condition"
-    type="text"
-    readonly
-    class="border rounded px-2 py-1"
-  />
- 
-</div>
-
-<!-- Comments (textarea) -->
-<div class="flex flex-col">
-  <label class="font-medium mb-1">ملاحظات أخرى</label>
-  <textarea
-    v-model="activeSign.comments"
-    rows="3"
-    readonly
-    class="border rounded px-2 py-1"
-  ></textarea>
-</div>
-
-<!-- Created By (read-only) -->
-<div class="flex flex-col">
-  <label class="font-medium mb-1">مدخل البيانات</label>
-  <input
-    v-model="activeSign.created_by"
-    type="text"
-    readonly
-    class="border rounded bg-gray-100 px-2 py-1"
-  />
-</div>
-
-          <!-- File picker -->
-          <div class="flex flex-col">
-            <label class="font-medium mb-1">Replace Images</label>
-            <input type="file" multiple @change="handleEditFiles" class="border rounded p-1"/>
+          <div class="w-1/3 p-4 overflow-auto">
+            <h2 class="text-2xl font-bold mb-4"></h2>
+            <table class="w-full text-sm">
+              <tbody>
+                <tr v-for="(value, key) in tableData" :key="key" class="border-b">
+                  <td class="font-semibold py-1">{{ formatKey(key) }}</td>
+                  <td class="py-1">{{ value }}</td>
+                </tr>
+              </tbody>
+            </table>
           </div>
-  <!-- …and so on for sign_code, sign_code_gcc, sign_type, sign_shape, sign_length, sign_width, sign_radius, sign_color, sign_content_shape_description, sign_content_arabic_text, sign_content_english_text, sign_condition, comments, created_by, created_at, updated_at, image_urls… -->
-</div>
-
           <!-- Image Slider -->
           <div class="w-1/3 flex flex-col bg-gray-100 p-4 h-full">
             <div class="flex-1 relative overflow-hidden">
@@ -516,12 +177,12 @@
                 class="px-2 py-1 bg-white border rounded disabled:opacity-50"
                 :disabled="sliderIndex === 0"
                 @click="sliderIndex--"
-              >السابق</button>
+              >Prev</button>
               <button
                 class="px-2 py-1 bg-white border rounded disabled:opacity-50"
                 :disabled="sliderIndex === imageUrls.length - 1"
                 @click="sliderIndex++"
-              >التالي</button>
+              >Next</button>
             </div>
           </div>
           <!-- Map + Street View -->
@@ -548,27 +209,8 @@
       <form @submit.prevent="submitEditUpdate" class="flex h-full">
         <!-- Left column: form inputs -->
         <div class="w-1/3 p-4 overflow-auto space-y-4">
-<div class="flex justify-between items-center mb-4 w-full"style="
-    margin-top: 50px;
-">
-  <button 
-    @click.prevent="prevEditSign" 
-    :disabled="editModalIndex === 0"
-    class="px-2 py-1 bg-gray-200 rounded disabled:opacity-50"
-  >&larr; السابق</button>
+          <h2 class="text-2xl font-bold"></h2>
 
-<h2
-  class="text-2xl font-bold"
-  :class="isComplete(editActiveSign) ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'"
->
-  Sign #{{ editActiveSign.id }}
-</h2>
-  <button 
-    @click.prevent="nextEditSign" 
-    :disabled="editModalIndex === signsPaginated.data.length - 1"
-    class="px-2 py-1 bg-gray-200 rounded disabled:opacity-50"
-  >التالي&rarr;</button>
-</div>
           <!-- 1. ID (read-only) -->
           <div class="flex flex-col">
             <label class="font-medium mb-1">ID</label>
@@ -577,35 +219,24 @@
 
         <!-- 2. Latitude / Longitude (read-only) -->
           <div class="flex flex-col">
-            <label class="font-medium mb-1">خط الطول</label>
+            <label class="font-medium mb-1">Latitude</label>
             <input type="text" :value="editActiveSign.latitude" readonly class="border rounded px-2 py-1 bg-gray-100"/>
           </div>
           <div class="flex flex-col">
-            <label class="font-medium mb-1">دائرة العرض</label>
+            <label class="font-medium mb-1">Longitude</label>
             <input type="text" :value="editActiveSign.longitude" readonly class="border rounded px-2 py-1 bg-gray-100"/>
           </div>
-            <!--  gps_accuracy -->
-  <div class="flex flex-col">
-    <label class="font-medium mb-1">دقة الجي بي أس</label>
-    <input
-      type="text"
-      :value="editActiveSign.gps_accuracy"
-      readonly
-      class="border rounded px-2 py-1 bg-gray-100"
-    />
-  </div>
-
 
               <!-- 3. Signs Count (select 0–4) -->
           <div class="flex flex-col">
-            <label class="font-medium mb-1">عدد (تسلسل) اللوحات</label>
+            <label class="font-medium mb-1">Signs Count</label>
             <select v-model.number="editActiveSign.signs_count" class="border rounded px-2 py-1">
               <option v-for="n in 5" :key="n-1" :value="n-1">{{ n-1 }}</option>
             </select>
           </div>
            <!-- 4. Columns Description -->
 <div class="flex flex-col">
-  <label class="font-medium mb-1">وصف الأعمدة</label>
+  <label class="font-medium mb-1">Columns Description</label>
   <select v-model="editActiveSign.columns_description" class="border rounded px-2 py-1">
     <!-- optional placeholder -->
     <option disabled value="">— اختر وصف الأعمدة —</option>
@@ -620,22 +251,15 @@
   </select>
 </div>
 
-     <div
-  v-for="field in roadFields"
-  :key="field.key"
-  class="flex flex-col"
->
-  <label class="font-medium mb-1">{{ field.label }}</label>
-  <input
-    type="text"
-    :value="editActiveSign[field.key]"
-    readonly
-    class="border rounded px-2 py-1 bg-gray-100"
-  />
-</div>
+           <!-- 5–12. Road fields (all read-only) -->
+          <div v-for="key in ['road_classification','road_name','road_number','road_type','road_direction','governorate','willayat','village','sign_location_from_road']" 
+               :key="key" class="flex flex-col">
+            <label class="font-medium mb-1">{{ formatKey(key) }}</label>
+            <input type="text" :value="editActiveSign[key]" readonly class="border rounded px-2 py-1 bg-gray-100"/>
+          </div>
             <!-- 13. Sign Base -->
           <div class="flex flex-col">
-            <label class="font-medium mb-1">قاعدة اللوحة</label>
+            <label class="font-medium mb-1">Sign Base</label>
             <select v-model="editActiveSign.sign_base" class="border rounded px-2 py-1">
            
               <option
@@ -650,30 +274,30 @@
           </div>
           <!-- 14–17 Number entries -->
           <div class="flex flex-col">
-            <label class="font-medium mb-1">المسافة من نهاية كتف  الطريق حتى اللوحة (م)</label>
+            <label class="font-medium mb-1">Distance from Road Edge (m)</label>
             <input v-model.number="editActiveSign.distance_from_road_edge_meter" type="number" class="border rounded px-2 py-1"/>
           </div>
           <div class="flex flex-col">
-            <label class="font-medium mb-1">نصف قطر أنبوب اللوحة (مم)</label>
+            <label class="font-medium mb-1">Sign Column Radius (mm)</label>
             <input v-model.number="editActiveSign.sign_column_radius_mm" type="number" class="border rounded px-2 py-1"/>
           </div>
           <div class="flex flex-col">
-            <label class="font-medium mb-1">طول الأنبوب (م)</label>
+            <label class="font-medium mb-1">Column Height (m)</label>
             <input v-model.number="editActiveSign.column_height" type="number" class="border rounded px-2 py-1"/>
           </div>
 
           <!-- 18. Column Colour -->
           <div class="flex flex-col">
-            <label class="font-medium mb-1">لون الأنبوب</label>
+            <label class="font-medium mb-1">Column Colour</label>
             <select v-model="editActiveSign.column_colour" class="border rounded px-2 py-1">
               <option
               value="رمادي"
       :selected="editActiveSign.column_colour === 'رمادي'"
       >رمادي</option>
            <option
-              value="أبيض وأسود"
-      :selected="editActiveSign.column_colour === 'أبيض وأسود'"
-      >أبيض وأسود</option>
+              value="ابيض و  اسود"
+      :selected="editActiveSign.column_colour === 'ابيض و  اسود'"
+      ></option>
           <option
               value="أخرى"
       :selected="editActiveSign.column_colour === 'أخرى'"
@@ -688,7 +312,7 @@
 
           <!-- 19. Column Type -->
           <div class="flex flex-col">
-            <label class="font-medium mb-1">نوع الأعمدة </label>
+            <label class="font-medium mb-1">Column Type</label>
             <select v-model="editActiveSign.column_type" class="border rounded px-2 py-1">
              <option
       value="خشب"
@@ -703,10 +327,18 @@
 
  <!-- 20. Sign Name -->
           <div class="flex flex-col">
-            <label class="font-medium mb-1">اسم اللوحة </label>
+            <label class="font-medium mb-1">Sign Name</label>
+            <select v-model="editActiveSign.sign_name" class="border rounded px-2 py-1">
+              <option v-for="opt in signNameOptions" :key="opt" :value="opt"       :selected="editActiveSign.sign_name === opt"
+>{{ opt }}</option>
+            </select>
+          </div>
 
-             <select
-    v-model="editActiveSign.sign_name"
+<!-- Sign Code -->
+<div class="flex flex-col">
+  <label class="font-medium mb-1">Sign Code (2010)</label>
+  <select
+    v-model="editActiveSign.sign_code"
     class="border rounded px-2 py-1"
   >
     <option disabled value="">— اختر رمز اللوحة —</option>
@@ -714,24 +346,14 @@
       v-for="code in signCodeOptions"
       :key="code"
       :value="code"
+       :selected="editActiveSign.sign_code === code
     >{{ code }}</option>
   </select>
-          </div>
-
-<!-- Sign Code -->
-<div class="flex flex-col">
-  <label class="font-medium mb-1">الرمز (2010)</label>
-
-   <input
-    v-model="editActiveSign.sign_code"
-    readonly
-    class="border rounded px-2 py-1 bg-gray-100"
-  />
 </div>
 
 <!-- Sign Code GCC (auto-filled, read-only) -->
 <div class="flex flex-col">
-  <label class="font-medium mb-1">الرمز (GCC)</label>
+  <label class="font-medium mb-1">Sign Code GCC</label>
   <input
     v-model="editActiveSign.sign_code_gcc"
     readonly
@@ -741,7 +363,7 @@
 
 <!-- Sign Type (auto-filled, read-only) -->
 <div class="flex flex-col">
-  <label class="font-medium mb-1">نوعية للوحة</label>
+  <label class="font-medium mb-1">Sign Type</label>
   <input
     v-model="editActiveSign.sign_type"
     readonly
@@ -751,16 +373,15 @@
 
 <!-- Sign Shape (auto-filled, read-only) -->
 <div class="flex flex-col">
-  <label class="font-medium mb-1">الشكل</label>
+  <label class="font-medium mb-1">Sign Shape</label>
   <input
     v-model="editActiveSign.sign_shape"
     readonly
     class="border rounded px-2 py-1 bg-gray-100"
   />
-  </div>
   <!-- Sign Length (number) -->
 <div class="flex flex-col">
-  <label class="font-medium mb-1">طول اللوحة (م)</label>
+  <label class="font-medium mb-1">Sign Length (m)</label>
   <input
     v-model.number="editActiveSign.sign_length"
     type="number"
@@ -771,7 +392,7 @@
 
 <!-- Sign Width (number) -->
 <div class="flex flex-col">
-  <label class="font-medium mb-1">عرض اللوحة (م)</label>
+  <label class="font-medium mb-1">Sign Width (m)</label>
   <input
     v-model.number="editActiveSign.sign_width"
     type="number"
@@ -782,7 +403,7 @@
 
 <!-- Sign Radius (number) -->
 <div class="flex flex-col">
-  <label class="font-medium mb-1">نصف قطر اللوحة (مم)</label>
+  <label class="font-medium mb-1">Sign Radius (m)</label>
   <input
     v-model.number="editActiveSign.sign_radius"
     type="number"
@@ -793,7 +414,7 @@
 
 <!-- Sign Color (select) -->
 <div class="flex flex-col">
-  <label class="font-medium mb-1">لون الخلفية</label>
+  <label class="font-medium mb-1">Sign Color</label>
   <select v-model="editActiveSign.sign_color" class="border rounded px-2 py-1">
     <option disabled value="">— اختر لون اللوحة —</option>
     <option value="أزرق">أزرق</option>
@@ -809,7 +430,7 @@
 
 <!-- Content Shape Description (text) -->
 <div class="flex flex-col">
-  <label class="font-medium mb-1">(المحتوى) الشكل المرسوم </label>
+  <label class="font-medium mb-1">Content Shape Description</label>
   <input
     v-model="editActiveSign.sign_content_shape_description"
     type="text"
@@ -819,7 +440,7 @@
 
 <!-- Content Arabic Text (text) -->
 <div class="flex flex-col">
-  <label class="font-medium mb-1">(المحتوى) المكتوب بالعربي</label>
+  <label class="font-medium mb-1">(المحتوى) نص عربي</label>
   <input
     v-model="editActiveSign.sign_content_arabic_text"
     type="text"
@@ -829,7 +450,7 @@
 
 <!-- Content English Text (text) -->
 <div class="flex flex-col">
-  <label class="font-medium mb-1">(المحتوى) المكتوب بالإنجليزي</label>
+  <label class="font-medium mb-1">(Content) English Text</label>
   <input
     v-model="editActiveSign.sign_content_english_text"
     type="text"
@@ -839,7 +460,7 @@
 
 <!-- Sign Condition (select) -->
 <div class="flex flex-col">
-  <label class="font-medium mb-1">حالة اللوحة</label>
+  <label class="font-medium mb-1">Sign Condition</label>
   <select v-model="editActiveSign.sign_condition" class="border rounded px-2 py-1">
     <option disabled value="">— اختر حالة اللوحة —</option>
     <option value="جيدة">جيدة</option>
@@ -850,7 +471,7 @@
 
 <!-- Comments (textarea) -->
 <div class="flex flex-col">
-  <label class="font-medium mb-1">ملاحظات أخرى</label>
+  <label class="font-medium mb-1">Comments</label>
   <textarea
     v-model="editActiveSign.comments"
     rows="3"
@@ -860,7 +481,7 @@
 
 <!-- Created By (read-only) -->
 <div class="flex flex-col">
-  <label class="font-medium mb-1">مدخل البيانات</label>
+  <label class="font-medium mb-1">Created By</label>
   <input
     v-model="editActiveSign.created_by"
     type="text"
@@ -905,13 +526,13 @@
               class="px-2 py-1 bg-white border rounded disabled:opacity-50"
               :disabled="editSliderIndex === 0"
               @click="editSliderIndex--"
-            >السابق</button>
+            >Prev</button>
             <button
               type="button"
               class="px-2 py-1 bg-white border rounded disabled:opacity-50"
               :disabled="editSliderIndex === editImageUrls.length - 1"
               @click="editSliderIndex++"
-            >التالي</button>
+            >Next</button>
           </div>
         </div>
 
@@ -932,32 +553,13 @@ import ApiService from '@/core/services/ApiService';
 import Swal from 'sweetalert2';
 import { DetailedSign } from '@/core/types/data/DetailedSign';
 import signsList from '@/assets/signs.json'           // ← your uploaded JSON
-
-// index of the currently displayed sign in signsPaginated.data
-const modalIndex    = ref<number|null>(null);
-const editModalIndex = ref<number|null>(null);
-
-
-// instead of just a string array, make each one an object
-const roadFields = [
-   { key: 'road_name',           label: 'اسم الطريق' },
-  { key: 'road_classification', label: 'تصنيف الطريق' },
- 
-  { key: 'road_number',         label: 'رقم الطريق' },
-  { key: 'road_type',           label: 'نوع الطريق' },
-  { key: 'road_direction',      label: ' الطريق نحو' },
-  { key: 'governorate',         label: 'المحافظة' },
-  { key: 'willayat',            label: 'الولاية' },
-  { key: 'village',             label: 'القرية' },
-  { key: 'sign_location_from_road', label: 'موقع اللوحة من الطريق' }
-];
 // 1️⃣ Build an array of codes and a lookup map
 const signCodeOptions = computed<string[]>(() =>
-  signsList.map((s: any) => s.Sign_Name)
+  signsList.map((s: any) => s.Sign_Code_2010)
 )
 
 const signCodeMap: Record<string, any> = signsList.reduce((map, s: any) => {
-  map[s.Sign_Name] = s
+  map[s.Sign_Code_2010] = s
   return map
 }, {})
 const columnOptions = [
@@ -1196,8 +798,6 @@ let   markerm: google.maps.Marker;
 let   panoramam: google.maps.StreetViewPanorama;
 
 function openModal(sign: DetailedSign) {
-      modalIndex.value = signsPaginated.value!.data.findIndex(s => s.id === sign.id);
-
   activeSign.value  = sign;
   sliderIndex.value = 0;
   showModal.value   = true;
@@ -1232,16 +832,13 @@ const editImageUrls     = computed(() =>
     : []
 );
 // 2️⃣ Whenever the selected code changes, fill in its related fields
-watch(() => editActiveSign.value.sign_name, (newCode) => {
+watch(() => editActiveSign.value.sign_code, (newCode) => {
   const info = signCodeMap[newCode]
   if (info) {
-      editActiveSign.value.sign_code  = info.Sign_Code_2010
-
     editActiveSign.value.sign_code_gcc  = info.Sign_Code_GCC
     editActiveSign.value.sign_type      = info.Sign_Type
     editActiveSign.value.sign_shape     = info.Sign_Shape
   } else {
-    editActiveSign.value.sign_code  = ''
     editActiveSign.value.sign_code_gcc  = ''
     editActiveSign.value.sign_type      = ''
     editActiveSign.value.sign_shape     = ''
@@ -1270,8 +867,6 @@ let   editMarker: google.maps.Marker;
 let   editPanorama: google.maps.StreetViewPanorama;
 
 function openEditModal(sign: DetailedSign) {
-      editModalIndex.value = signsPaginated.value!.data.findIndex(s => s.id === sign.id);
-
   editActiveSign.value    = { ...sign };
   editSliderIndex.value   = 0;
   editFilesToUpload.value = [];
@@ -1422,7 +1017,7 @@ async function initMap(){
     center:{lat:23.585,lng:57.996},
     zoom:6
   });
-  //marker = new google.maps.Marker({ position: map.getCenter()!, map });
+  marker = new google.maps.Marker({ position: map.getCenter()!, map });
   rebuildOverlays();
   placeAllSignMarkers();
   map.addListener('center_changed',()=>{
@@ -1477,34 +1072,6 @@ onMounted(async()=>{
   await initMap();
   watch(signsPaginated,()=>placeAllSignMarkers());
 });
-
-
-function prevSign() {
-  if (modalIndex.value! > 0) {
-    const prev = signsPaginated.value!.data[--modalIndex.value!];
-    openModal(prev);
-  }
-}
-function nextSign() {
-  if (modalIndex.value! < signsPaginated.value!.data.length - 1) {
-    const nxt = signsPaginated.value!.data[++modalIndex.value!];
-    openModal(nxt);
-  }
-}
-
-function prevEditSign() {
-  if (editModalIndex.value! > 0) {
-    const prev = signsPaginated.value!.data[--editModalIndex.value!];
-    openEditModal(prev);
-  }
-}
-function nextEditSign() {
-  if (editModalIndex.value! < signsPaginated.value!.data.length - 1) {
-    const nxt = signsPaginated.value!.data[++editModalIndex.value!];
-    openEditModal(nxt);
-  }
-}
-
 </script>
 
 

@@ -27,9 +27,17 @@ Route::prefix('users')->controller(UsersController::class)->middleware(['auth:sa
     Route::delete('/{user_id}/soft', 'moveToTrash');
     Route::get('/{user_id}/restore', 'restore');
 });
+Route::delete('signs/detailed/{sign}', [DetailedSignsController::class, 'destroy']);
 
-Route::prefix('signs/detailed')->controller(DetailedSignsController::class)->middleware(['auth:sanctum', 'admin'])->group(function () {
+// Route::prefix('signs/detailed')->controller(DetailedSignsController::class)->middleware(['auth:sanctum', 'admin'])->group(function () {
+//     Route::get('/', 'index');
+//     Route::post('/export', 'export');
+// });
+Route::prefix('signs/detailed')->controller(DetailedSignsController::class)->group(function () {
     Route::get('/', 'index');
     Route::post('/export', 'export');
-    Route::delete('/{sign_id}', 'destroy');
+    Route::post('/{id}',  'update');  // ← allow POST+_method=PATCH
+
+    Route::patch('/{id}', 'update');   // ← add this
+
 });

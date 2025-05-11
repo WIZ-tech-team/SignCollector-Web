@@ -1,73 +1,57 @@
+// src/store/stores/detailedSignsStore.ts
 import { ref } from "vue";
 import { defineStore } from "pinia";
-import { UserInterface, UserType } from "@/core/types/data/UserInterface";
-import { PaginatedData } from "@/core/types/data/PaginatedDataInterface";
 import ApiService from "@/core/services/ApiService";
-import { AxiosError, AxiosResponse } from "axios";
-import { BackendResponseData } from "@/core/types/config/AxiosCustom";
-import { MSwal, QSwal } from "@/core/plugins/SweetAlerts2";
+import type { AxiosResponse } from "axios";
+import type { PaginatedData } from "@/core/types/data/PaginatedDataInterface";
+import type { DetailedSign } from "@/core/types/data/DetailedSign";
+import type { BackendResponseData } from "@/core/types/config/AxiosCustom";
+import { MSwal } from "@/core/plugins/SweetAlerts2";
 import { getMessageFromObj } from "@/assets/ts/swalMethods";
-import { BackendApiRoute } from "@/core/types/config/BackendApiRoutes";
-import { DetailedSign } from "@/core/types/data/DetailedSign";
 
 export const useDetailedSignsStore = defineStore('detailedSignsPaginatedStore', () => {
+  // this needs to match PaginatedData<T>:
+  const detailedSignsPaginated = ref<PaginatedData<DetailedSign>>();
 
-    const detailedSignsPaginated = ref<PaginatedData<DetailedSign>>();
-    const allSigns = ref<DetailedSign[]>([]);
+  /**
+   * Fetch page `page` of your SPA detailed-signs endpoint, transform Laravel's
+   * { data, links, meta } into PaginatedData
+   */
+  async function fetchDetailedSignsPaginated(page = 1) {
+    detailedSignsPaginated.value = undefined;
 
-    const fetchDetailedSignsPaginated = async (query?: string | undefined) => {
-        detailedSignsPaginated.value = undefined;
-        let api: BackendApiRoute = query ? `/api/spa/signs/detailed${query}` : `/api/spa/signs/detailed`;
-        await ApiService.get(api)
-            .then((res: AxiosResponse<BackendResponseData>) => {
-                if (res.data.status === 'success' && res.data.data) {
-                    detailedSignsPaginated.value = res.data.data;
-                } else {
-                    MSwal.fire('Unexpected Response', getMessageFromObj(res), 'warning');
-                }
-            })
-            .catch((e: AxiosError<BackendResponseData>) => {
-                MSwal.fire('Unexpected Error', getMessageFromObj(e), 'error');
-            });
+    try {
+      const res: AxiosResponse<BackendResponseData> = await ApiService.get(
+        `/api/spa/signs/detailed?page=${page}`
+      );
+
+      if (res.data.status !== 'success' || !res.data.data) {
+        throw new Error(getMessageFromObj(res.data));
+      }
+
+      // Laravel's default paginator returns { data: [...], links: {...}, meta: {...} }
+      const { data, links, meta } = res.data;
+
+      detailedSignsPaginated.value = {
+        data,
+        current_page: meta.current_page,
+        last_page: meta.last_page,
+        prev_page_url: links.prev,
+        next_page_url: links.next
+      };
+
+    } catch (e: any) {
+      console.error(e);
+      MSwal.fire(
+        'Error loading signs',
+        e.message || 'Unexpected error',
+        'error'
+      );
     }
+  }
 
-    const fetchAllDetailedSigns = async () => {
-        allSigns.value = [];
-        await ApiService.get(`/api/mobile/signs/detailed`)
-            .then((res: AxiosResponse<BackendResponseData>) => {
-                if (res.data.status === 'success' && res.data.data) {
-                    allSigns.value = res.data.data;
-                } else {
-                    MSwal.fire('Unexpected Response', getMessageFromObj(res), 'warning');
-                }
-            })
-            .catch((e: AxiosError<BackendResponseData>) => {
-                MSwal.fire('Unexpected Error', getMessageFromObj(e), 'error');
-            });
-    }
-
-    const deleteDetailedSign = async (id: number) => {
-        
-        await QSwal.fire('حذف الإشارة ؟', "سيتم حذف الإشارة.", 'question')
-            .then(async result => {
-                if (result.isConfirmed) {
-                    await ApiService.delete(`/api/spa/signs/detailed/${id}/`)
-                        .then((res: AxiosResponse<BackendResponseData>) => {
-                            if (res.data.status === 'success') {
-                                MSwal.fire('نجحت العملية', `تمت العملية بنجاخ.`, 'success');
-                            } else {
-                                MSwal.fire('رد غير متوقع', getMessageFromObj(res), 'warning');
-                            }
-                        })
-                        .catch((e: AxiosError<BackendResponseData>) => {
-                            MSwal.fire('خطأ غير متوقع', getMessageFromObj(e), 'error');
-                        }).finally(async () => {
-                            await fetchDetailedSignsPaginated();
-                        });
-                }
-            });
-    }
-
-    return { detailedSignsPaginated, allSigns, fetchDetailedSignsPaginated, fetchAllDetailedSigns, deleteDetailedSign };
-
+  return {
+    detailedSignsPaginated,
+    fetchDetailedSignsPaginated,
+  };
 });
