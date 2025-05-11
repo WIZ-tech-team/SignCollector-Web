@@ -1,7 +1,7 @@
 <template>
     <div class="flex flex-col md:flex-row items-center bg-white rounded-lg shadow-md p-4 gap-4">
         <div class="h-48 w-48 object-cover rounded-full">
-            <img id='sign_image_preview' class="w-full h-full" :src="sign?.image_url"
+            <img id='sign_image_preview' class="w-full h-full" :src="sign?.image?.original_url"
                 alt="photo" />
         </div>
         <div class="flex flex-wrap">

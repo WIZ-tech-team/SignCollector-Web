@@ -15,45 +15,39 @@ import { useAuthStore } from "./store/stores/authStore";
 const app = createApp({});
 app.component('vue-app', VueApp);
 
-// Set API Service COnfig
+// Initialize ApiService with base URL
 ApiService.init(app, API_CONFIG.base_url);
 
+// Install global plugins
 app.use(pinia);
 app.use(VueApexCharts);
 
-// Check Authentication then Mount the App
+// Bootstrap authentication and mount the app
 (async () => {
+  const authStore = useAuthStore();
+  const token = localStorage.getItem(LOCAL_STORAGE_KEYS.token);
 
-    // Constants
-    const TOKEN = localStorage.getItem(LOCAL_STORAGE_KEYS.token);
-
-    // Stores
-    const authStore = useAuthStore();
-
+  if (token) {
+    // Set token header before fetching user
+    ApiService.setHeader(token);
     try {
-        if (TOKEN) {
-            ApiService.setHeader(TOKEN);
-            await authStore.fetchAuthUser()
-                .finally(async () => {
-
-                    // Authenticate
-                    authStore.token = TOKEN;
-                    authStore.authenticate();
-
-                });
-        } else {
-            throw (new Error('Authentication Failed at Begining.'));
-        }
-    } catch (error: any) {
-        console.log('Error: \n', error);
-        ApiService.setHeader();
-        authStore.removeAuth();
-    } finally {
-
-        // Use Router
-        app.use(router);
-        
-        // Mount
-        app.mount('#vue_spa');
+      await authStore.fetchAuthUser();
+      // On success, persist token in store
+      authStore.token = token;
+      authStore.authenticate();
+    } catch (fetchError) {
+      // Invalid or expired token
+      console.error('Auth fetch failed:', fetchError);
+      ApiService.setHeader();
+      authStore.removeAuth();
     }
+  } else {
+    // No token found
+    ApiService.setHeader();
+    authStore.removeAuth();
+  }
+
+  // Now that auth status is known, use the router and mount
+  app.use(router);
+  app.mount('#vue_spa');
 })();

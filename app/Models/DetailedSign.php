@@ -21,6 +21,8 @@ class DetailedSign extends Model implements HasMedia
         'sign_width',
         'sign_radius',
         'sign_color',
+        'gps_accuracy',
+        
         'road_classification',
         'road_name',
         'road_number',
@@ -46,19 +48,27 @@ class DetailedSign extends Model implements HasMedia
         'sign_condition',
         'comments',
         'created_by',
-        'created_at'
+        'created_at',
+        'image_log',
+        'image_lar'
     ];
 
     public function registerMediaCollections(): void
     {
         $this->addMediaCollection('detailed_signs')
-            ->singleFile()
-            ->acceptsMimeTypes(['image/jpeg', 'image/png', 'image/jpg', 'image/gif', 'image/svg']);
+            // removed singleFile() so you can append multiple uploads
+            ->acceptsMimeTypes([
+                'image/jpeg',
+                'image/png',
+                'image/jpg',
+                'image/gif',
+                'image/svg',
+            ]);
     }
 
-    public function getSignUrlAttribute(): string
+    public function getSignUrlAttribute(): ?string
     {
-        return $this->getFirstMediaUrl('detailed_signs') ?? null;
+        return $this->getFirstMediaUrl('detailed_signs') ?: null;
     }
 
     public function registerMediaConversions(?Media $media = null): void

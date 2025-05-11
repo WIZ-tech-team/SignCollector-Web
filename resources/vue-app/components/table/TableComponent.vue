@@ -16,14 +16,14 @@
           <tr>
             <slot name="before_columns"></slot>
             <th v-for="column in columns" scope="col"
-              class="px-6 py-3 text-left text-xs font-medium text-light-brand uppercase tracking-wider"
+              class="px-6 py-3 text-start text-xs font-medium text-light-brand uppercase tracking-wider"
               :class="column?.titleClasses">
               {{ column.title }}
             </th>
             <slot name="before_actions_column"></slot>
             <th v-if="allowActions.allow" scope="col"
-              class="px-6 py-3 text-left text-xs font-medium text-light-brand uppercase tracking-wider">
-              Actions
+              class="px-6 py-3 text-start text-xs font-medium text-light-brand uppercase tracking-wider">
+              التحكم
             </th>
             <slot name="after_actions_column"></slot>
           </tr>

@@ -3,12 +3,12 @@
         <SignCard v-if="signs[locationIndex]" :sign="signs[locationIndex]" />
         <div class="flex items-center gap-2">
             <button type="button" @click.prevent="changeLocation('prev')" class="p-2 rounded-md bg-light-brand text-brand hover:bg-brand focus:outline-none
-                hover:text-light-brand disabled:opacity-50" @click="showPopup = !showPopup"
+                hover:text-light-brand disabled:opacity-50 disabled:hover:bg-light-brand disabled:text-brand" @click="showPopup = !showPopup"
                 :disabled="locationIndex === 0">
                 <SolidHeroIcon name="ArrowRightIcon" classes="h-6 w-6" />
             </button>
             <button type="button" @click.prevent="changeLocation('next')" class="p-2 rounded-md bg-light-brand text-brand hover:bg-brand focus:outline-none
-                hover:text-light-brand disabled:opacity-50" @click="showPopup = !showPopup"
+                hover:text-light-brand disabled:opacity-50 disabled:bg-light-brand disabled:text-brand" @click="showPopup = !showPopup"
                 :disabled="locationIndex === points.length - 1">
                 <SolidHeroIcon name="ArrowLeftIcon" classes="h-6 w-6" />
             </button>
@@ -16,7 +16,7 @@
         <div class="map-container rounded-md overflow-hidden">
             <div id="map" ref="mapRef"></div>
             <div id="street-view" ref="streetViewRef"></div>
-            <div id="latlong">Lat: 0, Lng: 0</div>
+            <!-- <div id="latlong">Lat: 0, Lng: 0</div> -->
             <!-- <div id="popup" v-show="showPopup">
                 <div><b>Enter Information for this Point:</b></div>
                 <div id="coords" style="margin-top:10px; font-size:13px; color:#555;">
@@ -41,10 +41,10 @@ import { useDetailedSignsStore } from '@/store/stores/detailedSignsStore'
 import { ref, onMounted, onBeforeMount, computed } from 'vue'
 
 onBeforeMount(async () => {
-    await detailedSignsStore.fetchAllDetailedSigns().finally(async () => {
+    await detailedSignsStore.fetchDetailedSignsPaginated().finally(async () => {
 
-        if (detailedSignsStore.allSigns.length > 0) {
-            points.value = detailedSignsStore.allSigns.map((sign) => {
+        if (signs.value.length > 0) {
+            points.value = signs.value.map((sign) => {
                 return { lat: parseFloat(sign.latitude), lng: parseFloat(sign.longitude) }
             })
 
@@ -57,24 +57,24 @@ onBeforeMount(async () => {
 
 const detailedSignsStore = useDetailedSignsStore();
 
-const signs = computed(() => detailedSignsStore.allSigns ?? [])
+const signs = computed(() => detailedSignsStore.detailedSignsPaginated?.data ?? [])
 
 interface Position {
     lat: number
     lng: number
 }
 
-interface MapPoint {
-    position: Position
-    type?: string
-}
+// interface MapPoint {
+//     position: Position
+//     type?: string
+// }
 
 // Refs
 const mapRef = ref<HTMLElement | null>(null)
 const streetViewRef = ref<HTMLElement | null>(null)
 const latLongDisplay = ref<HTMLElement | null>(null)
 const showPopup = ref(false)
-const selectedSignType = ref('Type 1')
+// const selectedSignType = ref('Type 1')
 const currentPosition = ref<Position | null>(null)
 
 // Map instances
@@ -84,7 +84,7 @@ let redArrowMarker: google.maps.Marker | null = null
 
 // Sample data
 const points = ref<Position[]>([
-    { lat: 23.58353345, lng: 58.14637569 }
+    { lat: 22.5409934, lng: 55.8908847 }
 ])
 
 const locationIndex = ref(0)
