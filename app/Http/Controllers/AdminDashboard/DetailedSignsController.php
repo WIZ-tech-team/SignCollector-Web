@@ -16,23 +16,25 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Spatie\MediaLibrary\MediaCollections\Exceptions\FileCannotBeAdded;
 use Symfony\Component\HttpFoundation\Response;
+
 class DetailedSignsController extends Controller
 {
-    
-public function index()
-{
-    // 1) eager-load the entire media collection
-    // 1) eager‐load the entire media collection, order by id
-    $paginator = DetailedSign::with('media')
-        ->orderBy('id', 'asc')
-        ->paginate(DetailedSign::count());
 
-    // 2) transform each item with the Resource, and carry over status/meta/links
-    return DetailedSignResource::collection($paginator)
-        ->additional(['status' => 'success'])
-        ->response()
-        ->setStatusCode(Response::HTTP_OK);
-}
+    public function index()
+    {
+        // 1) eager-load the entire media collection
+        // 1) eager‐load the entire media collection, order by id
+        $paginator = DetailedSign::with('media')
+            ->orderBy('id', 'asc')
+            ->paginate(DetailedSign::count());
+
+        // 2) transform each item with the Resource, and carry over status/meta/links
+        return DetailedSignResource::collection($paginator)
+            ->additional(['status' => 'success'])
+            ->response()
+            ->setStatusCode(Response::HTTP_OK);
+    }
+
     public function destroy(DetailedSign $sign)
     {
         try {
@@ -48,7 +50,7 @@ public function index()
                 'message' => 'Sign deleted successfully.'
             ], Response::HTTP_OK);
         } catch (\Throwable $e) {
-            Log::error('Admin delete DetailedSign failed: '.$e->getMessage());
+            Log::error('Admin delete DetailedSign failed: ' . $e->getMessage());
             return response()->json([
                 'message' => 'Failed to delete sign.'
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
@@ -63,6 +65,7 @@ public function index()
             ExcelExcel::XLSX
         );
     }
+    
     public function update(Request $request, $id)
     {
         // 1) Find the sign or fail
@@ -79,7 +82,7 @@ public function index()
             'sign_width'                     => 'nullable|numeric',
             'sign_radius'                    => 'nullable|numeric',
             'sign_color'                     => 'nullable|string|max:255',
-             'gps_accuracy'                   => 'nullable|numeric',
+            'gps_accuracy'                   => 'nullable|numeric',
             'image_location'                 => 'nullable|string|max:255',
 
             'road_classification'            => 'nullable|string|max:255',
@@ -135,8 +138,8 @@ public function index()
                 // Attach each uploaded file
                 foreach ($request->file('files') as $file) {
                     $sign
-                      ->addMedia($file)
-                      ->toMediaCollection('detailed_signs');
+                        ->addMedia($file)
+                        ->toMediaCollection('detailed_signs');
                 }
             }
 
@@ -146,7 +149,6 @@ public function index()
                 'status' => 'success',
                 'data'   => DetailedSignResource::make($sign->fresh()),
             ], Response::HTTP_OK);
-
         } catch (FileCannotBeAdded $e) {
             DB::rollBack();
             Log::error('Media upload failed on update: ' . $e->getMessage());
@@ -155,7 +157,6 @@ public function index()
                 'status'  => 'error',
                 'message' => 'Failed to save one or more images.',
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
-
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Sign update failed: ' . $e->getMessage());
