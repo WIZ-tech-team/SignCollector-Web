@@ -31,4 +31,20 @@ class DetailedSignsController extends Controller
             ExcelExcel::XLSX
         );
     }
+
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function destroy(string $sign_id)
+    {
+        $sign = DetailedSign::findOrFail($sign_id);
+        if ($sign) {
+            $sign->clearMediaCollection('detailed_signs');
+        }
+        $sign->delete();
+        return response()->json([
+            'status' => 'success',
+            'data' => $sign
+        ], Response::HTTP_OK);
+    }
 }

@@ -46,6 +46,28 @@ export const useDetailedSignsStore = defineStore('detailedSignsPaginatedStore', 
             });
     }
 
-    return { detailedSignsPaginated, allSigns, fetchDetailedSignsPaginated, fetchAllDetailedSigns };
+    const deleteDetailedSign = async (id: number) => {
+        
+        await QSwal.fire('حذف الإشارة ؟', "سيتم حذف الإشارة.", 'question')
+            .then(async result => {
+                if (result.isConfirmed) {
+                    await ApiService.delete(`/api/spa/signs/detailed/${id}/`)
+                        .then((res: AxiosResponse<BackendResponseData>) => {
+                            if (res.data.status === 'success') {
+                                MSwal.fire('نجحت العملية', `تمت العملية بنجاخ.`, 'success');
+                            } else {
+                                MSwal.fire('رد غير متوقع', getMessageFromObj(res), 'warning');
+                            }
+                        })
+                        .catch((e: AxiosError<BackendResponseData>) => {
+                            MSwal.fire('خطأ غير متوقع', getMessageFromObj(e), 'error');
+                        }).finally(async () => {
+                            await fetchDetailedSignsPaginated();
+                        });
+                }
+            });
+    }
+
+    return { detailedSignsPaginated, allSigns, fetchDetailedSignsPaginated, fetchAllDetailedSigns, deleteDetailedSign };
 
 });

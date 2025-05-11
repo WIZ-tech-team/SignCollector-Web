@@ -31,4 +31,5 @@ Route::prefix('users')->controller(UsersController::class)->middleware(['auth:sa
 Route::prefix('signs/detailed')->controller(DetailedSignsController::class)->middleware(['auth:sanctum', 'admin'])->group(function () {
     Route::get('/', 'index');
     Route::post('/export', 'export');
+    Route::delete('/{sign_id}', 'destroy');
 });

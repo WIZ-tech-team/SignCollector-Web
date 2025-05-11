@@ -256,3 +256,7 @@ input.dashboard-input:focus, textarea.dashboard-input:focus {
 textarea.dashboard-input {
     height: 25rem;
 }
+
+[aria-modal="true"][data-headlessui-state="open"] {
+    z-index: 1051 !important;
+}

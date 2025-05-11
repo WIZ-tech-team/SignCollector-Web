@@ -4,12 +4,14 @@
         <!-- Detailed Signs Table -->
         <!-- Data Table: Detailed Signs -->
         <TableComponent title="بيانات الإشارات" :data-paginated="(signsPaginated as PaginatedData<DetailedSign>)"
-            :columns="signsTableColumns">
+            :columns="signsTableColumns" :allow-actions="tableActions"
+            @delete-clicked="(datum) => detailedSignsStore.deleteDetailedSign(datum.id)">
 
             <template #header_end>
                 <button @click.prevent="submitExport"
-                    class="p-2 rounded-md bg-brand text-light-brand hover:bg-light-brand hover:text-brand focus:outline-none">
-                    تصدير
+                    class="p-2 rounded-md bg-brand text-light-brand hover:bg-light-brand hover:text-brand focus:outline-none flex gap-2 items-center">
+                    <span class="">تصدير</span>
+                    <SolidHeroIcon name="ArrowUpOnSquareIcon" classes="w-5 h-5" />
                 </button>
             </template>
 
@@ -19,10 +21,16 @@
                 </div>
             </template>
 
+            <template v-for="(sign, index) in signsPaginated?.data" v-slot:[`row_${index}_created_at_slot_value`]>
+                <span>
+                    {{ sign.created_at.split('T')[0] }}
+                </span>
+            </template>
+
             <template v-for="(sign, index) in signsPaginated?.data" v-slot:[`row_${index}_details_modal_slot_value`]>
                 <ModalCard title="تفاصيل الإشارة" btn-classes="p-2 text-brand">
                     <template #open_button>
-                        التفاصيل
+                        عرض
                     </template>
 
                     <div class="flex flex-col gap-2">
@@ -45,7 +53,7 @@
 
 <script setup lang="ts">
 import { computed, onBeforeMount, ref } from "vue";
-import { TableColumn } from "@/core/types/elements/Table";
+import { AllowActions, TableColumn } from "@/core/types/elements/Table";
 import { PaginatedData } from "@/core/types/data/PaginatedDataInterface";
 import TableComponent from "@/components/table/TableComponent.vue";
 import { useDetailedSignsStore } from "@/store/stores/detailedSignsStore";
@@ -57,6 +65,7 @@ import { AxiosError } from "axios";
 import { BackendResponseData } from "@/core/types/config/AxiosCustom";
 import ApiService from "@/core/services/ApiService";
 import { useAuthStore } from "@/store/stores/authStore";
+import SolidHeroIcon from "@/components/icons/SolidHeroIcon.vue";
 
 // Lifecycle hooks
 onBeforeMount(async () => {
@@ -78,25 +87,25 @@ const signsTableColumns = ref<TableColumn[]>([
         isSlot: true
     },
     {
-        title: 'الاسم',
-        key: 'sign_name',
-        valueClasses: "text-sm font-medium text-gray-900"
-    },
-    {
-        title: 'الشكل',
-        key: 'sign_shape'
-    },
-    {
-        title: 'الرمز',
-        key: 'sign_code'
-    },
-    {
-        title: 'الرمز (GCC)',
-        key: 'sign_code_gcc'
-    },
-    {
         title: 'النوع',
         key: 'sign_type'
+    },
+    {
+        title: 'المحافظة',
+        key: 'governorate'
+    },
+    {
+        title: 'الولاية',
+        key: 'willayat'
+    },
+    {
+        title: 'أضيفت بواسطة',
+        key: 'created_by'
+    },
+    {
+        title: 'تاريخ اللإضافة',
+        key: 'created_at_slot',
+        isSlot: true
     },
     {
         title: 'التفاصيل',
@@ -104,6 +113,11 @@ const signsTableColumns = ref<TableColumn[]>([
         isSlot: true
     }
 ]);
+
+const tableActions = ref<AllowActions>({
+    allow: true,
+    delete: true
+});
 
 const signsPaginated = computed(() => {
     return detailedSignsStore.detailedSignsPaginated;
@@ -113,7 +127,7 @@ const submitExport = async () => {
     QSwal.fire('تصدير الإشارات ؟', 'التصدير إلى ملف إكسل.', 'question')
         .then(async (result) => {
             if (result.isConfirmed) {
-                
+
                 ApiService.setHeader(authStore.token as string, 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
                 await ApiService.post(`/api/spa/signs/detailed/export`, null, {
                     responseType: 'arraybuffer', // Crucial for binary files
@@ -155,7 +169,7 @@ const submitExport = async () => {
                         document.body.removeChild(link);
                         window.URL.revokeObjectURL(url);
                     }, 100);
-                    
+
                 }).catch((error: AxiosError<BackendResponseData>) => {
                     MSwal.fire('Unexpected Error!', getMessageFromObj(error), 'error');
                 });

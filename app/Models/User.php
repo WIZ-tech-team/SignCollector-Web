@@ -76,8 +76,4 @@ class User extends Authenticatable implements HasMedia
             ->latest();
     }
 
-    public function aiSetting()
-    {
-        return $this->hasOne(UserAISetting::class);
-    }
 }
