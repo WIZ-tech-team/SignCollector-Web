@@ -922,12 +922,9 @@ const signLocationsFromRoad = ref(['يمين', 'يسار', 'منتصف', 'جزي
 // Helper: format dates in table
 //
 function formatDate(dateString: string) {
-  const d = new Date(dateString);
-  let date = d.toLocaleDateString(undefined, {
-    year: 'numeric',
-    month: 'short',
-    day: '2-digit'
-  });
+  let isoString = dateString.replace(" ", "T") + "Z";
+  const d = new Date(isoString);  
+  let date = d.toLocaleDateString();
   let time = `${d.getHours()}:${d.getMinutes()}`
   return date + ' ' + time
 }
