@@ -2,17 +2,28 @@
   <div class="dashboard_view_container">
     <div>
       <!-- Main two-column area: fixed height = map height, centered vertically & horizontally -->
-      <div class="flex items-start justify-between gap-4 h-[85vh] mt-4">
+      <div class="flex items-start justify-between gap-4 h-[75vh] mt-4 main-height">
 
         <!-- Right half: table + pagination -->
         <div class="w-1/2 flex flex-col gap-4 h-full">
-          <div class="flex items-center justify-start gap-4">
-            <label class="text-md font-medium">الحالة</label>
-            <select v-model="completeSignFilter" class="border rounded px-2 py-1">
-              <option value="all">الكل</option>
-              <option value="complete">المكتملة</option>
-              <option value="not-complete">الغير مكتملة</option>
-            </select>
+          <!-- Header Actions -->
+          <div class="flex items-center gap-4 justify-between">
+            <!-- Filter -->
+            <div class="flex items-center justify-start gap-4">
+              <label class="text-md font-medium">الحالة</label>
+              <select v-model="completeSignFilter" class="border rounded px-2 py-1">
+                <option value="all">الكل</option>
+                <option value="complete">المكتملة</option>
+                <option value="not-complete">الغير مكتملة</option>
+              </select>
+            </div>
+
+            <!-- Export Action -->
+            <button @click.prevent="submitExport"
+              class="flex items-center justify-center gap-2 p-2 rounded-md bg-brand text-light-brand hover:bg-light-brand hover:text-brand focus:outline-none">
+              تصدير
+              <SolidHeroIcon name="ArrowUpTrayIcon" classes="w-5 h-5" />
+            </button>
           </div>
           <!-- Scrollable, centered table area -->
           <div class="h-full overflow-auto">
@@ -21,11 +32,11 @@
                 <tr class="bg-gray-100">
                   <th class="p-2 border">ID</th>
                   <th class="p-2 border">اسم اللوحة </th>
-                  <th class="p-2 border">المحافظة</th>
+                  <th class="p-2 border">الولاية</th>
                   <th class="p-2 border">تاريخ إدخال البيانات</th>
                   <th class="p-2 border">مدخل البيانات</th>
                   <th class="p-2 border">الحالة</th>
-                  <th class="p-2 border">Actions</th>
+                  <th class="p-2 border">الإجراء</th>
                 </tr>
               </thead>
               <tbody>
@@ -35,7 +46,7 @@
                 ]">
                   <td class="p-2 border">{{ sign.id }}</td>
                   <td class="p-2 border">{{ sign.sign_name }}</td>
-                  <td class="p-2 border">{{ sign.governorate }}</td>
+                  <td class="p-2 border">{{ sign.willayat }}</td>
                   <td class="p-2 border">{{ formatDate(sign.created_at) }}</td>
                   <td class="p-2 border">{{ sign.created_by }}</td>
                   <td class="p-2 border text-center font-medium" :class="isComplete(sign)
@@ -44,32 +55,21 @@
                     {{ isComplete(sign) ? 'مكتملة' : 'غير مكتملة' }}
                   </td>
                   <td class="p-2 border">
-                    <div class="flex justify-center space-x-2">
-                      <button @click.stop="openModal(sign)" title="Show">
+                    <div class="flex items-center justify-center gap-2">
+                      <button @click.stop="openModal(sign)" title="Show"
+                        class="text-primary hover:text-light-primary bg-light-primary hover:bg-primary p-2 rounded-md">
                         <!-- eye icon -->
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-600 hover:text-green-800"
-                          fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M2.458 12C3.732 7.943 7.522 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.478 0-8.268-2.943-9.542-7z" />
-                        </svg>
+                        <SolidHeroIcon name="EyeIcon" classes="w-5 h-5" />
                       </button>
-                      <button @click.stop="openEditModal(sign)" title="Edit">
+                      <button @click.stop="openEditModal(sign)" title="Edit"
+                        class="text-warning hover:text-light-warning bg-light-warning hover:bg-warning p-2 rounded-md">
                         <!-- pencil icon -->
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-yellow-600 hover:text-yellow-800"
-                          fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M11 5H6a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2v-5M16.5 3.5l4 4L11 17l-4 1 1-4 9.5-9.5z" />
-                        </svg>
+                        <SolidHeroIcon name="PencilIcon" classes="w-5 h-5" />
                       </button>
-                      <button @click.stop="onDelete(sign)" title="Delete">
+                      <button @click.stop="onDelete(sign)" title="Delete"
+                        class="text-danger hover:text-light-danger bg-light-danger hover:bg-danger p-2 rounded-md">
                         <!-- trash icon -->
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-red-600 hover:text-red-800"
-                          fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5-4h4a1 1 0 011 1v1H9V4a1 1 0 011-1z" />
-                        </svg>
+                        <SolidHeroIcon name="TrashIcon" classes="w-5 h-5" />
                       </button>
                     </div>
                   </td>
@@ -79,7 +79,7 @@
           </div>
 
           <!-- Pagination -->
-          <nav v-if="signsPaginated && false" class="flex justify-center space-x-2 py-2">
+          <!-- <nav v-if="signsPaginated && false" class="flex justify-center space-x-2 py-2">
             <button @click="changePage(signsPaginated.current_page - 1)" :disabled="!signsPaginated.prev_page_url"
               class="px-3 py-1 border rounded disabled:opacity-50">السابق</button>
             <button v-for="p in pageNumbers" :key="p" @click="changePage(p)"
@@ -87,7 +87,7 @@
                 p }}</button>
             <button @click="changePage(signsPaginated.current_page + 1)" :disabled="!signsPaginated.next_page_url"
               class="px-3 py-1 border rounded disabled:opacity-50">التالي</button>
-          </nav>
+          </nav> -->
         </div>
 
         <!-- Left half: toggles, map, lat/lng -->
@@ -98,13 +98,15 @@
               'px-3 py-1 rounded border',
               maraEnabled ? 'bg-green-600 text-white' : 'bg-white text-gray-700'
             ]">
-              {{ maraEnabled ? 'Hide' : 'Show' }} Parcels
+              <!-- {{ maraEnabled ? 'Hide' : 'Show' }} Parcels -->
+              قطع الأراضي
             </button>
             <button @click="toggleNsdi" :class="[
               'px-3 py-1 rounded border',
               nsdiEnabled ? 'bg-blue-600 text-white' : 'bg-white text-gray-700'
             ]">
-              {{ nsdiEnabled ? 'Hide' : 'Show' }} NSDI Roads
+              <!-- {{ nsdiEnabled ? 'Hide' : 'Show' }} NSDI Roads -->
+              مسارات الطرق
             </button>
           </div>
 
@@ -114,286 +116,296 @@
           </div>
 
           <!-- Lat/Lng Display -->
-          <div id="latlong" class="p-2 bg-white text-sm font-medium text-center">
+          <!-- <div id="latlong" class="p-2 bg-white text-sm font-medium text-center">
             Lat: {{ lat }}, Lng: {{ lng }}
-          </div>
+          </div> -->
         </div>
 
       </div>
+    </div>
 
-      <!-- SHOW MODAL -->
-      <div v-if="showModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-        <div class="bg-white w-11/12 h-5/6 rounded-lg shadow-lg relative overflow-hidden">
-          <!-- Close -->
-          <button type="button" @click.prevent="showModal = false"
-            class="absolute z-50 top-2 right-2 text-gray-600 hover:text-gray-900">✕</button>
+    <!-- SHOW MODAL -->
+    <div v-if="showModal" class="fixed inset-0 flex items-center justify-center modal-z-index">
+      <div  @click.prevent="showModal = false" class="fixed inset-0 bg-black bg-opacity-50 w-full h-full"></div>
+      <div class="bg-white w-11/12 h-5/6 rounded-lg shadow-lg relative overflow-hidden">
+        <!-- Close -->
+        <button type="button" @click.prevent="showModal = false"
+          class="absolute z-50 top-2 right-4 text-gray-600 hover:text-gray-900">✕</button>
 
-          <div class="flex h-full">
-            <!-- Data Table -->
-            <div class="w-1/3 p-4 py-8">
-              <div class="flex justify-between items-center mb-4">
-                <button @click="prevSign" :disabled="modalIndex === 0"
-                  class="px-2 py-1 bg-gray-200 rounded disabled:opacity-50">&rarr; السابق</button>
+        <div class="flex h-full">
+          <!-- Data Table -->
+          <div class="w-1/3 p-4 py-8">
+            <div class="flex justify-between items-center mb-4">
+              <button @click="prevSign" :disabled="modalIndex === 0"
+                class="px-2 py-1 bg-gray-200 text-gray-700 rounded-md disabled:opacity-50">
+                <SolidHeroIcon name="ArrowRightIcon" classes="w-6 h-6" />
+              </button>
 
 
-                <h2 class="text-2xl font-bold"
-                  :class="isComplete(activeSign) ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'">
-                  Sign #{{ activeSign.id }}
-                </h2>
+              <h2 class="text-2xl font-bold px-4 py-2 rounded-md"
+                :class="isComplete(activeSign) ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'">
+                Sign #{{ activeSign.id }}
+              </h2>
 
-                <button @click="nextSign" :disabled="modalIndex === signsPaginated.data.length - 1"
-                  class="px-2 py-1 bg-gray-200 rounded disabled:opacity-50">التالي&larr;</button>
+              <button @click="nextSign" :disabled="modalIndex === signsFiltered.length - 1"
+                class="px-2 py-1 bg-gray-200 text-gray-700 rounded-md disabled:opacity-50">
+                <SolidHeroIcon name="ArrowLeftIcon" classes="w-6 h-6" />
+              </button>
+            </div>
+
+            <!-- Details Attributes -->
+            <div class="overflow-auto h-[90%]">
+              <!-- 1. ID -->
+              <div class="flex flex-col">
+                <label class="font-medium mb-1">ID</label>
+                <input type="text" :value="activeSign.id" readonly class="border rounded px-2 py-1 bg-gray-100" />
               </div>
 
-              <!-- Details Attributes -->
-              <div class="overflow-auto h-[90%]">
-                <!-- 1. ID -->
-                <div class="flex flex-col">
-                  <label class="font-medium mb-1">ID</label>
-                  <input type="text" :value="activeSign.id" readonly class="border rounded px-2 py-1 bg-gray-100" />
-                </div>
+              <!-- 2. Latitude / Longitude -->
+              <div class="flex flex-col">
+                <label class="font-medium mb-1">خط العرض</label>
+                <input type="text" :value="activeSign.latitude" readonly class="border rounded px-2 py-1 bg-gray-100" />
+              </div>
 
-                <!-- 2. Latitude / Longitude -->
-                <div class="flex flex-col">
-                  <label class="font-medium mb-1">خط العرض</label>
-                  <input type="text" :value="activeSign.latitude" readonly
-                    class="border rounded px-2 py-1 bg-gray-100" />
-                </div>
+              <div class="flex flex-col">
+                <label class="font-medium mb-1">خط الطول</label>
+                <input type="text" :value="activeSign.longitude" readonly
+                  class="border rounded px-2 py-1 bg-gray-100" />
+              </div>
 
-                <div class="flex flex-col">
-                  <label class="font-medium mb-1">خط الطول</label>
-                  <input type="text" :value="activeSign.longitude" readonly
-                    class="border rounded px-2 py-1 bg-gray-100" />
-                </div>
+              <!--  gps_accuracy -->
+              <div class="flex flex-col">
+                <label class="font-medium mb-1">دقة الجي بي أس</label>
+                <input type="number" :value="activeSign.gps_accuracy" readonly
+                  class="border rounded px-2 py-1 bg-gray-100" step="any" />
+              </div>
 
-                <!--  gps_accuracy -->
-                <div class="flex flex-col">
-                  <label class="font-medium mb-1">دقة الجي بي أس</label>
-                  <input type="text" :value="activeSign.gps_accuracy" readonly
-                    class="border rounded px-2 py-1 bg-gray-100" />
-                </div>
+              <!-- 3. Signs Count -->
+              <div class="flex flex-col">
+                <label class="font-medium mb-1">عدد (تسلسل) اللوحات</label>
+                <input type="text" :value="activeSign.signs_count" readonly
+                  class="border rounded px-2 py-1 bg-gray-100" />
+              </div>
 
-                <!-- 3. Signs Count -->
-                <div class="flex flex-col">
-                  <label class="font-medium mb-1">عدد (تسلسل) اللوحات</label>
-                  <input type="text" :value="activeSign.signs_count" readonly
-                    class="border rounded px-2 py-1 bg-gray-100" />
-                </div>
+              <!-- 4. Columns Description -->
+              <div class="flex flex-col">
+                <label class="font-medium mb-1">وصف الأعمدة</label>
+                <input type="text" :value="activeSign.columns_description" readonly
+                  class="border rounded px-2 py-1 bg-gray-100" />
+              </div>
 
-                <!-- 4. Columns Description -->
-                <div class="flex flex-col">
-                  <label class="font-medium mb-1">وصف الأعمدة</label>
-                  <input type="text" :value="activeSign.columns_description" readonly
-                    class="border rounded px-2 py-1 bg-gray-100" />
-                </div>
+              <!-- 5–12. Road fields -->
+              <div v-for="field in roadFields" :key="field.key" class="flex flex-col">
+                <label class="font-medium mb-1">{{ field.label }}</label>
+                <input type="text" :value="activeSign[field.key as keyof DetailedSign]" readonly
+                  class="border rounded px-2 py-1 bg-gray-100" />
+              </div>
 
-                <!-- 5–12. Road fields -->
-                <div v-for="field in roadFields" :key="field.key" class="flex flex-col">
-                  <label class="font-medium mb-1">{{ field.label }}</label>
-                  <input type="text" :value="activeSign[field.key]" readonly
-                    class="border rounded px-2 py-1 bg-gray-100" />
-                </div>
+              <!-- 13. Sign Base -->
+              <div class="flex flex-col">
+                <label class="font-medium mb-1">قاعدة اللوحة</label>
+                <input type="text" :value="activeSign.sign_base" readonly
+                  class="border rounded px-2 py-1 bg-gray-100" />
+              </div>
 
-                <!-- 13. Sign Base -->
-                <div class="flex flex-col">
-                  <label class="font-medium mb-1">قاعدة اللوحة</label>
-                  <input type="text" :value="activeSign.sign_base" readonly
-                    class="border rounded px-2 py-1 bg-gray-100" />
-                </div>
+              <!-- 14–17. Numeric fields -->
+              <div class="flex flex-col">
+                <label class="font-medium mb-1">المسافة من نهاية كتف الطريق حتى اللوحة (م)</label>
+                <input type="text" :value="activeSign.distance_from_road_edge_meter" readonly
+                  class="border rounded px-2 py-1 bg-gray-100" />
+              </div>
+              <div class="flex flex-col">
+                <label class="font-medium mb-1">نصف قطر أنبوب اللوحة (مم)</label>
+                <input type="text" :value="activeSign.sign_column_radius_mm" readonly
+                  class="border rounded px-2 py-1 bg-gray-100" />
+              </div>
+              <div class="flex flex-col">
+                <label class="font-medium mb-1">طول الأنبوب (م)</label>
+                <input type="text" :value="activeSign.column_height" readonly
+                  class="border rounded px-2 py-1 bg-gray-100" />
+              </div>
 
-                <!-- 14–17. Numeric fields -->
-                <div class="flex flex-col">
-                  <label class="font-medium mb-1">المسافة من نهاية كتف الطريق حتى اللوحة (م)</label>
-                  <input type="text" :value="activeSign.distance_from_road_edge_meter" readonly
-                    class="border rounded px-2 py-1 bg-gray-100" />
-                </div>
-                <div class="flex flex-col">
-                  <label class="font-medium mb-1">نصف قطر أنبوب اللوحة (مم)</label>
-                  <input type="text" :value="activeSign.sign_column_radius_mm" readonly
-                    class="border rounded px-2 py-1 bg-gray-100" />
-                </div>
-                <div class="flex flex-col">
-                  <label class="font-medium mb-1">طول الأنبوب (م)</label>
-                  <input type="text" :value="activeSign.column_height" readonly
-                    class="border rounded px-2 py-1 bg-gray-100" />
-                </div>
+              <!-- 18. Column Colour -->
+              <div class="flex flex-col">
+                <label class="font-medium mb-1">لون الأنبوب</label>
+                <input type="text" :value="activeSign.column_colour" readonly
+                  class="border rounded px-2 py-1 bg-gray-100" />
+              </div>
 
-                <!-- 18. Column Colour -->
-                <div class="flex flex-col">
-                  <label class="font-medium mb-1">لون الأنبوب</label>
-                  <input type="text" :value="activeSign.column_colour" readonly
-                    class="border rounded px-2 py-1 bg-gray-100" />
-                </div>
+              <!-- 19. Column Type -->
+              <div class="flex flex-col">
+                <label class="font-medium mb-1">نوع الأعمدة</label>
+                <input type="text" :value="activeSign.column_type" readonly
+                  class="border rounded px-2 py-1 bg-gray-100" />
+              </div>
 
-                <!-- 19. Column Type -->
-                <div class="flex flex-col">
-                  <label class="font-medium mb-1">نوع الأعمدة</label>
-                  <input type="text" :value="activeSign.column_type" readonly
-                    class="border rounded px-2 py-1 bg-gray-100" />
-                </div>
-
-                <!-- 20. Sign Name -->
-                <div class="flex flex-col">
-                  <label class="font-medium mb-1">اسم اللوحة</label>
-                  <input type="text" :value="activeSign.sign_name" readonly
-                    class="border rounded px-2 py-1 bg-gray-100" />
-                </div>
-                <!-- 20. Sign Name -->
-                <div class="flex flex-col">
-                  <label class="font-medium mb-1">اسم اللوحة</label>
-                  <input type="text" :value="activeSign.sign_name" readonly
-                    class="border rounded px-2 py-1 bg-gray-100" />
-                </div>
-                <div class="flex flex-col">
-                  <label class="font-medium mb-1">الرمز (2010)</label>
-                  <input type="text" :value="activeSign.sign_code" readonly
-                    class="border rounded px-2 py-1 bg-gray-100" />
-                </div>
+              <!-- 20. Sign Name -->
+              <div class="flex flex-col">
+                <label class="font-medium mb-1">اسم اللوحة</label>
+                <input type="text" :value="activeSign.sign_name" readonly
+                  class="border rounded px-2 py-1 bg-gray-100" />
+              </div>
+              <!-- 20. Sign Name -->
+              <div class="flex flex-col">
+                <label class="font-medium mb-1">اسم اللوحة</label>
+                <input type="text" :value="activeSign.sign_name" readonly
+                  class="border rounded px-2 py-1 bg-gray-100" />
+              </div>
+              <div class="flex flex-col">
+                <label class="font-medium mb-1">الرمز (2010)</label>
+                <input type="text" :value="activeSign.sign_code" readonly
+                  class="border rounded px-2 py-1 bg-gray-100" />
+              </div>
 
 
 
-                <div class="flex flex-col">
-                  <label class="font-medium mb-1">الرمز (GCC)</label>
-                  <input v-model="activeSign.sign_code_gcc" readonly class="border rounded px-2 py-1 bg-gray-100" />
+              <div class="flex flex-col">
+                <label class="font-medium mb-1">الرمز (GCC)</label>
+                <input v-model="activeSign.sign_code_gcc" readonly class="border rounded px-2 py-1 bg-gray-100" />
 
-                </div>
+              </div>
 
-                <!-- Sign Type (auto-filled, read-only) -->
-                <div class="flex flex-col">
-                  <label class="font-medium mb-1">نوعية للوحة</label>
-                  <input v-model="activeSign.sign_type" readonly class="border rounded px-2 py-1 bg-gray-100" />
-                </div>
+              <!-- Sign Type (auto-filled, read-only) -->
+              <div class="flex flex-col">
+                <label class="font-medium mb-1">نوعية للوحة</label>
+                <input v-model="activeSign.sign_type" readonly class="border rounded px-2 py-1 bg-gray-100" />
+              </div>
 
-                <!-- Sign Shape (auto-filled, read-only) -->
-                <div class="flex flex-col">
-                  <label class="font-medium mb-1">الشكل</label>
-                  <input v-model="activeSign.sign_shape" readonly class="border rounded px-2 py-1 bg-gray-100" />
-                </div>
-                <!-- Sign Length (number) -->
-                <div class="flex flex-col">
-                  <label class="font-medium mb-1">طول اللوحة (م)</label>
-                  <input v-model.number="activeSign.sign_length" type="number" step="any" readonly
-                    class="border rounded px-2 py-1" />
-                </div>
+              <!-- Sign Shape (auto-filled, read-only) -->
+              <div class="flex flex-col">
+                <label class="font-medium mb-1">الشكل</label>
+                <input v-model="activeSign.sign_shape" readonly class="border rounded px-2 py-1 bg-gray-100" />
+              </div>
+              <!-- Sign Length (number) -->
+              <div class="flex flex-col">
+                <label class="font-medium mb-1">طول اللوحة (م)</label>
+                <input v-model.number="activeSign.sign_length" type="number" step="any" readonly
+                  class="border rounded px-2 py-1" />
+              </div>
 
-                <!-- Sign Width (number) -->
-                <div class="flex flex-col">
-                  <label class="font-medium mb-1">عرض اللوحة (م)</label>
-                  <input v-model.number="activeSign.sign_width" type="number" step="any" readonly
-                    class="border rounded px-2 py-1" />
-                </div>
+              <!-- Sign Width (number) -->
+              <div class="flex flex-col">
+                <label class="font-medium mb-1">عرض اللوحة (م)</label>
+                <input v-model.number="activeSign.sign_width" type="number" step="any" readonly
+                  class="border rounded px-2 py-1" />
+              </div>
 
-                <!-- Sign Radius (number) -->
-                <div class="flex flex-col">
-                  <label class="font-medium mb-1">نصف قطر اللوحة (مم)</label>
-                  <input v-model.number="activeSign.sign_radius" type="number" step="any" readonly
-                    class="border rounded px-2 py-1" />
-                </div>
+              <!-- Sign Radius (number) -->
+              <div class="flex flex-col">
+                <label class="font-medium mb-1">نصف قطر اللوحة (مم)</label>
+                <input v-model.number="activeSign.sign_radius" type="number" step="any" readonly
+                  class="border rounded px-2 py-1" />
+              </div>
 
-                <!-- Sign Color (select) -->
-                <div class="flex flex-col">
-                  <label class="font-medium mb-1">لون الخلفية</label>
-                  <input v-model.number="activeSign.sign_color" type="number" step="any" readonly
-                    class="border rounded px-2 py-1" />
+              <!-- Sign Color (select) -->
+              <div class="flex flex-col">
+                <label class="font-medium mb-1">لون الخلفية</label>
+                <input v-model.number="activeSign.sign_color" type="number" step="any" readonly
+                  class="border rounded px-2 py-1" />
 
-                </div>
+              </div>
 
-                <!-- Content Shape Description (text) -->
-                <div class="flex flex-col">
-                  <label class="font-medium mb-1">(المحتوى) الشكل المرسوم </label>
-                  <input v-model="activeSign.sign_content_shape_description" type="text" readonly
-                    class="border rounded px-2 py-1" />
-                </div>
+              <!-- Content Shape Description (text) -->
+              <div class="flex flex-col">
+                <label class="font-medium mb-1">(المحتوى) الشكل المرسوم </label>
+                <input v-model="activeSign.sign_content_shape_description" type="text" readonly
+                  class="border rounded px-2 py-1" />
+              </div>
 
-                <!-- Content Arabic Text (text) -->
-                <div class="flex flex-col">
-                  <label class="font-medium mb-1">(المحتوى) المكتوب بالعربي</label>
-                  <input v-model="activeSign.sign_content_arabic_text" type="text" readonly
-                    class="border rounded px-2 py-1" />
-                </div>
+              <!-- Content Arabic Text (text) -->
+              <div class="flex flex-col">
+                <label class="font-medium mb-1">(المحتوى) المكتوب بالعربي</label>
+                <input v-model="activeSign.sign_content_arabic_text" type="text" readonly
+                  class="border rounded px-2 py-1" />
+              </div>
 
-                <!-- Content English Text (text) -->
-                <div class="flex flex-col">
-                  <label class="font-medium mb-1">(المحتوى) المكتوب بالإنجليزي</label>
-                  <input v-model="activeSign.sign_content_english_text" type="text" readonly
-                    class="border rounded px-2 py-1" />
-                </div>
+              <!-- Content English Text (text) -->
+              <div class="flex flex-col">
+                <label class="font-medium mb-1">(المحتوى) المكتوب بالإنجليزي</label>
+                <input v-model="activeSign.sign_content_english_text" type="text" readonly
+                  class="border rounded px-2 py-1" />
+              </div>
 
-                <!-- Sign Condition (select) -->
-                <div class="flex flex-col">
-                  <label class="font-medium mb-1">حالة اللوحة</label>
-                  <input v-model="activeSign.sign_condition" type="text" readonly class="border rounded px-2 py-1" />
+              <!-- Sign Condition (select) -->
+              <div class="flex flex-col">
+                <label class="font-medium mb-1">حالة اللوحة</label>
+                <input v-model="activeSign.sign_condition" type="text" readonly class="border rounded px-2 py-1" />
 
-                </div>
+              </div>
 
-                <!-- Comments (textarea) -->
-                <div class="flex flex-col">
-                  <label class="font-medium mb-1">ملاحظات أخرى</label>
-                  <textarea v-model="activeSign.comments" rows="3" readonly class="border rounded px-2 py-1"></textarea>
-                </div>
+              <!-- Comments (textarea) -->
+              <div class="flex flex-col">
+                <label class="font-medium mb-1">ملاحظات أخرى</label>
+                <textarea v-model="activeSign.comments" rows="3" readonly class="border rounded px-2 py-1"></textarea>
+              </div>
 
-                <!-- Created By (read-only) -->
-                <div class="flex flex-col">
-                  <label class="font-medium mb-1">مدخل البيانات</label>
-                  <input v-model="activeSign.created_by" type="text" readonly
-                    class="border rounded bg-gray-100 px-2 py-1" />
-                </div>
+              <!-- Created By (read-only) -->
+              <div class="flex flex-col">
+                <label class="font-medium mb-1">مدخل البيانات</label>
+                <input v-model="activeSign.created_by" type="text" readonly
+                  class="border rounded bg-gray-100 px-2 py-1" />
+              </div>
 
-                <!-- File picker -->
-                <!-- <div class="flex flex-col">
+              <!-- File picker -->
+              <!-- <div class="flex flex-col">
                   <label class="font-medium mb-1">Replace Images</label>
                   <input type="file" multiple @change="handleEditFiles" class="border rounded p-1" />
                 </div> -->
-                <!-- …and so on for sign_code, sign_code_gcc, sign_type, sign_shape, sign_length, sign_width, sign_radius, sign_color, sign_content_shape_description, sign_content_arabic_text, sign_content_english_text, sign_condition, comments, created_by, created_at, updated_at, image_urls… -->
-              </div>
+              <!-- …and so on for sign_code, sign_code_gcc, sign_type, sign_shape, sign_length, sign_width, sign_radius, sign_color, sign_content_shape_description, sign_content_arabic_text, sign_content_english_text, sign_condition, comments, created_by, created_at, updated_at, image_urls… -->
             </div>
+          </div>
 
-            <!-- Image Slider -->
-            <div class="w-1/3 flex flex-col bg-gray-100 p-4 h-full">
-              <div class="flex-1 relative overflow-hidden">
-                <div v-for="(url, idx) in imageUrls" :key="idx"
-                  class="absolute inset-0 flex items-center justify-center transition-opacity duration-300"
-                  :class="idx === sliderIndex ? 'opacity-100' : 'opacity-0 pointer-events-none'">
-                  <img :src="url as string" class="max-w-full max-h-full object-contain rounded" alt="sign image" />
-                </div>
-              </div>
-              <div v-if="imageUrls?.length > 0" class="mt-2 flex space-x-2 justify-center">
-                <button class="px-2 py-1 bg-white border rounded disabled:opacity-50" :disabled="sliderIndex === 0"
-                  @click="sliderIndex--">السابق</button>
-                <button class="px-2 py-1 bg-white border rounded disabled:opacity-50"
-                  :disabled="sliderIndex === imageUrls.length - 1" @click="sliderIndex++">التالي</button>
+          <!-- Image Slider -->
+          <div class="w-1/3 flex flex-col bg-gray-100 p-4 h-full">
+            <div class="flex-1 relative overflow-hidden">
+              <div v-for="(url, idx) in imageUrls" :key="idx"
+                class="absolute inset-0 flex items-center justify-center transition-opacity duration-300"
+                :class="idx === sliderIndex ? 'opacity-100' : 'opacity-0 pointer-events-none'">
+                <img :src="url as string" class="max-w-full max-h-full object-contain rounded" alt="sign image" />
               </div>
             </div>
-            <!-- Map + Street View -->
-            <div class="w-1/3 flex flex-col">
-              <div ref="modalMapRef" class="h-1/2 w-full"></div>
-              <div ref="modalStreetRef" class="h-1/2 w-full"></div>
+            <div v-if="imageUrls?.length > 0" class="mt-2 flex space-x-2 justify-center">
+              <button class="px-2 py-1 bg-white border rounded disabled:opacity-50" :disabled="sliderIndex === 0"
+                @click="sliderIndex--">السابق</button>
+              <button class="px-2 py-1 bg-white border rounded disabled:opacity-50"
+                :disabled="sliderIndex === imageUrls.length - 1" @click="sliderIndex++">التالي</button>
             </div>
+          </div>
+          <!-- Map + Street View -->
+          <div class="w-1/3 flex flex-col">
+            <div ref="modalMapRef" class="h-1/2 w-full"></div>
+            <div ref="modalStreetRef" class="h-1/2 w-full"></div>
           </div>
         </div>
       </div>
     </div>
 
     <!-- EDIT MODAL -->
-    <div v-if="showEditModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div v-if="showEditModal"
+      class="fixed inset-0 flex items-center justify-center modal-z-index">
+      <div  @click.prevent="showEditModal = false" class="fixed inset-0 bg-black bg-opacity-50 w-full h-full"></div>
       <div class="bg-white w-11/12 h-5/6 rounded-lg shadow-lg relative overflow-hidden">
         <!-- Close -->
         <button @click="showEditModal = false"
-          class="absolute top-2 right-2 text-gray-600 hover:text-gray-900">✕</button>
+          class="absolute top-2 right-4 text-gray-600 hover:text-gray-900">✕</button>
 
         <form @submit.prevent="submitEditUpdate" class="flex h-full">
           <!-- Left column: form inputs -->
-          <div class="w-1/3 p-4 py-8 overflow-auto space-y-4">
+          <div class="w-1/3 p-4 py-8 overflow-hidden space-y-4">
             <div class="flex justify-between items-center mb-4 w-full">
               <button @click.prevent="prevEditSign" :disabled="editModalIndex === 0"
-                class="px-2 py-1 bg-gray-200 rounded disabled:opacity-50">&rarr; السابق</button>
+                class="px-2 py-1 bg-gray-200 text-gray-700 rounded-md disabled:opacity-50">
+                <SolidHeroIcon name="ArrowRightIcon" classes="w-6 h-6" />
+              </button>
 
-              <h2 class="text-2xl font-bold"
+              <h2 class="text-2xl font-bold px-4 py-2 rounded-md"
                 :class="isComplete(editActiveSign) ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'">
                 Sign #{{ editActiveSign.id }}
               </h2>
-              <button @click.prevent="nextEditSign" :disabled="editModalIndex === signsPaginated.data.length - 1"
-                class="px-2 py-1 bg-gray-200 rounded disabled:opacity-50">التالي&larr;</button>
+              <button @click.prevent="nextEditSign" :disabled="editModalIndex === signsFiltered.length - 1"
+                class="px-2 py-1 bg-gray-200 text-gray-700 rounded-md disabled:opacity-50">
+                <SolidHeroIcon name="ArrowLeftIcon" classes="w-6 h-6" />
+              </button>
             </div>
 
             <div class="overflow-auto h-[90%]">
@@ -417,8 +429,8 @@
               <!--  gps_accuracy -->
               <div class="flex flex-col">
                 <label class="font-medium mb-1">دقة الجي بي أس</label>
-                <input type="text" :value="editActiveSign.gps_accuracy" readonly
-                  class="border rounded px-2 py-1 bg-gray-100" />
+                <input type="number" :value="editActiveSign.gps_accuracy" readonly
+                  class="border rounded px-2 py-1 bg-gray-100" step="any" />
               </div>
 
 
@@ -444,10 +456,15 @@
 
               <div v-for="field in roadFields" :key="field.key" class="flex flex-col">
                 <label class="font-medium mb-1">{{ field.label }}</label>
-                <input :type="(field.key == 'road_direction') ? 'number' : 'text'" v-model="editActiveSign[field.key]"
-                  :readonly="!['road_direction', 'sign_location_from_road'].includes(field.key)"
-                  :required="['road_direction', 'sign_location_from_road'].includes(field.key)"
+                <input v-if="field.key != 'sign_location_from_road'" type="text"
+                  v-model="editActiveSign[field.key as keyof DetailedSign]"
+                  :readonly="!['road_direction'].includes(field.key)" :required="['road_direction'].includes(field.key)"
                   class="border rounded px-2 py-1 bg-gray-100" />
+                <select v-else v-model="editActiveSign.sign_location_from_road" required class="border rounded px-2 py-1">
+                  <option v-for="option in signLocationsFromRoad" :value="option">
+                    {{ option }}
+                  </option>
+                </select>
               </div>
               <!-- 13. Sign Base -->
               <div class="flex flex-col">
@@ -463,17 +480,17 @@
               <!-- 14–17 Number entries -->
               <div class="flex flex-col">
                 <label class="font-medium mb-1">المسافة من نهاية كتف الطريق حتى اللوحة (م)</label>
-                <input v-model.number="editActiveSign.distance_from_road_edge_meter" type="number" step="0.1"
+                <input v-model.number="editActiveSign.distance_from_road_edge_meter" type="number" step="any"
                   class="border rounded px-2 py-1" required />
               </div>
               <div class="flex flex-col">
                 <label class="font-medium mb-1">نصف قطر أنبوب اللوحة (مم)</label>
-                <input v-model.number="editActiveSign.sign_column_radius_mm" required type="number" step="0.1"
+                <input v-model.number="editActiveSign.sign_column_radius_mm" required type="number" step="any"
                   class="border rounded px-2 py-1" />
               </div>
               <div class="flex flex-col">
                 <label class="font-medium mb-1">طول الأنبوب (م)</label>
-                <input v-model.number="editActiveSign.column_height" required type="number" step="0.1"
+                <input v-model.number="editActiveSign.column_height" required type="number" step="any"
                   class="border rounded px-2 py-1" />
               </div>
 
@@ -662,6 +679,11 @@ import ApiService from '@/core/services/ApiService';
 import Swal from 'sweetalert2';
 import { DetailedSign } from '@/core/types/data/DetailedSign';
 import signsList from '@/assets/signs.json'           // ← your uploaded JSON
+import { MSwal, QSwal } from '@/core/plugins/SweetAlerts2';
+import { AxiosError } from 'axios';
+import { BackendResponseData } from '@/core/types/config/AxiosCustom';
+import { getMessageFromObj } from '@/assets/ts/swalMethods';
+import SolidHeroIcon from '@/components/icons/SolidHeroIcon.vue';
 
 // index of the currently displayed sign in signsPaginated.data
 const modalIndex = ref<number | null>(null);
@@ -871,8 +893,7 @@ const signNameOptions = [
   'U-Turn Permitted Except By Trucks',
   'Escape Lane Ahead'
 ];
-
-
+const signLocationsFromRoad = ref(['يمين', 'يسار', 'منتصف', 'جزيرة وسطية'])
 
 //
 // Helper: format dates in table
@@ -1069,21 +1090,26 @@ async function submitEditUpdate() {
   }
   editFilesToUpload.value.forEach(f => form.append('files[]', f));
 
-  try {
-    ApiService.setHeader(authStore.token as string);
-    // form.append('_method', 'PATCH');
-    await ApiService.post(`/api/spa/signs/detailed/${id}`, form);
-    await Swal.fire('تم!', 'تم تحديث الإشارة بنجاح.', 'success');
-    await detailedSignsStore.fetchDetailedSignsPaginated(signsPaginated.value!.current_page);
-    showEditModal.value = false;
-  } catch (err: any) {
-    await Swal.fire('خطأ!', err.message || 'فشل التحديث.', 'error');
-  } finally {
-    await detailedSignsStore.fetchDetailedSignsPaginated();
-    await loadGoogle();
-    await initMap();
-    watch(signsPaginated, () => placeAllSignMarkers());
-  }
+  QSwal.fire('تحديث الإشارة ؟', 'سيتم تحديث بيانات الإشارة.', 'question')
+    .then(async (result) => {
+      if (result.isConfirmed) {
+
+        try {
+          ApiService.setHeader(authStore.token as string);
+          // form.append('_method', 'PATCH');
+          await ApiService.post(`/api/spa/signs/detailed/${id}`, form);
+          await Swal.fire('تم!', 'تم تحديث الإشارة بنجاح.', 'success');
+        } catch (err: any) {
+          await Swal.fire('خطأ!', err.message || 'فشل التحديث.', 'error');
+        } finally {
+          await detailedSignsStore.fetchDetailedSignsPaginated();
+          await loadGoogle();
+          await initMap();
+          watch(signsPaginated, () => placeAllSignMarkers());
+        }
+
+      }
+    })
 }
 
 //
@@ -1206,8 +1232,8 @@ async function initMap() {
     const c = map!.getCenter()!;
     lat.value = c.lat().toFixed(6);
     lng.value = c.lng().toFixed(6);
-    document.getElementById('latlong')!
-      .innerText = `Lat: ${c.lat().toFixed(6)} | Lng: ${c.lng().toFixed(6)}`;
+    // document.getElementById('latlong')!
+    //   .innerText = `Lat: ${c.lat().toFixed(6)} | Lng: ${c.lng().toFixed(6)}`;
   });
 }
 
@@ -1223,8 +1249,8 @@ function placeAllSignMarkers() {
       position: { lat: la, lng: ln },
       map,
       icon: {
-        path: google.maps.SymbolPath.CIRCLE,
-        scale: 6,
+        path: 'M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z',
+        scale: 1.25,
         fillColor: isComplete(s) ? '#00ae42' : '#b00101',
         fillOpacity: 1,
         strokeWeight: 1,
@@ -1285,18 +1311,81 @@ function nextEditSign() {
   }
 }
 
+const submitExport = async () => {
+  QSwal.fire('تصدير الإشارات ؟', 'التصدير إلى ملف إكسل.', 'question')
+    .then(async (result) => {
+      if (result.isConfirmed) {
+
+        ApiService.setHeader(authStore.token as string, 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+        await ApiService.post(`/api/spa/signs/detailed/export`, null, {
+          responseType: 'arraybuffer', // Crucial for binary files
+          headers: {
+            'Accept': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            'Content-Type': 'multipart/form-data' // Or 'application/json'
+          }
+        }).then(response => {
+          // Verify we got binary data
+          if (!(response.data instanceof ArrayBuffer)) {
+            throw new Error('Invalid response format');
+          }
+
+          // Create blob with explicit type
+          const blob = new Blob([response.data], {
+            type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+          });
+
+          // Get filename
+          let filename = 'Subscriptions_' + new Date().toISOString().split('T')[0] + '.xlsx';
+          const disposition = response.headers['content-disposition'];
+          if (disposition) {
+            const matches = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/.exec(disposition);
+            if (matches && matches[1]) {
+              filename = matches[1].replace(/['"]/g, '');
+            }
+          }
+
+          // Create and trigger download
+          const url = window.URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href = url;
+          link.download = filename;
+          document.body.appendChild(link);
+          link.click();
+
+          // Cleanup
+          setTimeout(() => {
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(url);
+          }, 100);
+
+        }).catch((error: AxiosError<BackendResponseData>) => {
+          MSwal.fire('خطأ غير متوقع!', getMessageFromObj(error), 'error');
+        });
+
+      }
+    })
+}
+
 </script>
 
 
 
 
 <style scoped>
-.dashboard_view_container {
+/*.dashboard_view_container {
   min-height: 100vh;
-}
+}*/
 
 .cursor-pointer {
   cursor: pointer;
+}
+
+.main-height {
+  height: calc(100vh - 10rem);
+}
+
+.modal-z-index {
+  z-index: 1050;
 }
 
 /* 

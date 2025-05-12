@@ -17,7 +17,8 @@
     "typeRoots": [
       "./node_modules/@types",
       "./resources/vue-app/core/types/declarations"
-    ]
+    ],
+    "resolveJsonModule": true
   },
   "include": [
     "resources/vue-app/**/*.js",

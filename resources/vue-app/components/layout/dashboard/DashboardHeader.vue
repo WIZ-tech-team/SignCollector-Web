@@ -1,7 +1,7 @@
 <template>
     <header id="ttk_dashboard_header" class="shadow-md">
         <div class="flex items-center justify-start gap-8 w-full bg-white p-0">
-            <div class="flex items-center justify-start gap-4 w-[260px] px-4 py-4 bg-brand h-[72px]">
+            <div class="flex items-center justify-start gap-4 px-8 py-4 bg-brand h-[72px]">
              
                 <span class="text-white text-lg font-bold">
                     <!-- <img src="@/assets/images/" alt="" class="w-100"> -->

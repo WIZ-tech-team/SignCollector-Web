@@ -40,16 +40,6 @@ const routes: RouteRecordRaw[] = [
                         }
                     },
                     {
-                        path: '/elabs-config/voices',
-                        name: 'elabsConfig.voices',
-                        component: () => import("@/views/dashboard/elevenlabs/VoicesConfigView.vue"),
-                        meta: {
-                            pageTitle: "AI Voices",
-                            auth: true,
-                            allowedUsers: ['Admin']
-                        }
-                    },
-                    {
                         path: '/map',
                         name: 'map',
                         component: () => import("@/views/dashboard/MapView.vue"),
