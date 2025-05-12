@@ -1,13 +1,13 @@
 <template>
   <div class="dashboard_view_container">
-    <div>
+    <div class="">
       <!-- Main two-column area: fixed height = map height, centered vertically & horizontally -->
       <div class="flex items-start justify-between gap-4 h-[75vh] mt-4 main-height">
 
         <!-- Right half: table + pagination -->
-        <div class="w-1/2 flex flex-col gap-4 h-full">
+        <div class="w-1/2 flex flex-col gap-4 h-full border border-1 border-gray-100 p-4 rounded-lg shadow-sm bg-white">
           <!-- Header Actions -->
-          <div class="flex items-center gap-4 justify-between">
+          <div class="flex items-center gap-4 justify-between border-b-2 pb-3 border-gray-200">
             <!-- Filter -->
             <div class="flex items-center justify-start gap-4">
               <label class="text-md font-medium">الحالة</label>
@@ -30,7 +30,7 @@
             <table v-if="signsFiltered" class="min-w-full border-collapse">
               <thead>
                 <tr class="bg-gray-100">
-                  <th class="p-2 border">ID</th>
+                  <th class="p-2 border">المعرّف</th>
                   <th class="p-2 border">اسم اللوحة </th>
                   <th class="p-2 border">الولاية</th>
                   <th class="p-2 border">تاريخ إدخال البيانات</th>
@@ -49,10 +49,12 @@
                   <td class="p-2 border">{{ sign.willayat }}</td>
                   <td class="p-2 border">{{ formatDate(sign.created_at) }}</td>
                   <td class="p-2 border">{{ sign.created_by }}</td>
-                  <td class="p-2 border text-center font-medium" :class="isComplete(sign)
-                    ? 'bg-green-100 text-green-800'
-                    : 'bg-red-100 text-red-800'">
-                    {{ isComplete(sign) ? 'مكتملة' : 'غير مكتملة' }}
+                  <td class="p-2 border">
+                    <span class="w-full px-2 py-1 text-center font-medium rounded-full text-nowrap" :class="isComplete(sign)
+                      ? 'bg-green-100 text-green-800 border-green-800'
+                      : 'bg-red-100 text-red-800 border-red-800'">
+                      {{ isComplete(sign) ? 'مكتملة' : 'غير مكتملة' }}
+                    </span>
                   </td>
                   <td class="p-2 border">
                     <div class="flex items-center justify-center gap-2">
@@ -91,18 +93,18 @@
         </div>
 
         <!-- Left half: toggles, map, lat/lng -->
-        <div class="w-1/2 flex flex-col gap-4 h-full">
+        <div class="w-1/2 flex flex-col gap-4 h-full p-4 rounded-lg bg-white">
           <!-- Overlay Toggles -->
-          <div class="flex items-center space-x-2">
+          <div class="flex items-center gap-2">
             <button @click="toggleMara" :class="[
-              'px-3 py-1 rounded border',
+              'gap-2 p-2 rounded-md border',
               maraEnabled ? 'bg-green-600 text-white' : 'bg-white text-gray-700'
             ]">
               <!-- {{ maraEnabled ? 'Hide' : 'Show' }} Parcels -->
               قطع الأراضي
             </button>
             <button @click="toggleNsdi" :class="[
-              'px-3 py-1 rounded border',
+              'gap-2 p-2 rounded-md border',
               nsdiEnabled ? 'bg-blue-600 text-white' : 'bg-white text-gray-700'
             ]">
               <!-- {{ nsdiEnabled ? 'Hide' : 'Show' }} NSDI Roads -->
@@ -111,7 +113,7 @@
           </div>
 
           <!-- Map Container -->
-          <div class="flex-1 map-container rounded-md overflow-hidden">
+          <div class="flex-1 map-container rounded-md overflow-hidden shadow-sm bg-white shadow-gray-300">
             <div ref="mapRef" class="w-full h-full"></div>
           </div>
 
@@ -126,7 +128,7 @@
 
     <!-- SHOW MODAL -->
     <div v-if="showModal" class="fixed inset-0 flex items-center justify-center modal-z-index">
-      <div  @click.prevent="showModal = false" class="fixed inset-0 bg-black bg-opacity-50 w-full h-full"></div>
+      <div @click.prevent="showModal = false" class="fixed inset-0 bg-black bg-opacity-50 w-full h-full"></div>
       <div class="bg-white w-11/12 h-5/6 rounded-lg shadow-lg relative overflow-hidden">
         <!-- Close -->
         <button type="button" @click.prevent="showModal = false"
@@ -144,7 +146,7 @@
 
               <h2 class="text-2xl font-bold px-4 py-2 rounded-md"
                 :class="isComplete(activeSign) ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'">
-                Sign #{{ activeSign.id }}
+                لوحة - {{ activeSign.id }}#
               </h2>
 
               <button @click="nextSign" :disabled="modalIndex === signsFiltered.length - 1"
@@ -157,7 +159,7 @@
             <div class="overflow-auto h-[90%]">
               <!-- 1. ID -->
               <div class="flex flex-col">
-                <label class="font-medium mb-1">ID</label>
+                <label class="font-medium mb-1">المعرّف</label>
                 <input type="text" :value="activeSign.id" readonly class="border rounded px-2 py-1 bg-gray-100" />
               </div>
 
@@ -356,7 +358,7 @@
           </div>
 
           <!-- Image Slider -->
-          <div class="w-1/3 flex flex-col bg-gray-100 p-4 h-full">
+          <div v-if="imageUrls.length > 0" class="w-1/3 flex flex-col bg-gray-100 p-4 h-full">
             <div class="flex-1 relative overflow-hidden">
               <div v-for="(url, idx) in imageUrls" :key="idx"
                 class="absolute inset-0 flex items-center justify-center transition-opacity duration-300"
@@ -364,12 +366,17 @@
                 <img :src="url as string" class="max-w-full max-h-full object-contain rounded" alt="sign image" />
               </div>
             </div>
-            <div v-if="imageUrls?.length > 0" class="mt-2 flex space-x-2 justify-center">
-              <button class="px-2 py-1 bg-white border rounded disabled:opacity-50" :disabled="sliderIndex === 0"
-                @click="sliderIndex--">السابق</button>
-              <button class="px-2 py-1 bg-white border rounded disabled:opacity-50"
+            <div v-if="imageUrls?.length > 0" class="mt-2 flex gap-2 justify-center">
+              <button class="gap-2 p-2 rounded-md border bg-white w-[4.5rem] disabled:opacity-50"
+                :disabled="sliderIndex === 0" @click="sliderIndex--">السابق</button>
+              <button class="gap-2 p-2 rounded-md border bg-white w-[4.5rem] disabled:opacity-50"
                 :disabled="sliderIndex === imageUrls.length - 1" @click="sliderIndex++">التالي</button>
             </div>
+          </div>
+          <div v-else class="w-1/3 flex flex-col bg-gray-100 p-4 h-full">
+            <span class="text-lg text-gray-500 text-center font-bold">
+              لا يوجد صور لهذه اللائحة
+            </span>
           </div>
           <!-- Map + Street View -->
           <div class="w-1/3 flex flex-col">
@@ -381,9 +388,8 @@
     </div>
 
     <!-- EDIT MODAL -->
-    <div v-if="showEditModal"
-      class="fixed inset-0 flex items-center justify-center modal-z-index">
-      <div  @click.prevent="showEditModal = false" class="fixed inset-0 bg-black bg-opacity-50 w-full h-full"></div>
+    <div v-if="showEditModal" class="fixed inset-0 flex items-center justify-center modal-z-index">
+      <div @click.prevent="showEditModal = false" class="fixed inset-0 bg-black bg-opacity-50 w-full h-full"></div>
       <div class="bg-white w-11/12 h-5/6 rounded-lg shadow-lg relative overflow-hidden">
         <!-- Close -->
         <button @click="showEditModal = false"
@@ -400,7 +406,7 @@
 
               <h2 class="text-2xl font-bold px-4 py-2 rounded-md"
                 :class="isComplete(editActiveSign) ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'">
-                Sign #{{ editActiveSign.id }}
+                لوحة - {{ editActiveSign.id }}#
               </h2>
               <button @click.prevent="nextEditSign" :disabled="editModalIndex === signsFiltered.length - 1"
                 class="px-2 py-1 bg-gray-200 text-gray-700 rounded-md disabled:opacity-50">
@@ -411,7 +417,7 @@
             <div class="overflow-auto h-[90%]">
               <!-- 1. ID (read-only) -->
               <div class="flex flex-col">
-                <label class="font-medium mb-1">ID</label>
+                <label class="font-medium mb-1">المعرّف</label>
                 <input type="text" :value="editActiveSign.id" readonly class="border rounded px-2 py-1 bg-gray-100" />
               </div>
 
@@ -460,7 +466,8 @@
                   v-model="editActiveSign[field.key as keyof DetailedSign]"
                   :readonly="!['road_direction'].includes(field.key)" :required="['road_direction'].includes(field.key)"
                   class="border rounded px-2 py-1 bg-gray-100" />
-                <select v-else v-model="editActiveSign.sign_location_from_road" required class="border rounded px-2 py-1">
+                <select v-else v-model="editActiveSign.sign_location_from_road" required
+                  class="border rounded px-2 py-1">
                   <option v-for="option in signLocationsFromRoad" :value="option">
                     {{ option }}
                   </option>
@@ -644,7 +651,7 @@
           </div>
 
           <!-- Middle: preview slider -->
-          <div class="w-1/3 bg-gray-100 p-4 flex flex-col">
+          <div v-if="editImageUrls.length > 0" class="w-1/3 bg-gray-100 p-4 flex flex-col">
             <div class="flex-1 relative overflow-hidden">
               <div v-for="(url, idx) in editImageUrls" :key="idx"
                 class="absolute inset-0 flex items-center justify-center transition-opacity duration-300"
@@ -653,11 +660,16 @@
               </div>
             </div>
             <div v-if="editImageUrls.length" class="mt-2 flex justify-center space-x-2">
-              <button type="button" class="px-2 py-1 bg-white border rounded disabled:opacity-50"
+              <button type="button" class="gap-2 p-2 rounded-md border bg-white w-[4.5rem] disabled:opacity-50"
                 :disabled="editSliderIndex === 0" @click="editSliderIndex--">السابق</button>
-              <button type="button" class="px-2 py-1 bg-white border rounded disabled:opacity-50"
+              <button type="button" class="gap-2 p-2 rounded-md border bg-white w-[4.5rem] disabled:opacity-50"
                 :disabled="editSliderIndex === editImageUrls.length - 1" @click="editSliderIndex++">التالي</button>
             </div>
+          </div>
+          <div v-else class="w-1/3 flex flex-col bg-gray-100 p-4 h-full">
+            <span class="text-lg text-gray-500 text-center font-bold">
+              لا يوجد صور لهذه اللائحة
+            </span>
           </div>
 
           <!-- Right: map & street view -->
@@ -1090,7 +1102,7 @@ async function submitEditUpdate() {
   }
   editFilesToUpload.value.forEach(f => form.append('files[]', f));
 
-  QSwal.fire('تحديث الإشارة ؟', 'سيتم تحديث بيانات الإشارة.', 'question')
+  QSwal.fire('تحديث اللوحة ؟', 'سيتم تحديث بيانات اللوحة.', 'question')
     .then(async (result) => {
       if (result.isConfirmed) {
 
@@ -1098,7 +1110,7 @@ async function submitEditUpdate() {
           ApiService.setHeader(authStore.token as string);
           // form.append('_method', 'PATCH');
           await ApiService.post(`/api/spa/signs/detailed/${id}`, form);
-          await Swal.fire('تم!', 'تم تحديث الإشارة بنجاح.', 'success');
+          await Swal.fire('تم!', 'تم تحديث اللوحة بنجاح.', 'success');
         } catch (err: any) {
           await Swal.fire('خطأ!', err.message || 'فشل التحديث.', 'error');
         } finally {
@@ -1118,7 +1130,7 @@ async function submitEditUpdate() {
 async function onDelete(sign: DetailedSign) {
   const res = await Swal.fire({
     title: 'تأكيد الحذف',
-    text: `هل أنت متأكد أنك تريد حذف الإشارة "${sign.sign_name}"؟`,
+    text: `هل أنت متأكد أنك تريد حذف اللوحة "${sign.sign_name}"؟`,
     icon: 'warning',
     showCancelButton: true,
     confirmButtonText: 'نعم، احذفها',
@@ -1128,7 +1140,7 @@ async function onDelete(sign: DetailedSign) {
   try {
     ApiService.setHeader(authStore.token as string, 'application/json');
     await ApiService.delete(`/api/spa/signs/detailed/${sign.id}`);
-    await Swal.fire('تم الحذف', 'تم حذف الإشارة بنجاح.', 'success');
+    await Swal.fire('تم الحذف', 'تم حذف اللوحة بنجاح.', 'success');
     await detailedSignsStore.fetchDetailedSignsPaginated(signsPaginated.value!.current_page);
   } catch (err: any) {
     await Swal.fire('خطأ', err.message || 'Delete failed.', 'error');
@@ -1250,7 +1262,7 @@ function placeAllSignMarkers() {
       map,
       icon: {
         path: 'M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z',
-        scale: 1.25,
+        scale: 1.35,
         fillColor: isComplete(s) ? '#00ae42' : '#b00101',
         fillOpacity: 1,
         strokeWeight: 1,
@@ -1312,7 +1324,7 @@ function nextEditSign() {
 }
 
 const submitExport = async () => {
-  QSwal.fire('تصدير الإشارات ؟', 'التصدير إلى ملف إكسل.', 'question')
+  QSwal.fire('تصدير اللوحات ؟', 'التصدير إلى ملف إكسل.', 'question')
     .then(async (result) => {
       if (result.isConfirmed) {
 
@@ -1381,7 +1393,7 @@ const submitExport = async () => {
 }
 
 .main-height {
-  height: calc(100vh - 10rem);
+  height: calc(100vh - 9.25rem);
 }
 
 .modal-z-index {
