@@ -8,9 +8,6 @@ export type BackendApiRoute =
     `/api/spa/users/${number}/` |
     `/api/spa/users/${number}/soft` |
     `/api/spa/users/${number}/restore` |
-    `/api/spa/admin/elevenlabs/voices` |
-    `/api/spa/admin/elevenlabs/voices/${number}` |
-    `/api/spa/admin/elevenlabs/voices${string}` |
     `/api/spa/signs/detailed${string}` |
     `/api/mobile/signs/detailed`|
-    `/spa/signs/detailed/${number}` 
+    `/spa/signs/detailed/${number}`

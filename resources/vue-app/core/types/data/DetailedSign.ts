@@ -41,7 +41,8 @@ export type DetailedSign = {
     photo_url?: string;
     image_url?: string;
     image: Media;
-    image_urls: String[];
+    image_urls: string[];
+    gps_accuracy?: string;
 }
 
 export const detailedSignKeysTitles = [
