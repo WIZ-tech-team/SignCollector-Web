@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Mobile;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\DetailedSignResource;
 use App\Models\DetailedSign;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -83,9 +84,11 @@ class DetailedSignsController extends Controller
             'sign_condition'                 => 'nullable|string|max:255',
             'comments'                       => 'nullable|string',
             'created_by'                     => 'nullable|string|max:255',
-   // New string fields
-   'image_log'                      => 'nullable|string|max:255',
-   'image_lar'                      => 'nullable|string|max:255',
+            'created_at'                     => 'required|date_format:Y-m-d H:i:s',
+
+            // New string fields
+            'image_log'                      => 'nullable|string|max:255',
+            'image_lar'                      => 'nullable|string|max:255',
 
             // Multiple image files
             'files'                          => 'nullable|array',
@@ -103,13 +106,20 @@ class DetailedSignsController extends Controller
 
         try {
             // Create sign record (excluding files[])
+            if (isset($request['created_at'])) {
+                $request['created_at'] = Carbon::createFromFormat(
+                    'Y-m-d H:i:s',
+                    $request['created_at']
+                );
+            }
+
             $sign = DetailedSign::create($request->except('files'));
 
             // Attach each uploaded file to the media library
             if ($request->hasFile('files')) {
                 foreach ($request->file('files') as $file) {
                     $sign->addMedia($file)
-                         ->toMediaCollection('detailed_signs');
+                        ->toMediaCollection('detailed_signs');
                 }
             }
 
@@ -119,7 +129,6 @@ class DetailedSignsController extends Controller
                 'status' => 'success',
                 'data'   => DetailedSignResource::make($sign),
             ], Response::HTTP_CREATED);
-
         } catch (FileCannotBeAdded $e) {
             DB::rollBack();
             Log::error('Media upload failed: ' . $e->getMessage());
@@ -128,7 +137,6 @@ class DetailedSignsController extends Controller
                 'status'  => 'error',
                 'message' => 'Failed to save one or more images.',
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
-
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Sign creation failed: ' . $e->getMessage());
@@ -156,7 +164,6 @@ class DetailedSignsController extends Controller
                 'status'  => 'success',
                 'message' => 'Sign and its media were deleted successfully.',
             ], Response::HTTP_OK);
-
         } catch (\Exception $e) {
             Log::error('Failed to delete sign: ' . $e->getMessage());
 
