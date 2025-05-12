@@ -10,8 +10,8 @@
           <div class="flex items-center gap-4 justify-between border-b-2 pb-3 border-gray-200">
             <!-- Filter -->
             <div class="flex items-center justify-start gap-4">
-              <label class="text-md font-medium">الحالة</label>
-              <select v-model="completeSignFilter" class="border rounded px-2 py-1">
+              <label class="text-md font-semibold">الحالة</label>
+              <select v-model="completeSignFilter" class="border rounded px-1 py-1 text-sm">
                 <option value="all">الكل</option>
                 <option value="complete">المكتملة</option>
                 <option value="not-complete">الغير مكتملة</option>
@@ -29,8 +29,10 @@
           <div class="h-full overflow-auto">
             <table v-if="signsFiltered" class="min-w-full border-collapse">
               <thead>
-                <tr class="bg-gray-100">
-                  <th class="p-2 border">المعرّف</th>
+                <tr class="bg-gray-100 text-xs">
+                  <th @click.prevent="toggleRecordsSort()" class="p-2 border cursor-pointer">
+                    المعرّف &uarr;&darr;
+                  </th>
                   <th class="p-2 border">اسم اللوحة </th>
                   <th class="p-2 border">الولاية</th>
                   <th class="p-2 border">تاريخ إدخال البيانات</th>
@@ -43,11 +45,11 @@
                 <tr v-for="sign in signsFiltered" :key="sign.id" @click="selectRow(sign)" :class="[
                   'cursor-pointer transition-colors',
                   selectedId === sign.id ? 'bg-blue-100' : 'hover:bg-gray-50'
-                ]">
+                ]" class="text-sm">
                   <td class="p-2 border">{{ sign.id }}</td>
                   <td class="p-2 border">{{ sign.sign_name }}</td>
                   <td class="p-2 border">{{ sign.willayat }}</td>
-                  <td class="p-2 border">{{ formatDate(sign.created_at) }}</td>
+                  <td class="p-2 border text-xxs">{{ formatDate(sign.created_at) }}</td>
                   <td class="p-2 border">{{ sign.created_by }}</td>
                   <td class="p-2 border">
                     <span class="w-full px-2 py-1 text-center font-medium rounded-full text-nowrap" :class="isComplete(sign)
@@ -721,14 +723,23 @@ const mandatoryFields = ref([
   'sign_color'
 ])
 
+const sortById = ref<'asc'|'desc'>('asc')
 const completeSignFilter = ref<'complete' | 'not-complete' | 'all'>('all')
-const signsFiltered = computed(() => {
+const signsFiltered = computed<DetailedSign[]>(() => {
+  let arr:DetailedSign[]
   if (completeSignFilter.value === 'all')
-    return signsPaginated.value?.data ?? [];
+    arr = signsPaginated.value?.data ?? [];
   else if (completeSignFilter.value === 'complete')
-    return signsPaginated.value?.data ? signsPaginated.value.data.filter(sign => isComplete(sign)) : []
+    arr = signsPaginated.value?.data ? signsPaginated.value.data.filter(sign => isComplete(sign)) : []
   else
-    return signsPaginated.value?.data ? signsPaginated.value.data.filter(sign => !isComplete(sign)) : []
+    arr = signsPaginated.value?.data ? signsPaginated.value.data.filter(sign => !isComplete(sign)) : []
+
+    if(sortById.value === 'asc')
+      arr = arr.sort((a,b) => a.id - b.id)
+    else
+      arr = arr.sort((a,b) => b.id - a.id)
+
+      return arr
 })
 
 // instead of just a string array, make each one an object
@@ -1378,6 +1389,10 @@ const submitExport = async () => {
     })
 }
 
+const toggleRecordsSort = () => {
+  sortById.value = (sortById.value === 'asc') ? 'desc' : 'asc'
+}
+
 </script>
 
 
@@ -1398,6 +1413,10 @@ const submitExport = async () => {
 
 .modal-z-index {
   z-index: 1050;
+}
+
+.text-xxs {
+  font-size: smaller;
 }
 
 /* 

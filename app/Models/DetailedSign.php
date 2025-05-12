@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
@@ -22,7 +23,7 @@ class DetailedSign extends Model implements HasMedia
         'sign_radius',
         'sign_color',
         'gps_accuracy',
-        
+
         'road_classification',
         'road_name',
         'road_number',
@@ -52,6 +53,19 @@ class DetailedSign extends Model implements HasMedia
         'image_log',
         'image_lar'
     ];
+
+    public function setCreatedAtAttribute($value)
+    {
+        $this->attributes['created_at'] = $value;
+    }
+
+    public function getCreatedAtAttribute($value) {
+        return Carbon::parse($value)->format('Y-m-d H:i:s');
+    }
+
+    public function getUpdatedAtAttribute($value) {
+        return Carbon::parse($value)->format('Y-m-d H:i:s');
+    }
 
     public function registerMediaCollections(): void
     {
