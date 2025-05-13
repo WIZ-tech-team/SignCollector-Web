@@ -9,5 +9,7 @@ export type BackendApiRoute =
     `/api/spa/users/${number}/soft` |
     `/api/spa/users/${number}/restore` |
     `/api/spa/signs/detailed${string}` |
-    `/api/mobile/signs/detailed`|
-    `/spa/signs/detailed/${number}`
+    `/api/mobile/signs/detailed` |
+    `/spa/signs/detailed/${number}` |
+    '/api/governorates' |
+    '/api/roads'

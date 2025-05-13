@@ -1242,7 +1242,8 @@ async function initMap() {
   if (!mapRef.value) return;
   map = new google.maps.Map(mapRef.value, {
     center: { lat: 23.585, lng: 57.996 },
-    zoom: 6
+    zoom: 6,
+    mapTypeId: 'hybrid'
   });
   //marker = new google.maps.Marker({ position: map.getCenter()!, map });
   rebuildOverlays();

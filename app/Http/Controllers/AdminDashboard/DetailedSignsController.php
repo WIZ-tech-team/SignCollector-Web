@@ -6,6 +6,9 @@ use App\Exports\DetailedSignsExport;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\DetailedSignResource;
 use App\Models\DetailedSign;
+use App\Models\Governorate;
+use App\Models\Road;
+use App\Models\Willayat;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Excel as ExcelExcel;
 use Illuminate\Support\Facades\Validator;      // ← add this line
@@ -57,10 +60,20 @@ class DetailedSignsController extends Controller
         }
     }
 
-    public function export()
+    public function export(Request $request)
     {
+        $request->validate([
+            'governorate' => 'string',
+            'willayat' => 'string',
+            'road' => 'string'
+        ]);
+
+        $gov = Governorate::where('name_ar', $request['governorate'])->first();
+        $willayat = Willayat::where('name_ar', $request['willayat'])->first();
+        $road = Road::where('name', $request['road'])->first();
+
         return Excel::download(
-            new DetailedSignsExport(),
+            new DetailedSignsExport($gov, $willayat, $road),
             'Signs_' . today()->format('Y-m-d') . '.xlsx', // Ensure extension here
             ExcelExcel::XLSX
         );
