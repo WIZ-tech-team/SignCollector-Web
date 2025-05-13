@@ -19,11 +19,8 @@
             </div>
 
             <!-- Export Action -->
-            <button @click.prevent="submitExport"
-              class="flex items-center justify-center gap-2 p-2 rounded-md bg-brand text-light-brand hover:bg-light-brand hover:text-brand focus:outline-none">
-              تصدير
-              <SolidHeroIcon name="ArrowUpTrayIcon" classes="w-5 h-5" />
-            </button>
+            <SignsExport></SignsExport>
+
           </div>
           <!-- Scrollable, centered table area -->
           <div class="h-full overflow-auto">
@@ -698,6 +695,8 @@ import { AxiosError } from 'axios';
 import { BackendResponseData } from '@/core/types/config/AxiosCustom';
 import { getMessageFromObj } from '@/assets/ts/swalMethods';
 import SolidHeroIcon from '@/components/icons/SolidHeroIcon.vue';
+import ModalCard from '@/components/cards/ModalCard.vue';
+import SignsExport from '@/components/partials/SignsExport.vue';
 
 // index of the currently displayed sign in signsPaginated.data
 const modalIndex = ref<number | null>(null);
@@ -723,10 +722,10 @@ const mandatoryFields = ref([
   'sign_color'
 ])
 
-const sortById = ref<'asc'|'desc'>('asc')
+const sortById = ref<'asc' | 'desc'>('asc')
 const completeSignFilter = ref<'complete' | 'not-complete' | 'all'>('all')
 const signsFiltered = computed<DetailedSign[]>(() => {
-  let arr:DetailedSign[]
+  let arr: DetailedSign[]
   if (completeSignFilter.value === 'all')
     arr = signsPaginated.value?.data ?? [];
   else if (completeSignFilter.value === 'complete')
@@ -734,12 +733,12 @@ const signsFiltered = computed<DetailedSign[]>(() => {
   else
     arr = signsPaginated.value?.data ? signsPaginated.value.data.filter(sign => !isComplete(sign)) : []
 
-    if(sortById.value === 'asc')
-      arr = arr.sort((a,b) => a.id - b.id)
-    else
-      arr = arr.sort((a,b) => b.id - a.id)
+  if (sortById.value === 'asc')
+    arr = arr.sort((a, b) => a.id - b.id)
+  else
+    arr = arr.sort((a, b) => b.id - a.id)
 
-      return arr
+  return arr
 })
 
 // instead of just a string array, make each one an object
@@ -923,7 +922,7 @@ const signLocationsFromRoad = ref(['يمين', 'يسار', 'منتصف', 'جزي
 //
 function formatDate(dateString: string) {
   let isoString = dateString.replace(" ", "T") + "Z";
-  const d = new Date(isoString);  
+  const d = new Date(isoString);
   let date = d.toLocaleDateString();
   let time = `${d.getHours()}:${d.getMinutes()}`
   return date + ' ' + time
