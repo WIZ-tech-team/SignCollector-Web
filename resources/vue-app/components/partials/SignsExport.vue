@@ -261,6 +261,9 @@ const submitExport = async () => {
             }
         }).finally(() => {
             submitLoading.value = false
+            exportModel.value.governorate = 'all'
+            exportModel.value.willayat = 'all'
+            exportModel.value.road = 'all'
         })
 }
 </script>
