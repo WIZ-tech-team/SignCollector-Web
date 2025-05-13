@@ -18,7 +18,7 @@ class DatabaseSeeder extends Seeder
     {
         // User::factory(10)->create();
         $this->call(StaticMobileUsersSeeder::class);
-        $this->call(DetailedSignsTableSeeder::class);
+//        $this->call(DetailedSignsTableSeeder::class);
 
         User::factory()->create([
             'name' => 'Test Admin',
