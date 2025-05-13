@@ -3,6 +3,7 @@
 use App\Http\Controllers\Mobile\AuthController;
 use App\Http\Controllers\Mobile\DetailedSignsController;
 use App\Http\Controllers\Mobile\SignsController;
+use App\Http\Controllers\PlacesController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('mobile')->group(function () {
@@ -27,3 +28,7 @@ Route::prefix('mobile')->group(function () {
         Route::delete('{sign}', 'destroy');
     });
 });
+
+Route::get('/governorates', [PlacesController::class, 'governoratesList']);
+Route::get('/villages', [PlacesController::class, 'villagesList']);
+Route::get('/roads', [PlacesController::class, 'roadsList']);

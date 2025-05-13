@@ -3,18 +3,44 @@
 namespace App\Exports;
 
 use App\Models\DetailedSign;
+use App\Models\Governorate;
+use App\Models\Road;
+use App\Models\Willayat;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 
 class DetailedSignsExport implements FromCollection, WithHeadings
 {
 
+    private Governorate|null $governorate;
+    private Willayat|null $willayat;
+    private Road|null $road;
+
+    public function __construct($g, $w, $r)
+    {
+        $this->governorate = $g;
+        $this->willayat = $w;
+        $this->road = $r;
+    }
+
     /**
      * @return \Illuminate\Support\Collection
      */
     public function collection()
     {
-        return DetailedSign::all();
+        if ($this->governorate) {
+            if ($this->willayat) {
+                return DetailedSign::where('governorate', $this->governorate->name_ar)
+                    ->where('willayat', $this->willayat->name_ar)
+                    ->get();
+            } else {
+                return DetailedSign::where('governorate', $this->governorate->name_ar)->get();
+            }
+        } elseif ($this->road) {
+            return DetailedSign::where('road_name', $this->road->name)->get();
+        } else {
+            return DetailedSign::all();
+        }
     }
 
     public function map($sign): array
