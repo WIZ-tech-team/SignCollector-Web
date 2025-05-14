@@ -73,7 +73,33 @@ class ExportDetailedSignsController extends Controller
             $kml = '<?xml version="1.0" encoding="UTF-8"?>
             <kml xmlns="http://www.opengis.net/kml/2.2">
                 <Document>
-                    <name>Road Signs Export</name>';
+                    <name>Road Signs Export</name>
+                    <!-- Style for Left Bend (Warning Sign, Triangle) -->
+                    <Style id="leftBendStyle">
+                        <IconStyle>
+                            <scale>1.2</scale>
+                            <Icon>
+                                <href>https://maps.google.com/mapfiles/kml/shapes/warning.png</href>
+                            </Icon>
+                        </IconStyle>
+                        <LabelStyle>
+                            <color>ffffffff</color>
+                            <scale>1.0</scale>
+                        </LabelStyle>
+                    </Style>
+                    <!-- Style for N/A Signs (Generic Marker) -->
+                    <Style id="defaultSignStyle">
+                        <IconStyle>
+                            <scale>1.0</scale>
+                            <Icon>
+                                <href>https://maps.google.com/mapfiles/kml/paddle/red-circle.png</href>
+                            </Icon>
+                        </IconStyle>
+                        <LabelStyle>
+                            <color>ffffffff</color>
+                            <scale>1.0</scale>
+                        </LabelStyle>
+                    </Style>';
 
             // Add placemarks for each sign
             foreach ($signs as $sign) {
@@ -82,86 +108,86 @@ class ExportDetailedSignsController extends Controller
                     <Placemark>
                     <name>%s</name>
                     <description><![CDATA[
-                        id: %s<br/>
-                        sign_name: %s<br/>
-                        sign_code: %s<br/>
-                        sign_code_gcc: %s<br/>
-                        sign_type: %s<br/>
-                        sign_shape: %s<br/>
-                        sign_length: %s<br/>
-                        sign_width: %s<br/>
-                        sign_radius: %s<br/>
-                        sign_color: %s<br/>
-                        road_classification: %s<br/>
-                        road_name: %s<br/>
-                        road_number: %s<br/>
-                        road_type: %s<br/>
-                        road_direction: %s<br/>
-                        latitude: %s<br/>
-                        longitude: %s<br/>
-                        governorate: %s<br/>
-                        willayat: %s<br/>
-                        village: %s<br/>
-                        signs_count: %s<br/>
-                        columns_description: %s<br/>
-                        sign_location_from_road: %s<br/>
-                        sign_base: %s<br/>
-                        distance_from_road_edge_meter: %s<br/>
-                        sign_column_radius_mm: %s<br/>
-                        column_height: %s<br/>
-                        column_colour: %s<br/>
-                        column_type: %s<br/>
-                        sign_content_shape_description: %s<br/>
-                        sign_content_arabic_text: %s<br/>
-                        sign_content_english_text: %s<br/>
-                        sign_condition: %s<br/>
-                        comments: %s<br/>
-                        created_by: %s<br/>
-                        created_at: %s<br/>
-                        updated_at: %s
+                        <b>ID:</b> %s<br/>
+                        <b>Sign Name:</b> %s<br/>
+                        <b>Sign Code:</b> %s<br/>
+                        <b>Sign Code gcc:</b> %s<br/>
+                        <b>Sign Type:</b> %s<br/>
+                        <b>Sign Shape:</b> %s<br/>
+                        <b>Sign Length:</b> %s<br/>
+                        <b>Sign Width:</b> %s<br/>
+                        <b>Sign Radius:</b> %s<br/>
+                        <b>Sign Color:</b> %s<br/>
+                        <b>Road Classification:</b> %s<br/>
+                        <b>Road Name:</b> %s<br/>
+                        <b>Road Number:</b> %s<br/>
+                        <b>Road Type:</b> %s<br/>
+                        <b>Road Direction:</b> %s<br/>
+                        <b>Latitude:</b> %s<br/>
+                        <b>Longitude:</b> %s<br/>
+                        <b>Governorate:</b> %s<br/>
+                        <b>Willayat:</b> %s<br/>
+                        <b>Village:</b> %s<br/>
+                        <b>Signs Count:</b> %s<br/>
+                        <b>Columns Description:</b> %s<br/>
+                        <b>Sign Location from Road:</b> %s<br/>
+                        <b>Sign Base:</b> %s<br/>
+                        <b>distance from Road Edge meter:</b> %s<br/>
+                        <b>Sign Column Radius mm:</b> %s<br/>
+                        <b>Column Height:</b> %s<br/>
+                        <b>Column Colour:</b> %s<br/>
+                        <b>Column Type:</b> %s<br/>
+                        <b>Sign Content Shape Description:</b> %s<br/>
+                        <b>Sign Content Arabic Text:</b> %s<br/>
+                        <b>Sign Content English Text:</b> %s<br/>
+                        <b>Sign Condition:</b> %s<br/>
+                        <b>Comments:</b> %s<br/>
+                        <b>Created by:</b> %s<br/>
+                        <b>Created at:</b> %s<br/>
+                        <b>Updated at:</b> %s
                     ]]></description>
                     <Point>
                         <coordinates>%s,%s,0</coordinates>
                     </Point>
                     </Placemark>',
-                    htmlspecialchars($sign->sign_name),
+                    htmlspecialchars($sign->sign_name ?? 'Unknown Sign (ID ' . $sign->id . ')'),
                     htmlspecialchars($sign->id),
-                    htmlspecialchars($sign->sign_name),
-                    htmlspecialchars($sign->sign_code),
-                    htmlspecialchars($sign->sign_code_gcc),
-                    htmlspecialchars($sign->sign_type),
-                    htmlspecialchars($sign->sign_shape),
-                    htmlspecialchars($sign->sign_length),
-                    htmlspecialchars($sign->sign_width),
-                    htmlspecialchars($sign->sign_radius),
-                    htmlspecialchars($sign->sign_color),
-                    htmlspecialchars($sign->road_classification),
-                    htmlspecialchars($sign->road_name),
-                    htmlspecialchars($sign->road_number),
-                    htmlspecialchars($sign->road_type),
-                    htmlspecialchars($sign->road_direction),
-                    htmlspecialchars($sign->latitude),
-                    htmlspecialchars($sign->longitude),
-                    htmlspecialchars($sign->governorate),
-                    htmlspecialchars($sign->willayat),
-                    htmlspecialchars($sign->village),
-                    htmlspecialchars($sign->signs_count),
-                    htmlspecialchars($sign->columns_description),
-                    htmlspecialchars($sign->sign_location_from_road),
-                    htmlspecialchars($sign->sign_base),
-                    htmlspecialchars($sign->distance_from_road_edge_meter),
-                    htmlspecialchars($sign->sign_column_radius_mm),
-                    htmlspecialchars($sign->column_height),
-                    htmlspecialchars($sign->column_colour),
-                    htmlspecialchars($sign->column_type),
-                    htmlspecialchars($sign->sign_content_shape_description),
-                    htmlspecialchars($sign->sign_content_arabic_text),
-                    htmlspecialchars($sign->sign_content_english_text),
-                    htmlspecialchars($sign->sign_condition),
-                    htmlspecialchars($sign->comments),
-                    htmlspecialchars($sign->created_by),
-                    htmlspecialchars($sign->created_at),
-                    htmlspecialchars($sign->updated_at),
+                    htmlspecialchars($sign->sign_name ?? 'N/A'),
+                    htmlspecialchars($sign->sign_code ?? 'N/A'),
+                    htmlspecialchars($sign->sign_code_gcc ?? 'N/A'),
+                    htmlspecialchars($sign->sign_type ?? 'N/A'),
+                    htmlspecialchars($sign->sign_shape ?? 'N/A'),
+                    htmlspecialchars($sign->sign_length ?? 'N/A'),
+                    htmlspecialchars($sign->sign_width ?? 'N/A'),
+                    htmlspecialchars($sign->sign_radius ?? 'N/A'),
+                    htmlspecialchars($sign->sign_color ?? 'N/A'),
+                    htmlspecialchars($sign->road_classification ?? 'N/A'),
+                    htmlspecialchars($sign->road_name ?? 'N/A'),
+                    htmlspecialchars($sign->road_number ?? 'N/A'),
+                    htmlspecialchars($sign->road_type ?? 'N/A'),
+                    htmlspecialchars($sign->road_direction ?? 'N/A'),
+                    htmlspecialchars($sign->latitude ?? 'N/A'),
+                    htmlspecialchars($sign->longitude ?? 'N/A'),
+                    htmlspecialchars($sign->governorate ?? 'N/A'),
+                    htmlspecialchars($sign->willayat ?? 'N/A'),
+                    htmlspecialchars($sign->village ?? 'N/A'),
+                    htmlspecialchars($sign->signs_count ?? 'N/A'),
+                    htmlspecialchars($sign->columns_description ?? 'N/A'),
+                    htmlspecialchars($sign->sign_location_from_road ?? 'N/A'),
+                    htmlspecialchars($sign->sign_base ?? 'N/A'),
+                    htmlspecialchars($sign->distance_from_road_edge_meter ?? 'N/A'),
+                    htmlspecialchars($sign->sign_column_radius_mm ?? 'N/A'),
+                    htmlspecialchars($sign->column_height ?? 'N/A'),
+                    htmlspecialchars($sign->column_colour ?? 'N/A'),
+                    htmlspecialchars($sign->column_type ?? 'N/A'),
+                    htmlspecialchars($sign->sign_content_shape_description ?? 'N/A'),
+                    htmlspecialchars($sign->sign_content_arabic_text ?? 'N/A'),
+                    htmlspecialchars($sign->sign_content_english_text ?? 'N/A'),
+                    htmlspecialchars($sign->sign_condition ?? 'N/A'),
+                    htmlspecialchars($sign->comments ?? 'N/A'),
+                    htmlspecialchars($sign->created_by ?? 'N/A'),
+                    htmlspecialchars($sign->created_at ?? 'N/A'),
+                    htmlspecialchars($sign->updated_at ?? 'N/A'),
                     $sign->longitude,
                     $sign->latitude
                 );
@@ -178,6 +204,56 @@ class ExportDetailedSignsController extends Controller
                 'Content-Type' => 'application/vnd.google-earth.kml+xml',
                 'Content-Disposition' => 'attachment; filename="' . $exportedFileName . '"'
             ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'data' => $e->getMessage()
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    public function exportShapefile(Request $request)
+    {
+        try {
+            // Get signs from database (add filters if needed)
+            $request->validate([
+                'governorate' => 'string',
+                'willayat' => 'string',
+                'road' => 'string'
+            ]);
+
+            $gov = Governorate::where('name_ar', $request['governorate'])->first();
+            $willayat = Willayat::where('name_ar', $request['willayat'])->first();
+            $road = Road::where('name', $request['road'])->first();
+
+            $signs = null;
+
+            // Get signs filtered
+            if ($gov) {
+                if ($willayat) {
+                    $signs = DetailedSign::where('governorate', $gov->name_ar)
+                        ->where('willayat', $willayat->name_ar)
+                        ->get();
+                } else {
+                    $signs = DetailedSign::where('governorate', $gov->name_ar)->get();
+                }
+            } elseif ($road) {
+                $signs = DetailedSign::where('road_name', $road->name)->get();
+            } else {
+                $signs = DetailedSign::all();
+            }
+
+            if (!$signs) {
+                return response()->json([
+                    'status' => 'failed',
+                    'data' => 'There is no signs to export.'
+                ], Response::HTTP_BAD_REQUEST);
+            }
+
+            return response()->json([
+                'status' => 'success',
+                'data' => $signs
+            ], Response::HTTP_OK);
         } catch (\Exception $e) {
             return response()->json([
                 'status' => 'error',

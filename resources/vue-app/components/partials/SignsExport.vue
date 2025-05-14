@@ -13,8 +13,7 @@
 
                 <div class="flex flex-col items-start justify-start gap-4">
 
-                    <ColumnInputGroup name="file_type" :show-error="true" label="نوع الملف"
-                        container-classes="">
+                    <ColumnInputGroup name="file_type" :show-error="true" label="نوع الملف" container-classes="">
                         <div class="flex gap-4">
                             <div class="flex gap-2 items-center px-2 py-1 border rounded-md">
                                 <Field id="file_type" name="file_type" type="radio" value="excel"
@@ -24,7 +23,7 @@
                             </div>
                             <div class="flex gap-2 items-center px-2 py-1 border rounded-md">
                                 <Field id="file_type" name="file_type" type="radio" value="shapefile"
-                                    v-model="exportModel.type" class="" disabled>
+                                    v-model="exportModel.type" class="">
                                 </Field>
                                 <label for="file_type" class="text-lg font-semibold text-nowrap">Shape File</label>
                             </div>
@@ -37,19 +36,18 @@
                         </div>
                     </ColumnInputGroup>
 
-                    <ColumnInputGroup name="options_filter" :show-error="true" label="الفلترة"
-                        container-classes="md:w-full">
+                    <ColumnInputGroup name="options_filter" :show-error="true" label="الفلترة" container-classes="">
                         <div class="flex gap-4">
                             <div class="flex gap-2 items-center px-2 py-1 border rounded-md">
                                 <Field id="options_filter" name="options_filter" type="radio" :value="false"
-                                    v-model="chooseRoad" class="w-full">
+                                    v-model="chooseRoad" class="">
                                 </Field>
                                 <label for="options_filter" class="text-lg font-semibold text-nowrap">تحديد المحافظة و
                                     الولاية</label>
                             </div>
                             <div class="flex gap-2 items-center px-2 py-1 border rounded-md">
                                 <Field id="options_filter" name="options_filter" type="radio" :value="true"
-                                    v-model="chooseRoad" class="w-full">
+                                    v-model="chooseRoad" class="">
                                 </Field>
                                 <label for="options_filter" class="text-lg font-semibold text-nowrap">تحديد
                                     الطريق</label>
@@ -134,6 +132,8 @@ import ColumnInputGroup from '../form/ColumnInputGroup.vue';
 import LoadingButton from '../form/LoadingButton.vue';
 import { computed, onBeforeMount, ref } from 'vue';
 import { boolean, date, object, ref as yupRef } from 'yup';
+import { DetailedSign } from '@/core/types/data/DetailedSign';
+import { ShapefileExporter } from '@/core/services/ShapefileExporter';
 
 type Willayat = {
     name_ar: string;
@@ -203,7 +203,7 @@ const validationSchema = computed(() => {
 
 const submitExport = async () => {
     submitLoading.value = true
-    QSwal.fire('تصدير اللوحات ؟', 'التصدير إلى ملف إكسل.', 'question')
+    QSwal.fire('تصدير اللوحات ؟', `سيتم التصدير إلى ملف (${exportModel.value.type})`, 'question')
         .then(async (result) => {
             switch (exportModel.value.type) {
                 case 'excel':
@@ -211,6 +211,9 @@ const submitExport = async () => {
                     break
                 case 'kml':
                     await exportToKml()
+                    break
+                case 'shapefile':
+                    await exportToShapefile()
                     break
                 default:
                     break
@@ -329,6 +332,42 @@ const exportToKml = async () => {
     }).catch((error: AxiosError<BackendResponseData>) => {
         MSwal.fire('خطأ غير متوقع!', getMessageFromObj(error), 'error');
     })
+}
+
+const exportToShapefile = async () => {
+
+    const formData = new FormData();
+    formData.append('governorate', exportModel.value.governorate);
+    formData.append('willayat', exportModel.value.willayat);
+    formData.append('road', exportModel.value.road);
+
+    await ApiService.post('/api/spa/signs/detailed/export/shapefile', formData)
+        .then(async res => {
+            if (res.data?.status === 'success' && res.data?.data as DetailedSign[]) {
+                const signs: DetailedSign[] = res.data.data
+                const geojson: GeoJSON.FeatureCollection = {
+                    type: "FeatureCollection",
+                    features: signs.map((sign, i) => ({
+                        type: "Feature",
+                        geometry: {
+                            type: "Point",
+                            coordinates: [Number(sign.longitude), Number(sign.latitude)]
+                        } as GeoJSON.Point,
+                        properties: sign
+                    }))
+                }
+
+                window.shpwrite.download(geojson, {
+                    folder: 'road_signs',
+                    types: {
+                        point: 'Signs'
+                    }
+                })
+            }
+        })
+        .catch((error: AxiosError<BackendResponseData>) => {
+            MSwal.fire('خطأ غير متوقع!', getMessageFromObj(error), 'error');
+        })
 }
 
 </script>

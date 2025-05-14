@@ -43,5 +43,6 @@ Route::prefix('signs/detailed')->controller(DetailedSignsController::class)->gro
     Route::prefix('export')->controller(ExportDetailedSignsController::class)->group(function () {
         Route::post('/excel', 'exportExcel');
         Route::post('/kml', 'exportKML');
+        Route::post('/shapefile', 'exportShapefile');
     });
 });
