@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AdminDashboard\AuthController;
 use App\Http\Controllers\AdminDashboard\DetailedSignsController;
+use App\Http\Controllers\AdminDashboard\ExportDetailedSignsController;
 use App\Http\Controllers\AdminDashboard\UsersController;
 use Illuminate\Support\Facades\Route;
 
@@ -14,7 +15,6 @@ Route::prefix('admin')->middleware('admin')->group(function () {
             Route::get('logout', 'logout');
         });
     });
-    
 });
 
 Route::prefix('users')->controller(UsersController::class)->middleware(['auth:sanctum', 'admin'])->group(function () {
@@ -40,4 +40,8 @@ Route::prefix('signs/detailed')->controller(DetailedSignsController::class)->gro
 
     Route::patch('/{id}', 'update');   // ← add this
 
+    Route::prefix('export')->controller(ExportDetailedSignsController::class)->group(function () {
+        Route::post('/excel', 'exportExcel');
+        Route::post('/kml', 'exportKML');
+    });
 });
