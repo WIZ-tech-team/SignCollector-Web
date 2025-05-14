@@ -14,23 +14,23 @@
                 <div class="flex flex-col items-start justify-start gap-4">
 
                     <ColumnInputGroup name="file_type" :show-error="true" label="نوع الملف"
-                        container-classes="md:w-full">
+                        container-classes="">
                         <div class="flex gap-4">
                             <div class="flex gap-2 items-center px-2 py-1 border rounded-md">
                                 <Field id="file_type" name="file_type" type="radio" value="excel"
-                                    v-model="exportModel.type" class="w-full">
+                                    v-model="exportModel.type" class="">
                                 </Field>
                                 <label for="file_type" class="text-lg font-semibold text-nowrap">Excel (xlsx)</label>
                             </div>
                             <div class="flex gap-2 items-center px-2 py-1 border rounded-md">
                                 <Field id="file_type" name="file_type" type="radio" value="shapefile"
-                                    v-model="exportModel.type" class="w-full" disabled>
+                                    v-model="exportModel.type" class="" disabled>
                                 </Field>
                                 <label for="file_type" class="text-lg font-semibold text-nowrap">Shape File</label>
                             </div>
                             <div class="flex gap-2 items-center px-2 py-1 border rounded-md">
                                 <Field id="file_type" name="file_type" type="radio" value="kml"
-                                    v-model="exportModel.type" class="w-full" disabled>
+                                    v-model="exportModel.type" class="">
                                 </Field>
                                 <label for="file_type" class="text-lg font-semibold text-nowrap">KML</label>
                             </div>
@@ -205,59 +205,15 @@ const submitExport = async () => {
     submitLoading.value = true
     QSwal.fire('تصدير اللوحات ؟', 'التصدير إلى ملف إكسل.', 'question')
         .then(async (result) => {
-            if (result.isConfirmed) {
-
-                const formData = new FormData()
-                formData.append('governorate', exportModel.value.governorate)
-                formData.append('willayat', exportModel.value.willayat)
-                formData.append('road', exportModel.value.road)
-
-                ApiService.setHeader(authStore.token as string, 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-                await ApiService.post(`/api/spa/signs/detailed/export`, formData, {
-                    responseType: 'arraybuffer', // Crucial for binary files
-                    headers: {
-                        'Accept': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-                        'Content-Type': 'multipart/form-data' // Or 'application/json'
-                    }
-                }).then(response => {
-                    // Verify we got binary data
-                    if (!(response.data instanceof ArrayBuffer)) {
-                        throw new Error('Invalid response format');
-                    }
-
-                    // Create blob with explicit type
-                    const blob = new Blob([response.data], {
-                        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-                    });
-
-                    // Get filename
-                    let filename = 'Subscriptions_' + new Date().toISOString().split('T')[0] + '.xlsx';
-                    const disposition = response.headers['content-disposition'];
-                    if (disposition) {
-                        const matches = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/.exec(disposition);
-                        if (matches && matches[1]) {
-                            filename = matches[1].replace(/['"]/g, '');
-                        }
-                    }
-
-                    // Create and trigger download
-                    const url = window.URL.createObjectURL(blob);
-                    const link = document.createElement('a');
-                    link.href = url;
-                    link.download = filename;
-                    document.body.appendChild(link);
-                    link.click();
-
-                    // Cleanup
-                    setTimeout(() => {
-                        document.body.removeChild(link);
-                        window.URL.revokeObjectURL(url);
-                    }, 100);
-
-                }).catch((error: AxiosError<BackendResponseData>) => {
-                    MSwal.fire('خطأ غير متوقع!', getMessageFromObj(error), 'error');
-                });
-
+            switch (exportModel.value.type) {
+                case 'excel':
+                    await exportToExcel()
+                    break
+                case 'kml':
+                    await exportToKml()
+                    break
+                default:
+                    break
             }
         }).finally(() => {
             submitLoading.value = false
@@ -266,6 +222,115 @@ const submitExport = async () => {
             exportModel.value.road = 'all'
         })
 }
+
+const exportToExcel = async () => {
+
+    const formData = new FormData()
+    formData.append('governorate', exportModel.value.governorate)
+    formData.append('willayat', exportModel.value.willayat)
+    formData.append('road', exportModel.value.road)
+
+    ApiService.setHeader(authStore.token as string, 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    await ApiService.post(`/api/spa/signs/detailed/export/excel`, formData, {
+        responseType: 'arraybuffer', // Crucial for binary files
+        headers: {
+            'Accept': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            'Content-Type': 'multipart/form-data' // Or 'application/json'
+        }
+    }).then(response => {
+        // Verify we got binary data
+        if (!(response.data instanceof ArrayBuffer)) {
+            throw new Error('Invalid response format');
+        }
+
+        // Create blob with explicit type
+        const blob = new Blob([response.data], {
+            type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        });
+
+        // Get filename
+        let filename = 'Subscriptions_' + new Date().toISOString().split('T')[0] + '.xlsx';
+        const disposition = response.headers['content-disposition'];
+        if (disposition) {
+            const matches = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/.exec(disposition);
+            if (matches && matches[1]) {
+                filename = matches[1].replace(/['"]/g, '');
+            }
+        }
+
+        // Create and trigger download
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+
+        // Cleanup
+        setTimeout(() => {
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(url);
+        }, 100);
+
+    }).catch((error: AxiosError<BackendResponseData>) => {
+        MSwal.fire('خطأ غير متوقع!', getMessageFromObj(error), 'error');
+    });
+
+}
+
+const exportToKml = async () => {
+
+    const formData = new FormData();
+    formData.append('governorate', exportModel.value.governorate);
+    formData.append('willayat', exportModel.value.willayat);
+    formData.append('road', exportModel.value.road);
+
+    ApiService.setHeader(authStore.token as string, 'application/vnd.google-earth.kml+xml');
+    const response = await ApiService.post(`/api/spa/signs/detailed/export/kml`, formData, {
+        responseType: 'arraybuffer', // Still needed for binary download
+        headers: {
+            'Accept': 'application/vnd.google-earth.kml+xml',
+            'Content-Type': 'multipart/form-data'
+        }
+    }).then(response => {
+        // Verify we got binary data
+        if (!(response.data instanceof ArrayBuffer)) {
+            throw new Error('Invalid response format');
+        }
+
+        // Create blob with KML MIME type
+        const blob = new Blob([response.data], {
+            type: 'application/vnd.google-earth.kml+xml'
+        });
+
+        // Get filename (same logic as Excel)
+        let filename = 'RoadSigns_' + new Date().toISOString().split('T')[0] + '.kml';
+        const disposition = response.headers['content-disposition'];
+        if (disposition) {
+            const matches = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/.exec(disposition);
+            if (matches && matches[1]) {
+                filename = matches[1].replace(/['"]/g, '');
+            }
+        }
+
+        // Create and trigger download
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+
+        // Cleanup
+        setTimeout(() => {
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(url);
+        }, 100);
+    }).catch((error: AxiosError<BackendResponseData>) => {
+        MSwal.fire('خطأ غير متوقع!', getMessageFromObj(error), 'error');
+    })
+}
+
 </script>
 
 <style scoped>
