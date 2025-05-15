@@ -267,3 +267,7 @@ textarea.dashboard-input {
 [aria-modal="true"][data-headlessui-state="open"] {
     z-index: 1051 !important;
 }
+
+.page-container {
+    height: calc(100vh - 9.25rem);
+}

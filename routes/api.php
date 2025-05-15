@@ -15,7 +15,6 @@ Route::prefix('mobile')->group(function () {
             Route::get('logout', 'logout');
         });
     });
-    // Route::delete('/spa/signs/detailed/{sign}', [DetailedSignsController::class, 'destroy']);
 
     Route::prefix('signs')->controller(SignsController::class)->group(function () {
         Route::get('/', 'index');

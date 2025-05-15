@@ -8,7 +8,7 @@ use Illuminate\Contracts\Validation\ValidationRule;
 class UserTypeRule implements ValidationRule
 {
 
-    private array $allowedUserTypes = ['User', 'Admin', 'Mobile'];
+    private array $allowedUserTypes = ['User', 'Super-Admin', 'Admin'];
 
     /**
      * Run the validation rule.

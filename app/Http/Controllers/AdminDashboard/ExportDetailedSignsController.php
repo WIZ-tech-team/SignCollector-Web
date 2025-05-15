@@ -11,7 +11,11 @@ use App\Models\Willayat;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Excel as ExcelExcel;
 use Maatwebsite\Excel\Facades\Excel;
+use Shapefile\Geometry\Point;
+use Shapefile\Shapefile;
+use Shapefile\ShapefileWriter;
 use Symfony\Component\HttpFoundation\Response;
+use ZipArchive;
 
 class ExportDetailedSignsController extends Controller
 {
@@ -214,51 +218,167 @@ class ExportDetailedSignsController extends Controller
 
     public function exportShapefile(Request $request)
     {
-        try {
-            // Get signs from database (add filters if needed)
-            $request->validate([
-                'governorate' => 'string',
-                'willayat' => 'string',
-                'road' => 'string'
-            ]);
+        $request->validate([
+            'governorate' => 'string',
+            'willayat' => 'string',
+            'road' => 'string'
+        ]);
 
-            $gov = Governorate::where('name_ar', $request['governorate'])->first();
-            $willayat = Willayat::where('name_ar', $request['willayat'])->first();
-            $road = Road::where('name', $request['road'])->first();
+        $gov = Governorate::where('name_ar', $request['governorate'])->first();
+        $willayat = Willayat::where('name_ar', $request['willayat'])->first();
+        $road = Road::where('name', $request['road'])->first();
 
-            $signs = null;
+        $signs = null;
 
-            // Get signs filtered
-            if ($gov) {
-                if ($willayat) {
-                    $signs = DetailedSign::where('governorate', $gov->name_ar)
-                        ->where('willayat', $willayat->name_ar)
-                        ->get();
-                } else {
-                    $signs = DetailedSign::where('governorate', $gov->name_ar)->get();
-                }
-            } elseif ($road) {
-                $signs = DetailedSign::where('road_name', $road->name)->get();
+        // Get signs filtered
+        if ($gov) {
+            if ($willayat) {
+                $signs = DetailedSign::where('governorate', $gov->name_ar)
+                    ->where('willayat', $willayat->name_ar)
+                    ->get();
             } else {
-                $signs = DetailedSign::all();
+                $signs = DetailedSign::where('governorate', $gov->name_ar)->get();
+            }
+        } elseif ($road) {
+            $signs = DetailedSign::where('road_name', $road->name)->get();
+        } else {
+            $signs = DetailedSign::all();
+        }
+
+        if (!$signs) {
+            throw new \Exception("There is no signs to export.");
+        }
+
+        try {
+            // Create temporary directory
+            $tempDir = storage_path('app/temp/shp_' . uniqid());
+            mkdir($tempDir, 0755, true);
+
+            // Initialize Shapefile writer
+            $shapefile = new ShapefileWriter($tempDir . '/road_signs.shp');
+
+            $shapefile->setShapeType(Shapefile::SHAPE_TYPE_POINT);
+
+            // Add fields (adjust according to your model)
+            $shapefile->addCharField('id');
+            $shapefile->addCharField('name');
+            $shapefile->addCharField('code');
+            $shapefile->addCharField('codeGcc');
+            $shapefile->addCharField('type');
+            $shapefile->addCharField('shape');
+            $shapefile->addCharField('length');
+            $shapefile->addCharField('width');
+            $shapefile->addCharField('radius');
+            $shapefile->addCharField('color');
+            $shapefile->addCharField('class');
+            $shapefile->addCharField('rName');
+            $shapefile->addCharField('rNum');
+            $shapefile->addCharField('rType');
+            $shapefile->addCharField('rDir');
+            $shapefile->addCharField('latitude');
+            $shapefile->addCharField('longitude');
+            $shapefile->addCharField('gov');
+            $shapefile->addCharField('willayat');
+            $shapefile->addCharField('village');
+            $shapefile->addCharField('signsCount');
+            $shapefile->addCharField('colDesc');
+            $shapefile->addCharField('location');
+            $shapefile->addCharField('base');
+            $shapefile->addCharField('distance');
+            $shapefile->addCharField('colRadius');
+            $shapefile->addCharField('colHeight');
+            $shapefile->addCharField('colColor');
+            $shapefile->addCharField('colType');
+            $shapefile->addCharField('contDesc');
+            $shapefile->addCharField('arContent');
+            $shapefile->addCharField('enContent');
+            $shapefile->addCharField('condition');
+            $shapefile->addCharField('comments');
+            $shapefile->addCharField('createdBy');
+            $shapefile->addCharField('createdAt');
+            $shapefile->addCharField('updatedAt');
+
+            // Add records
+            foreach ($signs as $sign) {
+
+                $point = new Point($sign->longitude, $sign->latitude);
+                $point->setData('id', 'id: ' . $sign->id);
+                $point->setData('name', 'sign_name: ' . $sign->sign_name ?? 'N/A');
+                $point->setData('code', 'sign_code: ' . $sign->sign_code ?? 'N/A');
+                $point->setData('codeGcc', 'sign_code_gcc: ' . $sign->sign_code_gcc ?? 'N/A');
+                $point->setData('type', 'sign_type: ' . $sign->sign_type ?? 'N/A');
+                $point->setData('shape', 'sign_shape: ' . $sign->sign_shape ?? 'N/A');
+                $point->setData('length', 'sign_length: ' . $sign->sign_length ?? 'N/A');
+                $point->setData('width', 'sign_width: ' . $sign->sign_width ?? 'N/A');
+                $point->setData('radius', 'sign_radius: ' . $sign->sign_radius ?? 'N/A');
+                $point->setData('color', 'sign_color: ' . $sign->sign_color ?? 'N/A');
+                $point->setData('class', 'road_classification: ' . $sign->road_classification ?? 'N/A');
+                $point->setData('rName', 'road_name: ' . $sign->road_name ?? 'N/A');
+                $point->setData('rNum', 'road_number: ' . $sign->road_number ?? 'N/A');
+                $point->setData('rType', 'road_type: ' . $sign->road_type ?? 'N/A');
+                $point->setData('rDir', 'road_direction: ' . $sign->road_direction ?? 'N/A');
+                $point->setData('latitude', 'latitude: ' . $sign->latitude ?? 'N/A');
+                $point->setData('longitude', 'longitude: ' . $sign->longitude ?? 'N/A');
+                $point->setData('gov', 'governorate: ' . $sign->governorate ?? 'N/A');
+                $point->setData('willayat', 'willayat: ' . $sign->willayat ?? 'N/A');
+                $point->setData('village', 'village: ' . $sign->village ?? 'N/A');
+                $point->setData('signsCount', 'signs_count: ' . $sign->signs_count ?? 'N/A');
+                $point->setData('colDesc', 'columns_description: ' . $sign->columns_description ?? 'N/A');
+                $point->setData('location', 'sign_location_from_road: ' . $sign->sign_location_from_road ?? 'N/A');
+                $point->setData('base', 'sign_base: ' . $sign->sign_base ?? 'N/A');
+                $point->setData('distance', 'distance_from_road_edge_meter: ' . $sign->distance_from_road_edge_meter ?? 'N/A');
+                $point->setData('colRadius', 'sign_column_radius_mm: ' . $sign->sign_column_radius_mm ?? 'N/A');
+                $point->setData('colHeight', 'column_height: ' . $sign->column_height ?? 'N/A');
+                $point->setData('colColor', 'column_colour: ' . $sign->column_colour ?? 'N/A');
+                $point->setData('colType', 'column_type: ' . $sign->column_type ?? 'N/A');
+                $point->setData('contDesc', 'sign_content_shape_description: ' . $sign->sign_content_shape_description ?? 'N/A');
+                $point->setData('arContent', 'sign_content_arabic_text: ' . $sign->sign_content_arabic_text ?? 'N/A');
+                $point->setData('enContent', 'sign_content_english_text: ' . $sign->sign_content_english_text ?? 'N/A');
+                $point->setData('condition', 'sign_condition: ' . $sign->sign_condition ?? 'N/A');
+                $point->setData('comments', 'comments: ' . $sign->comments ?? 'N/A');
+                $point->setData('createdBy', 'created_by: ' . $sign->created_by ?? 'N/A');
+                $point->setData('createdAt', 'created_at: ' . $sign->created_at ?? 'N/A');
+                $point->setData('updatedAt', 'updated_at: ' . $sign->updated_at ?? 'N/A');
+
+                $shapefile->writeRecord($point);
             }
 
-            if (!$signs) {
-                return response()->json([
-                    'status' => 'failed',
-                    'data' => 'There is no signs to export.'
-                ], Response::HTTP_BAD_REQUEST);
+            // Add PRJ file (WGS84)
+            file_put_contents(
+                $tempDir . '/road_signs.prj',
+                'GEOGCS["WGS 84",DATUM["WGS_1984",
+            SPHEROID["WGS 84",6378137,298.257223563]],
+            PRIMEM["Greenwich",0],UNIT["degree",0.0174532925199433]]'
+            );
+
+            // Close the shapefile writer to ensure all files are properly written
+            unset($shapefile);
+
+            // Create ZIP archive
+            $zipFile = $tempDir . '/road_signs.zip';
+            $zip = new ZipArchive();
+            $zip->open($zipFile, ZipArchive::CREATE);
+
+            foreach (glob($tempDir . '/road_signs.*') as $file) {
+                $zip->addFile($file, basename($file));
             }
 
-            return response()->json([
-                'status' => 'success',
-                'data' => $signs
-            ], Response::HTTP_OK);
+            $zip->close();
+
+            // Stream the ZIP file
+            // return response()->download($zipFile, 'road_signs.zip');
+
+            $exportedFileName = 'Signs_' . today()->format('Y-m-d') . '.zip';
+
+            return response()->download($zipFile, $exportedFileName, [
+                'Content-Type' => 'application/zip',
+                'Content-Disposition' => 'attachment; filename="' . $exportedFileName . '"'
+            ]);
         } catch (\Exception $e) {
             return response()->json([
-                'status' => 'error',
-                'data' => $e->getMessage()
-            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+                'error' => 'Shapefile export failed',
+                'message' => $e->getMessage()
+            ], 500);
         }
     }
 }

@@ -2,7 +2,7 @@
     <header id="ttk_dashboard_header" class="shadow-md">
         <div class="flex items-center justify-start gap-8 w-full bg-white p-0">
             <div class="flex items-center justify-start gap-4 px-8 py-4 bg-brand h-[72px]">
-             
+
                 <span class="text-white text-lg font-bold">
                     <!-- <img src="@/assets/images/" alt="" class="w-100"> -->
                     <span class="font-bold text-2xl">
@@ -11,9 +11,15 @@
                 </span>
             </div>
             <div class="flex items-center justify-between py-4 px-8 user-section">
-                <span v-if="authStore.user" class="font-semibold text-brand capitalize">
-                   
-                </span>
+                <div class="flex items-center justify-start gap-2">
+                    <router-link to="/dashboard" class="font-semibold text-active-brand capitalize text-md px-2 py-1 bg-light-brand rounded-sm hover:bg-brand hover:text-light-brand">
+                        اللوائح
+                    </router-link>
+                    <span class="text-md font-semibold">|</span>
+                    <router-link to="/users" class="font-semibold text-active-brand capitalize text-md px-2 py-1 bg-light-brand rounded-sm hover:bg-brand hover:text-light-brand">
+                        المستخدمين
+                    </router-link>
+                </div>
                 <button type="button" @click.prevent="logout" :disabled="logoutDisabled"
                     class="p-2 bg-white hover:bg-light-brand cursor-pointer rounded-md disabled:cursor-default">
                     <div class="flex gap-1 items-center justify-center">
@@ -33,7 +39,7 @@
 import { ref } from "vue";
 import { QSwal } from '@/core/plugins/SweetAlerts2';
 import { useAuthStore } from '@/store/stores/authStore';
-import { Bars3Icon, ArrowLeftStartOnRectangleIcon } from '@heroicons/vue/24/solid'; // Solid icons
+import { ArrowLeftStartOnRectangleIcon } from '@heroicons/vue/24/solid'; // Solid icons
 import { useRouter } from 'vue-router';
 
 // Emits
@@ -76,5 +82,9 @@ function logout() {
 
 #ttk_dashboard_header .user-section {
     width: calc(100% - 290px);
+}
+
+.router-link-exact-active {
+    @apply bg-active-brand text-light-brand;
 }
 </style>

@@ -1,5 +1,5 @@
 <template>
-    <div class="flex flex-col align-start gap-8 justify-start">
+    <div class="flex flex-col align-start gap-8 justify-start page-container">
 
         <!-- Cards -->
         <!-- <div class="flex align-middle gap-8 justify-between">

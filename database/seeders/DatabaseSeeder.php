@@ -14,20 +14,41 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
+
+        // Roles-Permissions Seed
+        $this->call(RolesPermissionsSeeder::class);
+
+        // Users Seed
+        User::truncate();
+        // Super Admin
+        User::create([
+            'name' => 'Super Admin',
+            'email' => 'super@example.test',
+            'type' => 'Super-Admin',
+            'phone' => '+2011123456789',
+            'password' => Hash::make('password'),
+            'created_at' => now(),
+            'updated_at' => now(),
+        ])->assignRole('SuperAdmin');
+        // Viewer
+        User::create([
+            'name'       => 'Test User',
+            'email'      => 'user@example.com',
+            'password'   => Hash::make('12345678'),
+            'type'       => 'User',
+            'created_at' => now(),
+            'updated_at' => now(),
+        ])->assignRole('Viewer');
+
+        // Places Seed
         $this->call(WillayatsGovernoratesSeeder::class);
         $this->call(VillagesSeeder::class);
         $this->call(RoadsSeeder::class);
-        // $this->call(StaticMobileUsersSeeder::class);
-        // $this->call(DetailedSignsTableSeeder::class);
 
-        // User::factory()->create([
-        //     'name' => 'Test Admin',
-        //     'email' => 'admin@example.test',
-        //     'type' => 'Admin',
-        //     'phone' => '+2011123456789',
-        //     'password' => Hash::make('password')
-        // ]);
+        // Mobile-Web Users Seed
+        $this->call(StaticMobileUsersSeeder::class);
 
+        // Detailed Signs Seed
+        $this->call(DetailedSignsTableSeeder::class);
     }
 }
