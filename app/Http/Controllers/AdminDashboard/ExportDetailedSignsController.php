@@ -343,16 +343,17 @@ class ExportDetailedSignsController extends Controller
                 $shapefile->writeRecord($point);
             }
 
+            // Close the shapefile writer to ensure all files are properly written
+            // unset($shapefile);
+            $shapefile = null;
+
             // Add PRJ file (WGS84)
             file_put_contents(
                 $tempDir . '/road_signs.prj',
                 'GEOGCS["WGS 84",DATUM["WGS_1984",
-            SPHEROID["WGS 84",6378137,298.257223563]],
-            PRIMEM["Greenwich",0],UNIT["degree",0.0174532925199433]]'
+                SPHEROID["WGS 84",6378137,298.257223563]],
+                PRIMEM["Greenwich",0],UNIT["degree",0.0174532925199433]]'
             );
-
-            // Close the shapefile writer to ensure all files are properly written
-            unset($shapefile);
 
             // Create ZIP archive
             $zipFile = $tempDir . '/road_signs.zip';
