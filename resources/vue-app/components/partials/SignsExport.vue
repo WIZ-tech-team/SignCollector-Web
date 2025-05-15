@@ -204,18 +204,20 @@ const submitExport = async () => {
     submitLoading.value = true
     QSwal.fire('تصدير اللوحات ؟', `سيتم التصدير إلى ملف (${exportModel.value.type})`, 'question')
         .then(async (result) => {
-            switch (exportModel.value.type) {
-                case 'excel':
-                    await exportToExcel()
-                    break
-                case 'kml':
-                    await exportToKml()
-                    break
-                case 'shapefile':
-                    await exportToShapefile()
-                    break
-                default:
-                    break
+            if (result.isConfirmed) {
+                switch (exportModel.value.type) {
+                    case 'excel':
+                        await exportToExcel()
+                        break
+                    case 'kml':
+                        await exportToKml()
+                        break
+                    case 'shapefile':
+                        await exportToShapefile()
+                        break
+                    default:
+                        break
+                }
             }
         }).finally(() => {
             submitLoading.value = false
