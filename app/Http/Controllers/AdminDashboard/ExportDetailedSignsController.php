@@ -69,7 +69,7 @@ class ExportDetailedSignsController extends Controller
                 $signs = DetailedSign::all();
             }
 
-            if (!$signs) {
+            if (!count($signs) > 0) {
                 throw new \Exception("There is no signs to export.");
             }
 
@@ -245,7 +245,7 @@ class ExportDetailedSignsController extends Controller
             $signs = DetailedSign::all();
         }
 
-        if (!$signs) {
+        if (!count($signs) > 0) {
             throw new \Exception("There is no signs to export.");
         }
 
@@ -348,12 +348,12 @@ class ExportDetailedSignsController extends Controller
             $shapefile = null;
 
             // Add PRJ file (WGS84)
-            file_put_contents(
-                $tempDir . '/road_signs.prj',
-                'GEOGCS["WGS 84",DATUM["WGS_1984",
-                SPHEROID["WGS 84",6378137,298.257223563]],
-                PRIMEM["Greenwich",0],UNIT["degree",0.0174532925199433]]'
-            );
+            // file_put_contents(
+            //     $tempDir . '/road_signs.prj',
+            //     'GEOGCS["WGS 84",DATUM["WGS_1984",
+            //     SPHEROID["WGS 84",6378137,298.257223563]],
+            //     PRIMEM["Greenwich",0],UNIT["degree",0.0174532925199433]]'
+            // );
 
             // Create ZIP archive
             $zipFile = $tempDir . '/road_signs.zip';
@@ -363,6 +363,8 @@ class ExportDetailedSignsController extends Controller
             foreach (glob($tempDir . '/road_signs.*') as $file) {
                 $zip->addFile($file, basename($file));
             }
+
+            $zip->addFile(public_path('storage/road_signs.prj'), 'road_signs.prj');
 
             $zip->close();
 
