@@ -339,7 +339,6 @@ const escapeArabic = (str: string) => {
     ).join('');
 };
 
-
 const exportToShapefile = async () => {
 
     const formData = new FormData();
@@ -347,46 +346,141 @@ const exportToShapefile = async () => {
     formData.append('willayat', exportModel.value.willayat);
     formData.append('road', exportModel.value.road);
 
-    await ApiService.post('/api/spa/signs/detailed/export/shapefile', formData)
-        .then(async res => {
-            if (res.data?.status === 'success' && res.data?.data as DetailedSign[]) {
-                const signs: DetailedSign[] = res.data.data
-                const geojson: GeoJSON.FeatureCollection = {
-                    type: "FeatureCollection",
-                    features: signs.map((sign, i) => {
-                        let signData = sign
-                        for (let key in signData) {
-                            let val = typeof sign[key as keyof DetailedSign] === 'string'
-                                ? escapeArabic(sign[key as keyof DetailedSign] as string)
-                                : sign[key as keyof DetailedSign]
+    ApiService.setHeader(authStore.token as string, 'application/zip');
+    const response = await ApiService.post(`/api/spa/signs/detailed/export/shapefile`, formData, {
+        responseType: 'arraybuffer', // Needed for binary files
+        headers: {
+            'Accept': 'application/zip',
+            'Content-Type': 'multipart/form-data'
+        }
+    }).then(response => {
+        // Verify we got binary data
+        if (!(response.data instanceof ArrayBuffer)) {
+            throw new Error('Invalid response format');
+        }
 
-                            signData[key as keyof DetailedSign] = val;
-                        }
-                        return {
-                            type: "Feature",
-                            geometry: {
-                                type: "Point",
-                                coordinates: [Number(sign.longitude), Number(sign.latitude)]
-                            } as GeoJSON.Point,
-                            properties: signData
-                        }
-                    })
-                }
+        // Create blob with ZIP MIME type
+        const blob = new Blob([response.data], { type: 'application/zip' });
 
-                let nowDate = new Date()
-                let folderName = `Signs_${nowDate.getDay()}-${nowDate.getMonth() + 1}-${nowDate.getFullYear()}`
-
-                window.shpwrite.download(geojson, {
-                    folder: folderName,
-                    types: {
-                        point: 'Signs'
-                    }
-                })
+        // Determine filename dynamically
+        let filename = 'RoadSigns_' + new Date().toISOString().split('T')[0] + '.zip';
+        const disposition = response.headers['content-disposition'];
+        if (disposition) {
+            const matches = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/.exec(disposition);
+            if (matches && matches[1]) {
+                filename = matches[1].replace(/['"]/g, '');
             }
-        })
+        }
+
+        // Create and trigger download
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+
+        // Cleanup
+        setTimeout(() => {
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(url);
+        }, 100);
+    })
         .catch((error: AxiosError<BackendResponseData>) => {
             MSwal.fire('خطأ غير متوقع!', getMessageFromObj(error), 'error');
         })
+}
+
+// const exportToShapefile = async () => {
+
+//     const formData = new FormData();
+//     formData.append('governorate', exportModel.value.governorate);
+//     formData.append('willayat', exportModel.value.willayat);
+//     formData.append('road', exportModel.value.road);
+
+//     await ApiService.post('/api/spa/signs/detailed/export/shapefile', formData)
+//         .then(async res => {
+//             if (res.data?.status === 'success' && res.data?.data as DetailedSign[]) {
+//                 const signs: DetailedSign[] = res.data.data
+//                 const geojson: GeoJSON.FeatureCollection = {
+//                     type: "FeatureCollection",
+//                     features: signs.map((sign, i) => {
+//                         // let signData = sign
+//                         // for (let key in signData) {
+//                         //     let val = typeof sign[key as keyof DetailedSign] === 'string'
+//                         //         ? escapeArabic(sign[key as keyof DetailedSign] as string)
+//                         //         : sign[key as keyof DetailedSign]
+
+//                         //     signData[key as keyof DetailedSign] = val;
+//                         // }
+//                         return {
+//                             type: "Feature",
+//                             geometry: {
+//                                 type: "Point",
+//                                 coordinates: [Number(sign.longitude), Number(sign.latitude)]
+//                             } as GeoJSON.Point,
+//                             properties: {
+//                                 id: sign.id,
+//                                 name: sign.sign_name,
+//                                 column: sign.sign_type,
+//                                 color: sign.sign_color
+//                             }
+//                         }
+//                     })
+//                 }
+
+//                 let nowDate = new Date()
+//                 let folderName = `Signs_${nowDate.getDay()}-${nowDate.getMonth() + 1}-${nowDate.getFullYear()}`
+
+//                 // const options = {
+//                 //     types: { point: 'Signs' },
+//                 //     dbf: {
+//                 //         fields: [
+//                 //             { name: 'id', type: 'N', size: 10 },
+//                 //             { name: 'name', type: 'C', size: 254 }, // Larger field for Arabic
+//                 //             { name: 'column', type: 'C', size: 254 },
+//                 //             { name: 'color', type: 'C', size: 254 }
+//                 //             // Add all other fields that may contain Arabic
+//                 //         ],
+//                 //         stringEncoder: (str: string) => {
+//                 //             const buffer = new ArrayBuffer(str.length * 2);
+//                 //             const view = new Uint8Array(buffer);
+//                 //             for (let i = 0; i < str.length; i++) {
+//                 //                 view[i] = str.charCodeAt(i) > 255 ? 63 : str.charCodeAt(i); // Fallback to '?'
+//                 //             }
+//                 //             return buffer;
+//                 //         },
+//                 //         encoding: 'UTF-8' // Critical for Arabic support
+//                 //     }
+//                 // };
+
+//                 // window.shpwrite.download(geojson, options)
+
+//                 window.shpwrite.download(geojson, {
+//                     folder: folderName,
+//                     types: {
+//                         point: 'Signs'
+//                     }
+//                 })
+
+//                 // Create and download a .cpg file to specify encoding
+//                 createCPGFile("coordinates.cpg", "UTF-8");
+
+//             }
+//         })
+//         .catch((error: AxiosError<BackendResponseData>) => {
+//             MSwal.fire('خطأ غير متوقع!', getMessageFromObj(error), 'error');
+//         })
+// }
+
+function createCPGFile(fileName: string, encoding: string) {
+    const blob = new Blob([encoding], { type: "text/plain" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = fileName;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
 }
 
 </script>
