@@ -131,9 +131,8 @@ import { Field, Form } from 'vee-validate';
 import ColumnInputGroup from '../form/ColumnInputGroup.vue';
 import LoadingButton from '../form/LoadingButton.vue';
 import { computed, onBeforeMount, ref } from 'vue';
-import { boolean, date, object, ref as yupRef } from 'yup';
+import { object } from 'yup';
 import { DetailedSign } from '@/core/types/data/DetailedSign';
-import { ShapefileExporter } from '@/core/services/ShapefileExporter';
 
 type Willayat = {
     name_ar: string;
@@ -334,6 +333,13 @@ const exportToKml = async () => {
     })
 }
 
+const escapeArabic = (str: string) => {
+    return str.split('').map(c =>
+        c.charCodeAt(0) > 127 ? `\\u${c.charCodeAt(0).toString(16).padStart(4, '0')}` : c
+    ).join('');
+};
+
+
 const exportToShapefile = async () => {
 
     const formData = new FormData();
@@ -347,18 +353,31 @@ const exportToShapefile = async () => {
                 const signs: DetailedSign[] = res.data.data
                 const geojson: GeoJSON.FeatureCollection = {
                     type: "FeatureCollection",
-                    features: signs.map((sign, i) => ({
-                        type: "Feature",
-                        geometry: {
-                            type: "Point",
-                            coordinates: [Number(sign.longitude), Number(sign.latitude)]
-                        } as GeoJSON.Point,
-                        properties: sign
-                    }))
+                    features: signs.map((sign, i) => {
+                        let signData = sign
+                        for (let key in signData) {
+                            let val = typeof sign[key as keyof DetailedSign] === 'string'
+                                ? escapeArabic(sign[key as keyof DetailedSign] as string)
+                                : sign[key as keyof DetailedSign]
+
+                            signData[key as keyof DetailedSign] = val;
+                        }
+                        return {
+                            type: "Feature",
+                            geometry: {
+                                type: "Point",
+                                coordinates: [Number(sign.longitude), Number(sign.latitude)]
+                            } as GeoJSON.Point,
+                            properties: signData
+                        }
+                    })
                 }
 
+                let nowDate = new Date()
+                let folderName = `Signs_${nowDate.getDay()}-${nowDate.getMonth() + 1}-${nowDate.getFullYear()}`
+
                 window.shpwrite.download(geojson, {
-                    folder: 'road_signs',
+                    folder: folderName,
                     types: {
                         point: 'Signs'
                     }

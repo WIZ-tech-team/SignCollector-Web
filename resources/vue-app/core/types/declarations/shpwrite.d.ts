@@ -1,4 +1,5 @@
-// src/shpwrite.d.ts
+import '@types/geojson';
+
 declare module 'shp-write' {
   export interface DownloadOptions {
     folder?: string;
@@ -23,3 +24,23 @@ declare const shpwrite: {
     options?: DownloadOptions
   ) => void;
 };
+
+declare global {
+  interface Window {
+    shpwrite: {
+      download: (
+        geojson: GeoJSON.FeatureCollection,
+        options?: {
+          folder?: string;
+          types?: {
+            point?: string;
+            polygon?: string;
+            line?: string;
+          };
+          compression?: string;
+        }
+      ) => void;
+    };
+    JSZip: new () => any;
+  }
+}
