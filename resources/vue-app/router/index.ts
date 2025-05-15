@@ -29,16 +29,16 @@ const routes: RouteRecordRaw[] = [
                             allowedUsers: ['Admin']
                         }
                     },
-                    {
-                        path: '/users',
-                        name: 'users',
-                        component: () => import("@/views/dashboard/UsersView.vue"),
-                        meta: {
-                            pageTitle: "Users",
-                            auth: true,
-                            allowedUsers: ['Admin']
-                        }
-                    },
+                    // {
+                    //     path: '/users',
+                    //     name: 'users',
+                    //     component: () => import("@/views/dashboard/UsersView.vue"),
+                    //     meta: {
+                    //         pageTitle: "Users",
+                    //         auth: true,
+                    //         allowedUsers: ['Admin']
+                    //     }
+                    // },
                     {
                         path: '/map',
                         name: 'map',

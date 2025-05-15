@@ -294,9 +294,9 @@ class ExportDetailedSignsController extends Controller
             $shapefile->addCharField('enContent');
             $shapefile->addCharField('condition');
             $shapefile->addCharField('comments');
-            $shapefile->addCharField('createBy');
-            $shapefile->addCharField('createAt');
-            $shapefile->addCharField('updateAt');
+            $shapefile->addCharField('createdBy');
+            $shapefile->addCharField('createdAt');
+            $shapefile->addCharField('updatedAt');
 
             // Add records
             foreach ($signs as $sign) {
