@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::table('users', function (Blueprint $table) {
             $table->string('phone')->nullable()->after('password');
             $table->timestamp('phone_verified_at')->nullable()->after('phone');
-            $table->enum('type', ['Admin', 'User', 'Mobile'])->default('User')->after('phone_verified_at');
+            $table->enum('type', ['Super-Admin', 'Admin', 'User'])->default('User')->after('phone_verified_at');
             $table->string('mobile_id')->nullable()->unique()->after('password');
             $table->softDeletes()->after('updated_at');
         });

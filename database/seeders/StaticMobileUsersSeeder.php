@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
@@ -14,17 +15,16 @@ class StaticMobileUsersSeeder extends Seeder
     public function run(): void
     {
         // Remove any existing users with these emails
-        DB::table('users')
-            ->whereIn('email', [
-                'qais@example.com',
-                'thuraiya@example.com',
-                'maryam@example.com',
-                'naif@example.com',
-            ])
+        User::whereIn('email', [
+            'qais@example.com',
+            'thuraiya@example.com',
+            'maryam@example.com',
+            'naif@example.com',
+        ])
             ->delete();
 
-        // Insert the four static mobile users with 'type' => 'Admin'
-        DB::table('users')->insert([
+        // Define Users Data
+        $usersData = [
             [
                 'name'       => 'qais',
                 'email'      => 'qais@example.com',
@@ -57,6 +57,12 @@ class StaticMobileUsersSeeder extends Seeder
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
-        ]);
+        ];
+
+        // Insert the four static mobile users with 'type' => 'Admin'
+        foreach ($usersData as $user) {
+            User::create($user)
+                ->assignRole('Collector');
+        }
     }
 }
