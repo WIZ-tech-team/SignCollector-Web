@@ -18,6 +18,7 @@ class RolesPermissionsSeeder extends Seeder
         // Define Basic Permissions
         $permissionsData = [
             // Users
+            ['name' => 'access users'],
             ['name' => 'create user'],
             ['name' => 'update user'],
             ['name' => 'delete user'],
@@ -28,6 +29,7 @@ class RolesPermissionsSeeder extends Seeder
             ['name' => 'export users'],
 
             // Detailed Signs
+            ['name' => 'access detailed signs'],
             ['name' => 'update detailed sign'],
             ['name' => 'delete detailed sign'],
             ['name' => 'export detailed signs'],
@@ -39,14 +41,7 @@ class RolesPermissionsSeeder extends Seeder
             ['name' => 'show auth detailed sign'],
             ['name' => 'update auth detailed sign'],
             ['name' => 'delete auth detailed sign'],
-            ['name' => 'export auth detailed signs'],
-
-            // Special for All Data
-            ['name' => 'list all detailed signs'],
-            ['name' => 'show all detailed sign'],
-            ['name' => 'update all detailed sign'],
-            ['name' => 'delete all detailed sign'],
-            ['name' => 'export all detailed signs']
+            ['name' => 'export auth detailed signs']
 
         ];
 
@@ -62,6 +57,7 @@ class RolesPermissionsSeeder extends Seeder
         Role::create(['name' => 'SuperAdmin'])
             ->givePermissionTo([
                 // Users
+                'access users',
                 'create user',
                 'update user',
                 'delete user',
@@ -71,21 +67,31 @@ class RolesPermissionsSeeder extends Seeder
                 'list users',
                 'export users',
                 // Detailed Signs
+                'access detailed signs',
                 'update detailed sign',
                 'delete detailed sign',
                 'export detailed signs',
                 'show detailed sign',
-                'list detailed signs',
-                // Special for All Data
-                'list all detailed signs',
-                'show all detailed sign',
-                'update all detailed sign',
-                'delete all detailed sign',
-                'export all detailed signs'
+                'list detailed signs'
+            ]);
+        // Super Admin Role
+        Role::create(['name' => 'Admin'])
+            ->givePermissionTo([
+                // Users
+                'access users',
+                'create user',
+                'update user',
+                'delete user',
+                'archive user',
+                'resore user',
+                'show user',
+                'list users',
+                'export users'
             ]);
         // Collector Role
         Role::create(['name' => 'Collector'])
             ->givePermissionTo([
+                'access detailed signs',
                 'update detailed sign',
                 'delete detailed sign',
                 'export detailed signs',
@@ -100,11 +106,10 @@ class RolesPermissionsSeeder extends Seeder
         // Viewer Role
         Role::create(['name' => 'Viewer'])
             ->givePermissionTo([
+                'access detailed signs',
                 'show detailed sign',
                 'list detailed signs',
-                'list all detailed signs',
-                'show all detailed sign',
-                'export all detailed signs'
+                'export detailed signs'
             ]);
     }
 }

@@ -21,7 +21,7 @@ class StaticMobileUsersSeeder extends Seeder
             'maryam@example.com',
             'naif@example.com',
         ])
-            ->delete();
+            ->forceDelete();
 
         // Define Users Data
         $usersData = [

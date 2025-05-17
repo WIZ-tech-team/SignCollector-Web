@@ -10,6 +10,7 @@ use App\Models\Governorate;
 use App\Models\Road;
 use App\Models\Willayat;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Maatwebsite\Excel\Excel as ExcelExcel;
 use Illuminate\Support\Facades\Validator;      // ← add this line
 
@@ -25,10 +26,27 @@ class DetailedSignsController extends Controller
 
     public function index()
     {
+
+        $user = Auth::user();
+        $query = DetailedSign::query()->with('media');
+
+
         // 1) eager-load the entire media collection
         // 1) eager‐load the entire media collection, order by id
-        $paginator = DetailedSign::with('media')
-            ->orderBy('id', 'asc')
+        if ($user->can('access detailed signs')) {
+            if ($user->can('list auth detailed signs')) {
+                $query = $query->where('created_by', $user->name);
+            }
+            $paginator = $query->orderBy('id', 'asc')
+                ->paginate(DetailedSign::count());
+        } else {
+            return response()->json([
+                'status' => 'failed',
+                'data' => 'Permissions denied.'
+            ], Response::HTTP_OK);
+        }
+
+        $paginator = $query->orderBy('id', 'asc')
             ->paginate(DetailedSign::count());
 
         // 2) transform each item with the Resource, and carry over status/meta/links
@@ -78,7 +96,7 @@ class DetailedSignsController extends Controller
             ExcelExcel::XLSX
         );
     }
-    
+
     public function update(Request $request, $id)
     {
         // 1) Find the sign or fail

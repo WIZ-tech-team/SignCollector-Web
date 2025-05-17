@@ -2,12 +2,15 @@
 
 namespace App\Http\Controllers\AdminDashboard;
 
+use App\Exports\UsersExport;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Rules\MatchOldUserPasswordRule;
 use App\Rules\UserTypeRule;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Maatwebsite\Excel\Excel as ExcelExcel;
+use Maatwebsite\Excel\Facades\Excel;
 use Symfony\Component\HttpFoundation\Response;
 
 class UsersController extends Controller
@@ -25,9 +28,17 @@ class UsersController extends Controller
                 $request->validate([
                     'type' => ['required', new UserTypeRule()]
                 ]);
-                $users = User::where('type', $request['type'])->with('avatar')->paginate(10);
+                $users = User::where('type', '<>', 'Super-Admin')->where('type', $request['type'])->with('avatar')
+                    ->with(['roles' => function ($query) {
+                        $query->select('name');
+                    }])
+                    ->paginate(10);
             } else {
-                $users = User::with('avatar')->paginate(10);
+                $users = User::where('type', '<>', 'Super-Admin')->with('avatar')
+                    ->with(['roles' => function ($query) {
+                        $query->select('name');
+                    }])
+                    ->paginate(10);
             }
 
             return response()->json([
@@ -84,6 +95,7 @@ class UsersController extends Controller
                 'email' => 'required|email|unique:users,email',
                 'phone' => 'required|string|regex:/^\+?[0-9 ]+$/',
                 'type' => ['required', new UserTypeRule()],
+                'role' => 'string',
                 'avatar' => 'required|image|mimes:jpeg,png,jpg,gif,svg',
                 'password' => [
                     'required',
@@ -115,6 +127,8 @@ class UsersController extends Controller
                     'password'
                 ));
 
+                $user->syncRoles($request['role']);
+
                 if ($user && $request->hasFile('avatar')) {
                     $user->addMediaFromRequest('avatar')->toMediaCollection('avatars');
                 }
@@ -137,7 +151,7 @@ class UsersController extends Controller
      */
     public function show(string $user_id)
     {
-        $user = User::with('avatar')->findOrFail($user_id);
+        $user = User::with('avatar', 'roles:name')->findOrFail($user_id);
 
         return response()->json([
             'status' => 'success',
@@ -158,6 +172,7 @@ class UsersController extends Controller
                 'email' => 'required|email',
                 'phone' => 'required|string|regex:/^\+?[0-9 ]+$/',
                 'type' => ['required', new UserTypeRule()],
+                'role' => 'string',
                 'avatar' => 'image|mimes:jpeg,png,jpg,gif,svg',
                 'old_password' => ['nullable', 'required_with:password', new MatchOldUserPasswordRule($user->id)],
                 'password' => [
@@ -189,6 +204,8 @@ class UsersController extends Controller
                     'type',
                     'password'
                 ));
+
+                $user->syncRoles($request['role']);
 
                 if ($user && $request->hasFile('avatar')) {
                     $user->clearMediaCollection('avatars');
@@ -249,4 +266,14 @@ class UsersController extends Controller
             'data' => $user->load('avatar')
         ], Response::HTTP_OK);
     }
+
+    public function export()
+    {
+        return Excel::download(
+            new UsersExport(),
+            'Users_' . today()->format('Y-m-d') . '.xlsx', // Ensure extension here
+            ExcelExcel::XLSX
+        );
+    }
+
 }

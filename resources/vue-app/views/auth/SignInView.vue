@@ -13,20 +13,15 @@
       <p class="text-center text-gray-600 mb-8">مرحبًا بك!</p>
 
       <!-- Form -->
-      <form @submit.prevent="simpleLogin" class="space-y-6">
+      <form @submit.prevent="login" class="space-y-6">
         <!-- Username -->
         <div>
           <label class="block text-lg font-medium text-gray-800 mb-1">
             اسم المستخدم
           </label>
-          <input
-            v-model="name"
-            type="text"
-            autocomplete="username"
-            required
+          <input v-model="name" type="text" autocomplete="username" required
             class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
-            placeholder="أدخل اسم المستخدم"
-          />
+            placeholder="أدخل اسم المستخدم" />
         </div>
 
         <!-- Password -->
@@ -34,22 +29,14 @@
           <label class="block text-lg font-medium text-gray-800 mb-1">
             كلمة السر
           </label>
-          <input
-            v-model="password"
-            type="password"
-            autocomplete="current-password"
-            required
+          <input v-model="password" type="password" autocomplete="current-password" required
             class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
-            placeholder="أدخل كلمة السر"
-          />
+            placeholder="أدخل كلمة السر" />
         </div>
 
         <!-- Submit -->
-        <button
-          type="submit"
-          :disabled="loading"
-          class="w-full py-3 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-md disabled:opacity-50 transition"
-        >
+        <button type="submit" :disabled="loading"
+          class="w-full py-3 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-md disabled:opacity-50 transition">
           <span v-if="!loading">دخول</span>
           <span v-else>جاري التحميل…</span>
         </button>
@@ -65,10 +52,10 @@ import { useRouter } from 'vue-router';
 import { useAuthStore } from '@/store/stores/authStore';
 import ApiService from '@/core/services/ApiService';
 
-const name     = ref('');
+const name = ref('');
 const password = ref('');
-const loading  = ref(false);
-const router   = useRouter();
+const loading = ref(false);
+const router = useRouter();
 const authStore = useAuthStore();
 
 async function simpleLogin() {
@@ -89,7 +76,7 @@ async function simpleLogin() {
 
     // 3) Update Pinia authStore
     authStore.token = token;
-    authStore.user  = user;
+    authStore.user = user;
     authStore.authenticate(); // sets isAuthenticated = true
 
     // 4) Redirect to dashboard
@@ -99,6 +86,18 @@ async function simpleLogin() {
   } finally {
     loading.value = false;
   }
+}
+
+const login = async () => {
+  loading.value = true;
+  await authStore.login(name.value, password.value).then(async () => {
+    if (authStore.canUser('access detailed signs'))
+      await router.push('/dashboardLayout');
+    else
+      router.push('/users')
+  }).finally(() => {
+    loading.value = false;
+  })
 }
 </script>
 

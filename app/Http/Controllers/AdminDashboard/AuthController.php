@@ -16,24 +16,32 @@ class AuthController extends Controller
             'name'     => 'required|string',
             'password' => 'required|string',
         ]);
-    
+
         // 2) Pull in name & password
         $credentials = $request->only('name', 'password');
-    
+
         // 3) Attempt login by username
         if (Auth::attempt($credentials)) {
             $user  = Auth::user();
-            $token = $user->createToken('Teletalker_Mobile')->plainTextToken;
-    
+            $token = $user->createToken('Signs_Web')->plainTextToken;
+
+            $roles = $user->roles()->with('permissions')->get()->map(function ($role) {
+                return [
+                    'name' => $role->name,
+                    'permissions' => $role->permissions->pluck('name')
+                ];
+            });
+
             return response()->json([
                 'status' => 'success',
                 'data'   => [
                     'user'  => $user->load('avatar'),
-                    'token' => $token,
+                    'roles' => $roles,
+                    'token' => $token
                 ],
             ], Response::HTTP_OK);
         }
-    
+
         return response()->json([
             'status'  => 'error',
             'message' => 'Invalid credentials.',
@@ -44,9 +52,18 @@ class AuthController extends Controller
     {
         $user = Auth::user();
         $user->avatar;
+        $roles = $user->roles()->with('permissions')->get()->map(function ($role) {
+            return [
+                'name' => $role->name,
+                'permissions' => $role->permissions->pluck('name')
+            ];
+        });
         return response()->json([
             'status' => 'success',
-            'data' => $user
+            'data' => [
+                'user' => $user,
+                'roles' => $roles
+            ]
         ], Response::HTTP_OK);
     }
 

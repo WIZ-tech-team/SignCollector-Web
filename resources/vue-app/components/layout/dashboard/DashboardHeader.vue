@@ -12,13 +12,20 @@
             </div>
             <div class="flex items-center justify-between py-4 px-8 user-section">
                 <div class="flex items-center justify-start gap-2">
-                    <router-link to="/dashboard" class="font-semibold text-active-brand capitalize text-md px-2 py-1 bg-light-brand rounded-sm hover:bg-brand hover:text-light-brand">
-                        اللوائح
-                    </router-link>
-                    <!-- <span class="text-md font-semibold">|</span>
-                    <router-link to="/users" class="font-semibold text-active-brand capitalize text-md px-2 py-1 bg-light-brand rounded-sm hover:bg-brand hover:text-light-brand">
-                        المستخدمين
-                    </router-link> -->
+                    <template v-if="authStore.canUser('access detailed signs')">
+                        <router-link to="/dashboard"
+                            class="font-semibold text-active-brand capitalize text-md px-2 py-1 bg-light-brand rounded-sm hover:bg-brand hover:text-light-brand">
+                            اللوائح
+                        </router-link>
+                    </template>
+                    <span v-if="authStore.canUser('access detailed signs') && authStore.canUser('access users')"
+                        class="text-md font-semibold">|</span>
+                    <template v-if="authStore.canUser('access users')">
+                        <router-link to="/users"
+                            class="font-semibold text-active-brand capitalize text-md px-2 py-1 bg-light-brand rounded-sm hover:bg-brand hover:text-light-brand">
+                            المستخدمين
+                        </router-link>
+                    </template>
                 </div>
                 <button type="button" @click.prevent="logout" :disabled="logoutDisabled"
                     class="p-2 bg-white hover:bg-light-brand cursor-pointer rounded-md disabled:cursor-default">

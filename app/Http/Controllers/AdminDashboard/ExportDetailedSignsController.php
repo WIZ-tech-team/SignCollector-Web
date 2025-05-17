@@ -9,6 +9,7 @@ use App\Models\Governorate;
 use App\Models\Road;
 use App\Models\Willayat;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Maatwebsite\Excel\Excel as ExcelExcel;
 use Maatwebsite\Excel\Facades\Excel;
 use Shapefile\Geometry\Point;
@@ -48,6 +49,20 @@ class ExportDetailedSignsController extends Controller
                 'road' => 'string'
             ]);
 
+            $user = Auth::user();
+            $query = DetailedSign::query();
+
+            if ($user->can('access detailed signs')) {
+                if ($user->can('list auth detailed signs')) {
+                    $query = $query->where('created_by', $user->name);
+                }
+            } else {
+                return response()->json([
+                    'status' => 'failed',
+                    'data' => 'Permissions denied.'
+                ], Response::HTTP_OK);
+            }
+
             $gov = Governorate::where('name_ar', $request['governorate'])->first();
             $willayat = Willayat::where('name_ar', $request['willayat'])->first();
             $road = Road::where('name', $request['road'])->first();
@@ -57,16 +72,16 @@ class ExportDetailedSignsController extends Controller
             // Get signs filtered
             if ($gov) {
                 if ($willayat) {
-                    $signs = DetailedSign::where('governorate', $gov->name_ar)
+                    $signs = $query->where('governorate', $gov->name_ar)
                         ->where('willayat', $willayat->name_ar)
                         ->get();
                 } else {
-                    $signs = DetailedSign::where('governorate', $gov->name_ar)->get();
+                    $signs = $query->where('governorate', $gov->name_ar)->get();
                 }
             } elseif ($road) {
-                $signs = DetailedSign::where('road_name', $road->name)->get();
+                $signs = $query->where('road_name', $road->name)->get();
             } else {
-                $signs = DetailedSign::all();
+                $signs = $query->get();
             }
 
             if (!count($signs) > 0) {
@@ -224,6 +239,20 @@ class ExportDetailedSignsController extends Controller
             'road' => 'string'
         ]);
 
+        $user = Auth::user();
+        $query = DetailedSign::query();
+
+        if ($user->can('access detailed signs')) {
+            if ($user->can('list auth detailed signs')) {
+                $query = $query->where('created_by', $user->name);
+            }
+        } else {
+            return response()->json([
+                'status' => 'failed',
+                'data' => 'Permissions denied.'
+            ], Response::HTTP_OK);
+        }
+
         $gov = Governorate::where('name_ar', $request['governorate'])->first();
         $willayat = Willayat::where('name_ar', $request['willayat'])->first();
         $road = Road::where('name', $request['road'])->first();
@@ -233,16 +262,16 @@ class ExportDetailedSignsController extends Controller
         // Get signs filtered
         if ($gov) {
             if ($willayat) {
-                $signs = DetailedSign::where('governorate', $gov->name_ar)
+                $signs = $query->where('governorate', $gov->name_ar)
                     ->where('willayat', $willayat->name_ar)
                     ->get();
             } else {
-                $signs = DetailedSign::where('governorate', $gov->name_ar)->get();
+                $signs = $query->where('governorate', $gov->name_ar)->get();
             }
         } elseif ($road) {
-            $signs = DetailedSign::where('road_name', $road->name)->get();
+            $signs = $query->where('road_name', $road->name)->get();
         } else {
-            $signs = DetailedSign::all();
+            $signs = $query->get();
         }
 
         if (!count($signs) > 0) {

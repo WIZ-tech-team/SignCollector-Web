@@ -19,7 +19,9 @@
             </div>
 
             <!-- Export Action -->
-            <SignsExport></SignsExport>
+            <template v-if="authStore.canUser('export detailed signs')">
+              <SignsExport></SignsExport>
+            </template>
 
           </div>
           <!-- Scrollable, centered table area -->
@@ -57,17 +59,19 @@
                   </td>
                   <td class="p-2 border">
                     <div class="flex items-center justify-center gap-2">
-                      <button @click.stop="openModal(sign)" title="Show"
+                      <button v-if="authStore.canUser('show detailed sign')" @click.stop="openModal(sign)" title="Show"
                         class="text-primary hover:text-light-primary bg-light-primary hover:bg-primary p-2 rounded-md">
                         <!-- eye icon -->
                         <SolidHeroIcon name="EyeIcon" classes="w-5 h-5" />
                       </button>
-                      <button @click.stop="openEditModal(sign)" title="Edit"
+                      <button v-if="authStore.canUser('update detailed sign')" @click.stop="openEditModal(sign)"
+                        title="Edit"
                         class="text-warning hover:text-light-warning bg-light-warning hover:bg-warning p-2 rounded-md">
                         <!-- pencil icon -->
                         <SolidHeroIcon name="PencilIcon" classes="w-5 h-5" />
                       </button>
-                      <button @click.stop="onDelete(sign)" title="Delete"
+                      <button v-if="authStore.canUser('delete detailed sign')" @click.stop="onDelete(sign)"
+                        title="Delete"
                         class="text-danger hover:text-light-danger bg-light-danger hover:bg-danger p-2 rounded-md">
                         <!-- trash icon -->
                         <SolidHeroIcon name="TrashIcon" classes="w-5 h-5" />

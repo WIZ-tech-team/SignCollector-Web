@@ -6,7 +6,7 @@ import { defineStore } from "pinia";
 import { ref } from "vue";
 import { MSwal } from "@/core/plugins/SweetAlerts2";
 import { BackendResponseData } from "@/core/types/config/AxiosCustom";
-import { UserInterface } from "@/core/types/data/UserInterface";
+import { RoleWithPermissions, UserInterface } from "@/core/types/data/UserInterface";
 import { getMessageFromObj } from "@/assets/ts/swalMethods";
 
 export const useAuthStore = defineStore('authStore', () => {
@@ -15,6 +15,7 @@ export const useAuthStore = defineStore('authStore', () => {
     const user = ref<UserInterface | null>(null);
     const isAuthenticated = ref<boolean>(false);
     const token = ref<string | null>(null);
+    const rolesWithPermissions = ref<RoleWithPermissions[]>([])
 
     // Stores
 
@@ -33,6 +34,7 @@ export const useAuthStore = defineStore('authStore', () => {
         isAuthenticated.value = false;
         user.value = null;
         token.value = null;
+        rolesWithPermissions.value = [];
         ApiService.setHeader();
     }
 
@@ -45,8 +47,9 @@ export const useAuthStore = defineStore('authStore', () => {
         await ApiService.post('/api/spa/admin/auth/login', formdata)
             .then((res: AxiosResponse) => {
                 if (res.data?.status === 'success' && res.data?.data) {
-                    user.value = res.data?.data?.user ?? null;
-                    token.value = res.data?.data?.token ?? "";
+                    user.value = res.data.data?.user ?? null;
+                    token.value = res.data.data?.token ?? "";
+                    rolesWithPermissions.value = res.data.data?.roles ?? [];                    
                 } else {
                     MSwal.fire('Sorry', getMessageFromObj(res), 'error');
                 }
@@ -65,7 +68,8 @@ export const useAuthStore = defineStore('authStore', () => {
         await ApiService.get('/api/spa/admin/auth/user')
             .then((res: AxiosResponse) => {
                 if (res.data?.status === 'success' && res.data?.data) {
-                    user.value = res.data.data;
+                    user.value = res.data.data?.user ?? null;
+                    rolesWithPermissions.value = res.data.data?.roles ?? [];
                 }
             })
             .catch((e: Error) => {
@@ -81,5 +85,17 @@ export const useAuthStore = defineStore('authStore', () => {
             });
     }
 
-    return { user, isAuthenticated, token, login, fetchAuthUser, authenticate, logout, removeAuth }
+    const canUser = (permission: string) => {
+        
+        let result = false
+        rolesWithPermissions.value.forEach(role => {
+            if (role.permissions.includes(permission)) {
+                return result = true
+            }
+        })
+        
+        return result
+    }
+
+    return { user, isAuthenticated, token, login, fetchAuthUser, authenticate, logout, removeAuth, canUser }
 })
