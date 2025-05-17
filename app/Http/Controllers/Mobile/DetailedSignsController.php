@@ -25,7 +25,7 @@ class DetailedSignsController extends Controller
             'created_by' => 'required|string|exists:users,name'
         ]);
 
-        $user = User::where('name', $request['name']);
+        $user = User::where('name', $request['created_by'])->first();
 
         $signs = DetailedSignResource::collection(DetailedSign::where('created_by', $user->name)->get());
 
