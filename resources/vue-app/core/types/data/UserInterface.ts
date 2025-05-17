@@ -13,6 +13,21 @@ export interface UserInterface {
     created_at: string;
     updated_at: string;
     avatar?: Media;
+    roles?: Role[];
 }
 
-export type UserType = "User"|"Mobile"|"Admin";
+export type UserType = "User" | "Mobile" | "Admin";
+
+export type RoleWithPermissions = {
+    name: string;
+    permissions: string[];
+}
+
+export type Role = {
+    "name": string;
+    "pivot": {
+        "model_type": string;
+        "model_id": number;
+        "role_id": number;
+    }
+}

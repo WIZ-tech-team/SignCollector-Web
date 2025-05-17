@@ -4,7 +4,8 @@ import { UserType } from '@/core/types/data/Admin';
 declare module 'vue-router' {
     interface RouteMeta {
         auth?: boolean;
-        allowedUsers?: Array<UserType>;
+        allowedUsers?: UserType[];
         pageTitle?: string;
+        permissions?: string[];
     }
 }

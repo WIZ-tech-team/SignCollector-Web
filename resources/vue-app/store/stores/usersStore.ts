@@ -22,6 +22,7 @@ export type UpdatableUserData = {
     type: UserType;
     avatar_url?: string;
     avatar?: File | null;
+    role?: string;
 }
 
 export const useUsersStore = defineStore('usersStore', () => {

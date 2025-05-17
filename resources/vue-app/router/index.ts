@@ -16,7 +16,7 @@ const routes: RouteRecordRaw[] = [
                 meta: {
                     pageTitle: "Admin Dashboard",
                     auth: true,
-                    allowedUsers: ['Admin']
+                    allowedUsers: ['Super-Admin', 'Admin', 'User']
                 },
                 children: [
                     {
@@ -26,29 +26,31 @@ const routes: RouteRecordRaw[] = [
                         meta: {
                             pageTitle: "Dashboard",
                             auth: true,
-                            allowedUsers: ['Admin']
+                            // allowedUsers: ['Super-Admin', 'Admin', 'User'],
+                            permissions: ['access detailed signs']
+                        }
+                    },
+                    {
+                        path: '/users',
+                        name: 'users',
+                        component: () => import("@/views/dashboard/UsersView.vue"),
+                        meta: {
+                            pageTitle: "Users",
+                            auth: true,
+                            // allowedUsers: ['Super-Admin', 'User'],
+                            permissions: ['access users']
                         }
                     },
                     // {
-                    //     path: '/users',
-                    //     name: 'users',
-                    //     component: () => import("@/views/dashboard/UsersView.vue"),
+                    //     path: '/map',
+                    //     name: 'map',
+                    //     component: () => import("@/views/dashboard/MapView.vue"),
                     //     meta: {
-                    //         pageTitle: "Users",
+                    //         pageTitle: "Map",
                     //         auth: true,
-                    //         allowedUsers: ['Admin']
+                    //         allowedUsers: ['Super-Admin', 'Admin', 'User']
                     //     }
-                    // },
-                    {
-                        path: '/map',
-                        name: 'map',
-                        component: () => import("@/views/dashboard/MapView.vue"),
-                        meta: {
-                            pageTitle: "Map",
-                            auth: true,
-                            allowedUsers: ['Admin']
-                        }
-                    }
+                    // }
                 ]
             },
             {
@@ -104,11 +106,20 @@ router.beforeEach((to, from, next) => {
     if (!to.meta?.auth) {
         if (to.fullPath === '/sign-in') {
             if (authStore.isAuthenticated) {
-                if (authStore.user?.type === 'Admin') {
+                if (authStore.canUser('access detailed signs'))
                     next('/dashboardLayout');
-                } else {
+                else if (authStore.canUser('access users'))
+                    next('/users')
+                else{
+                    authStore.removeAuth()
                     next('/401');
                 }
+                    
+                // if (authStore.user?.type === 'Admin') {
+                //     next('/dashboardLayout');
+                // } else {
+                //     next('/401');
+                // }
             } else {
                 next();
             }
@@ -117,6 +128,13 @@ router.beforeEach((to, from, next) => {
         }
     } else {
         if (authStore.isAuthenticated) {
+            if (to.meta?.permissions) {
+                to.meta.permissions.forEach(permission => {
+                    if (!authStore.canUser(permission)) {
+                        next('/401');
+                    }
+                })
+            }
             // Check
             if (Array.isArray(to.meta?.allowedUsers)) {
                 if (authStore.user) {

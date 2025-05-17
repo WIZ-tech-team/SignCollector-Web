@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Mobile;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\DetailedSignResource;
 use App\Models\DetailedSign;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -18,9 +19,15 @@ class DetailedSignsController extends Controller
     /**
      * List all detailed signs.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $signs = DetailedSignResource::collection(DetailedSign::all());
+        $request->validate([
+            'created_by' => 'required|string|exists:users,name'
+        ]);
+
+        $user = User::where('name', $request['name']);
+
+        $signs = DetailedSignResource::collection(DetailedSign::where('created_by', $user->name)->get());
 
         return response()->json([
             'status' => 'success',

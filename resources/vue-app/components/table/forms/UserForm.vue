@@ -30,13 +30,27 @@
                     <Field id="phone_input" name="phone_input" type="text" v-model="userModel.phone"
                         class="dashboard-input w-full"></Field>
                 </ColumnInputGroup>
-                <ColumnInputGroup name="type_input" label="النوع" :show_error="true">
+
+                <!-- User Type -->
+                <!-- <ColumnInputGroup name="type_input" label="النوع" :show_error="true">
                     <Field name="type_input" type="text" v-model="userModel.type" v-slot="{ field }">
                         <select v-bind="field" class="dashboard-input w-full" :class="{ 'placeholder': !userModel.type }">
-                            <option disabled selected hidden value="" class="" label="select masjid">
+                            <option disabled selected hidden value="" class="" label="اختر النوع">
                                 select type
                             </option>
                             <option v-for="type in userTypes" :value="type" :label="type"></option>
+                        </select>
+                    </Field>
+                </ColumnInputGroup> -->
+
+                <!-- User Role -->
+                <ColumnInputGroup name="role_input" label="الدور" :show_error="true">
+                    <Field name="role_input" type="text" v-model="userModel.role" v-slot="{ field }">
+                        <select v-bind="field" class="dashboard-input w-full" :class="{ 'placeholder': !userModel.role }">
+                            <option disabled selected hidden value="" class="" label="اختر الدور">
+                                select role
+                            </option>
+                            <option v-for="role in userRoles" :value="role" :label="role"></option>
                         </select>
                     </Field>
                 </ColumnInputGroup>
@@ -44,7 +58,7 @@
 
             <ImageInput label="الصورة" preview-id="avatar_preview_img" :image-url="userModel.avatar_url"
                 :is-note-displayed="true" @onImageChange="loadFile">
-                <span v-if="!userModel.avatar" class="error-message">
+                <span v-if="(!userModel.avatar_url && userToEdit?.id) || (!userModel.avatar && !userToEdit?.id)" class="error-message">
                     Note: avatar field required
                 </span>
                 <Field name="avatar_input" type="file" v-model="userModel.avatar" class="hidden"></Field>
@@ -158,13 +172,15 @@ const usersStore = useUsersStore();
 const { userToEdit } = toRefs(props);
 
 // Custom constants
-const userTypes = ref(['Admin', 'Mobile', 'User']);
+const userTypes = ref(['Super-Admin', 'Admin', 'User']);
+const userRoles = ref(['Admin', 'Collector', 'Viewer']);
 const userModel = ref<UpdatableUserData>({
     id: 0,
     name: "",
     email: "",
     phone: "",
-    type: "User"
+    type: userToEdit?.value?.type ?? "User",
+    role: ""
 });
 
 const isEditForm = computed(() => {
@@ -181,7 +197,8 @@ const generalYupObjectShape = ref({
     name_input: string().required(),
     email_input: string().email().required(),
     phone_input: string().required(),
-    type_input: string().oneOf(userTypes.value).required()
+    role_input: string().oneOf(userRoles.value).required()
+    // type_input: string().oneOf(userTypes.value).required()
 });
 const old_password_input = string()
     .required('Password confirmation is required');

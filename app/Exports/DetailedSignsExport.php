@@ -6,10 +6,13 @@ use App\Models\DetailedSign;
 use App\Models\Governorate;
 use App\Models\Road;
 use App\Models\Willayat;
+use Illuminate\Support\Facades\Auth;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
+use Maatwebsite\Excel\Concerns\WithMapping;
+use Symfony\Component\HttpFoundation\Response;
 
-class DetailedSignsExport implements FromCollection, WithHeadings
+class DetailedSignsExport implements FromCollection, WithHeadings, WithMapping
 {
 
     private Governorate|null $governorate;
@@ -28,18 +31,32 @@ class DetailedSignsExport implements FromCollection, WithHeadings
      */
     public function collection()
     {
+        $user = Auth::user();
+        $query = DetailedSign::query();
+
+        if ($user->can('access detailed signs')) {
+            if ($user->can('list auth detailed signs')) {
+                $query = $query->where('created_by', $user->name);
+            }
+        } else {
+            return response()->json([
+                'status' => 'failed',
+                'data' => 'Permissions denied.'
+            ], Response::HTTP_OK);
+        }
+
         if ($this->governorate) {
             if ($this->willayat) {
-                return DetailedSign::where('governorate', $this->governorate->name_ar)
+                return $query->where('governorate', $this->governorate->name_ar)
                     ->where('willayat', $this->willayat->name_ar)
                     ->get();
             } else {
-                return DetailedSign::where('governorate', $this->governorate->name_ar)->get();
+                return $query->where('governorate', $this->governorate->name_ar)->get();
             }
         } elseif ($this->road) {
-            return DetailedSign::where('road_name', $this->road->name)->get();
+            return $query->where('road_name', $this->road->name)->get();
         } else {
-            return DetailedSign::all();
+            return $query->get();
         }
     }
 

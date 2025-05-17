@@ -42,19 +42,20 @@
             <slot :name="`before_action_column_values_${index}`"></slot>
             <td v-if="allowActions.allow" class="px-6 py-4 whitespace-nowrap">
               <div class="px-2 py-1 flex flex-wrap gap-3">
-                <button v-if="allowActions?.edit" type="button" @click.prevent="onEdit(datum)" title="edit"
+                <button v-if="showEdit" type="button"
+                  @click.prevent="onEdit(datum)" title="edit"
                   class="p-2 rounded-md bg-warning hover:bg-active-warning cursor-pointer">
                   <SolidHeroIcon name="PencilIcon" classes="w-4 h-4 text-light-warning" />
                 </button>
-                <button v-if="allowActions?.archive" type="button" @click.prevent="onArchive(datum)" title="archive"
+                <button v-if="showArchive" type="button" @click.prevent="onArchive(datum)" title="archive"
                   class="p-2 rounded-md bg-primary hover:bg-active-primary cursor-pointer">
                   <SolidHeroIcon name="ArchiveBoxArrowDownIcon" classes="w-4 h-4 text-light-primary" />
                 </button>
-                <button v-if="allowActions?.restore" type="button" @click.prevent="onRestore(datum)" title="unarchive"
+                <button v-if="showRestore" type="button" @click.prevent="onRestore(datum)" title="unarchive"
                   class="p-2 rounded-md bg-success hover:bg-active-success cursor-pointer">
                   <SolidHeroIcon name="ArrowUpCircleIcon" classes="w-4 h-4 text-light-success" />
                 </button>
-                <button v-if="allowActions?.delete" type="button" @click.prevent="onDelete(datum)" title="delete"
+                <button v-if="showDelete" type="button" @click.prevent="onDelete(datum)" title="delete"
                   class="p-2 rounded-md bg-danger hover:bg-active-danger cursor-pointer">
                   <SolidHeroIcon name="TrashIcon" classes="w-4 h-4 text-light-danger" />
                 </button>
@@ -77,11 +78,12 @@
 </template>
 
 <script setup lang="ts">
-import { PropType, toRefs } from "vue";
+import { computed, PropType, toRefs } from "vue";
 import { PaginatedData } from "@/core/types/data/PaginatedDataInterface";
 import { AllowActions, TableColumn } from "@/core/types/elements/Table";
 import SolidHeroIcon from "@/components/icons/SolidHeroIcon.vue";
 import PaginationControl from "@/components/partials/PaginationControl.vue";
+import { useAuthStore } from "@/store/stores/authStore";
 
 // Props
 const props = defineProps({
@@ -103,7 +105,7 @@ const props = defineProps({
     default: { allow: false }
   }
 });
-const { title, dataPaginated, columns } = toRefs(props);
+const { title, dataPaginated, columns, allowActions } = toRefs(props);
 
 // Emits
 const emits = defineEmits([
@@ -115,6 +117,21 @@ const emits = defineEmits([
   'onNextPage',
   'onSpecificPage'
 ]);
+
+const authStore = useAuthStore()
+
+const showEdit = computed(() => {
+  return allowActions.value?.edit && (!allowActions.value?.editPermission || authStore.canUser(allowActions.value.editPermission));
+})
+const showDelete = computed(() => {
+  return allowActions.value?.delete && (!allowActions.value?.deletePermission || authStore.canUser(allowActions.value.deletePermission));
+})
+const showArchive = computed(() => {
+  return allowActions.value?.archive && (!allowActions.value?.archivePermission || authStore.canUser(allowActions.value.archivePermission));
+})
+const showRestore = computed(() => {
+  return allowActions.value?.restore && (!allowActions.value?.restorePermission || authStore.canUser(allowActions.value.restorePermission));
+})
 
 const onEdit = (data?: any) => {
   emits('editClicked', data);

@@ -117,7 +117,7 @@ class AuthController extends Controller
     // 3. Attempt auth by name
     if (Auth::attempt($credentials)) {
         $user  = Auth::user();
-        $token = $user->createToken('Teletalker_Mobile')->plainTextToken;
+        $token = $user->createToken('Signs_Mobile')->plainTextToken;
 
         return response()->json([
             'status' => 'success',

@@ -9,7 +9,11 @@ export type TableColumn = {
 export type AllowActions = {
     allow: boolean;
     edit?: boolean;
+    editPermission?: string;
     delete?: boolean;
+    deletePermission?: string;
     archive?: boolean;
+    archivePermission?: string;
     restore?: boolean;
+    restorePermission?: string;
 }
