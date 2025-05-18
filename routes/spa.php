@@ -4,6 +4,7 @@ use App\Http\Controllers\AdminDashboard\AuthController;
 use App\Http\Controllers\AdminDashboard\DetailedSignsController;
 use App\Http\Controllers\AdminDashboard\ExportDetailedSignsController;
 use App\Http\Controllers\AdminDashboard\UsersController;
+use App\Http\Controllers\PlacesController;
 use Illuminate\Support\Facades\Route;
 
 // Need to be updated to only used by Admin users
@@ -43,3 +44,5 @@ Route::prefix('signs/detailed')->controller(DetailedSignsController::class)->mid
         Route::post('/shapefile', 'exportShapefile');
     });
 });
+
+Route::get('geojson/roads', [PlacesController::class, 'getRoadsGeojson']);

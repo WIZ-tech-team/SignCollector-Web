@@ -12,4 +12,5 @@ export type BackendApiRoute =
     `/api/mobile/signs/detailed` |
     `/spa/signs/detailed/${number}` |
     '/api/governorates' |
-    '/api/roads'
+    '/api/roads' |
+    '/api/spa/geojson/roads'
