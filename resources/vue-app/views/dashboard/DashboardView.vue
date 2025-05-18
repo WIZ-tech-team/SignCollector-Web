@@ -693,7 +693,7 @@ import { useAuthStore } from '@/store/stores/authStore';
 import ApiService from '@/core/services/ApiService';
 import Swal from 'sweetalert2';
 import { DetailedSign } from '@/core/types/data/DetailedSign';
-import signsList from '@/assets/signs.json'           // ← your uploaded JSON
+import signsList from '@/assets/signs_updated.json'           // ← your uploaded JSON
 import { MSwal, QSwal } from '@/core/plugins/SweetAlerts2';
 import { AxiosError } from 'axios';
 import { BackendResponseData } from '@/core/types/config/AxiosCustom';
@@ -701,6 +701,7 @@ import { getMessageFromObj } from '@/assets/ts/swalMethods';
 import SolidHeroIcon from '@/components/icons/SolidHeroIcon.vue';
 import ModalCard from '@/components/cards/ModalCard.vue';
 import SignsExport from '@/components/partials/SignsExport.vue';
+import { GeoJsonObject } from 'geojson';
 
 // index of the currently displayed sign in signsPaginated.data
 const modalIndex = ref<number | null>(null);
@@ -1242,6 +1243,8 @@ function toggleNsdi() { nsdiEnabled.value = !nsdiEnabled.value; rebuildOverlays(
 const lat = ref<number | string>(22.5409934)
 const lng = ref<number | string>(55.8908847)
 
+const roadsGeojson = ref<any>()
+
 async function initMap() {
   if (!mapRef.value) return;
   map = new google.maps.Map(mapRef.value, {
@@ -1249,6 +1252,13 @@ async function initMap() {
     zoom: 6,
     mapTypeId: 'hybrid'
   });
+
+  await fetchRoadsGeojson().finally(() => {
+    if(roadsGeojson.value && map?.data) {
+      map.data.addGeoJson(roadsGeojson.value)
+    }
+  })
+
   //marker = new google.maps.Marker({ position: map.getCenter()!, map });
   rebuildOverlays();
   placeAllSignMarkers();
@@ -1259,6 +1269,20 @@ async function initMap() {
     // document.getElementById('latlong')!
     //   .innerText = `Lat: ${c.lat().toFixed(6)} | Lng: ${c.lng().toFixed(6)}`;
   });
+}
+
+async function fetchRoadsGeojson() {
+  await ApiService.get('/api/spa/geojson/roads')
+    .then((res) => {
+      if(res.data?.status === 'success') {
+        roadsGeojson.value = res.data?.data
+        console.log('Roads GeoJSON data:\n', roadsGeojson.value);
+        
+      }
+    })
+    .catch((err) => {
+      console.log('erroe loading roads geojson file:\n', err);
+    })
 }
 
 function placeAllSignMarkers() {

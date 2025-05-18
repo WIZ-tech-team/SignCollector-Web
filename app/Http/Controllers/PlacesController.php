@@ -39,4 +39,20 @@ class PlacesController extends Controller
             'data' => $list
         ], Response::HTTP_OK);
     }
+
+    public function getRoadsGeojson()
+    {
+        $path = public_path('storage/geo_data/roads.geojson');
+
+        if (!file_exists($path)) {
+            return response()->json(['status' => 'failed', 'data' => 'File not found'], 404);
+        }
+
+        $geoJsonData = json_decode(file_get_contents($path), true);
+
+        return response()->json([
+            'status' => 'success',
+            'data' => $geoJsonData
+        ]);
+    }
 }
