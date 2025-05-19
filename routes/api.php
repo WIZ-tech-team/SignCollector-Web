@@ -25,6 +25,8 @@ Route::prefix('mobile')->group(function () {
         Route::get('/', 'index');
         Route::post('/', 'store');
         Route::delete('{sign}', 'destroy');
+        Route::post('{sign_id}/images', 'addImage');
+        Route::delete('{sign_id}/images/{image_id}', 'deleteImage');
     });
 });
 
