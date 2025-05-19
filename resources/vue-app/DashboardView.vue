@@ -552,7 +552,7 @@ import { useAuthStore } from '@/store/stores/authStore';
 import ApiService from '@/core/services/ApiService';
 import Swal from 'sweetalert2';
 import { DetailedSign } from '@/core/types/data/DetailedSign';
-import signsList from '@/assets/signs_updated.json'           // ← your uploaded JSON
+import signsList from '@/assets/json/signs_updated.json'           // ← your uploaded JSON
 // 1️⃣ Build an array of codes and a lookup map
 const signCodeOptions = computed<string[]>(() =>
   signsList.map((s: any) => s.Sign_Code_2010)

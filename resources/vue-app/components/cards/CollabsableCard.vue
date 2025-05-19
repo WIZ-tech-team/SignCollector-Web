@@ -1,6 +1,6 @@
 <template>
     <div
-        class="flex flex-col items-start justify-start gap-4 p-8 shadow-md bg-white rounded-md transition-all duration-75 w-full">
+        :class="classes + ' ' + additionalClasses">
         <div class="flex items-center gap-8 justify-between w-full">
             <span class="font-bold text-xl text-gray-900">
                 {{ title }}
@@ -34,6 +34,16 @@ const props = defineProps({
     title: {
         type: String,
         required: true
+    },
+    classes: {
+        type: String,
+        required: false,
+        default: "flex flex-col items-start justify-start gap-4 p-8 shadow-md bg-white rounded-md transition-all duration-75 w-full"
+    },
+    additionalClasses: {
+        type: String,
+        required: false,
+        default: ""
     }
 })
 

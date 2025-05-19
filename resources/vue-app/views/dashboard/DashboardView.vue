@@ -700,7 +700,7 @@ import { useAuthStore } from '@/store/stores/authStore';
 import ApiService from '@/core/services/ApiService';
 import Swal from 'sweetalert2';
 import { DetailedSign } from '@/core/types/data/DetailedSign';
-import signsList from '@/assets/signs_updated.json'           // ← your uploaded JSON
+import signsList from '@/assets/json/signs_updated.json'           // ← your uploaded JSON
 import { MSwal, QSwal } from '@/core/plugins/SweetAlerts2';
 import { AxiosError, AxiosResponse } from 'axios';
 import { BackendResponseData } from '@/core/types/config/AxiosCustom';

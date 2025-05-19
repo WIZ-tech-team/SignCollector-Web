@@ -13,7 +13,7 @@ export type DetailedSign = {
     sign_color: string;
     road_classification: string;
     road_name: string;
-    road_number: number;
+    road_number: string;
     road_type: string;
     road_direction: string;
     latitude: string;
@@ -30,9 +30,9 @@ export type DetailedSign = {
     column_height: number;
     column_colour: string;
     column_type: string;
-    sign_content_shape_description: string;
-    sign_content_arabic_text: string;
-    sign_content_english_text: string;
+    sign_content_shape_description: string|null;
+    sign_content_arabic_text: string|null;
+    sign_content_english_text: string|null;
     sign_condition: string;
     comments: string;
     created_by: string;
