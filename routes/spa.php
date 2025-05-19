@@ -31,12 +31,15 @@ Route::prefix('users')->controller(UsersController::class)->middleware(['auth:sa
 });
 Route::delete('signs/detailed/{sign}', [DetailedSignsController::class, 'destroy']);
 
-Route::prefix('signs/detailed')->controller(DetailedSignsController::class)->middleware(['auth:sanctum'])->group(function () {
-    Route::get('/', 'index');
-    Route::post('/export', 'export');
-    Route::post('/{id}',  'update');  // ← allow POST+_method=PATCH
-
-    Route::patch('/{id}', 'update');   // ← add this
+Route::prefix('signs/detailed')->middleware(['auth:sanctum'])->group(function () {
+    Route::controller(DetailedSignsController::class)->group(function () {
+        Route::get('/', 'index');
+        Route::post('/export', 'export');
+        Route::post('/{id}',  'update');  // ← allow POST+_method=PATCH
+        Route::patch('/{id}', 'update');   // ← add this
+        
+        Route::delete('{sign_id}/images/{image_id}', 'deleteImage');
+    });
 
     Route::prefix('export')->controller(ExportDetailedSignsController::class)->group(function () {
         Route::post('/excel', 'exportExcel');

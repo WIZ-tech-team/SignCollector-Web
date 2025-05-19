@@ -654,19 +654,26 @@
           </div>
 
           <!-- Middle: preview slider -->
-          <div v-if="editImageUrls.length > 0" class="w-1/3 bg-gray-100 p-4 flex flex-col">
+          <div v-if="editActiveSign.images.length > 0" class="w-1/3 bg-gray-100 p-4 flex flex-col">
             <div class="flex-1 relative overflow-hidden">
-              <div v-for="(url, idx) in editImageUrls" :key="idx"
+              <div v-for="(image, idx) in editActiveSign.images" :key="idx"
                 class="absolute inset-0 flex items-center justify-center transition-opacity duration-300"
                 :class="idx === editSliderIndex ? 'opacity-100' : 'opacity-0 pointer-events-none'">
-                <img :src="url as string" class="max-w-full max-h-full object-contain rounded" alt="Preview" />
+                <div class="max-w-full max-h-full object-contain rounded relative">
+                  <img :src="image.original_url" class="max-w-full max-h-full rounded border border-gray-300" alt="Preview" />
+                  <button type="button" @click.prevent="deleteImage(image.id)" class="bg-danger text-light-danger hover:bg-light-danger hover:text-danger rounded-full p-1
+                    border-danger absolute top-1 right-1">
+                    <SolidHeroIcon name="TrashIcon" classes="w-4 h-4" />
+                  </button>
+                </div>
               </div>
             </div>
-            <div v-if="editImageUrls.length" class="mt-2 flex justify-center space-x-2">
+            <div v-if="editActiveSign.images.length" class="mt-2 flex justify-center space-x-2">
               <button type="button" class="gap-2 p-2 rounded-md border bg-white w-[4.5rem] disabled:opacity-50"
                 :disabled="editSliderIndex === 0" @click="editSliderIndex--">السابق</button>
               <button type="button" class="gap-2 p-2 rounded-md border bg-white w-[4.5rem] disabled:opacity-50"
-                :disabled="editSliderIndex === editImageUrls.length - 1" @click="editSliderIndex++">التالي</button>
+                :disabled="editSliderIndex === editActiveSign.images.length - 1"
+                @click="editSliderIndex++">التالي</button>
             </div>
           </div>
           <div v-else class="w-1/3 flex flex-col bg-gray-100 p-4 h-full">
@@ -695,7 +702,7 @@ import Swal from 'sweetalert2';
 import { DetailedSign } from '@/core/types/data/DetailedSign';
 import signsList from '@/assets/signs_updated.json'           // ← your uploaded JSON
 import { MSwal, QSwal } from '@/core/plugins/SweetAlerts2';
-import { AxiosError } from 'axios';
+import { AxiosError, AxiosResponse } from 'axios';
 import { BackendResponseData } from '@/core/types/config/AxiosCustom';
 import { getMessageFromObj } from '@/assets/ts/swalMethods';
 import SolidHeroIcon from '@/components/icons/SolidHeroIcon.vue';
@@ -791,135 +798,135 @@ const columnOptions = [
   '4أعمدة بدون لوحة',
   'لوحة مثبتة في الجسر'
 ];
-const signNameOptions = [
-  'Left Bend',
-  'Right Bend',
-  'Series Of Bends First Left',
-  'Series Of Bends First Right',
-  'Steep Descent',
-  'Steep Ascent',
-  'Carriageway Narrows (Both Sides)',
-  'Carriageway Narrows From Left',
-  'Carriageway Narrows From Right',
-  'Dual Carriageway Ends',
-  'Quayside Ahead',
-  'Uneven Road',
-  'Speed Hump',
-  'Dip',
-  'Slippery Road',
-  'Loose Gravel',
-  'Danger Of Falling Rocks (Can Be Reversed)',
-  'Pedestrian Crossing Ahead',
-  'Children Crossing Or School',
-  'Cyclists',
-  'Animal Crossing',
-  'Horses Crossing',
-  'Wild Animals Crossing',
-  'Road Works Or Obstruction (Temporary Sign)',
-  'Traffic Signals',
-  'Low Flying Aircraft',
-  'Cross Wind',
-  'Two Way Traffic',
-  'Hazard/Other Danger (Use With Supplementary Plate)',
-  'Roundabout',
-  'Countdown Markers (Use At 100m Centers)',
-  'Countdown Markers (Use At 100m Centers)',
-  'Minor Road Merges From Left',
-  'Minor Road Merges From Right',
-  'Minor Road On Left',
-  'Minor Road On Right',
-  'Cross Roads',
-  'Junction Road',
-  'Merge With Major Road From Left',
-  'Merge With Major Road From Right',
-  'Staggered Junction',
-  'Staggered Junction',
-  'Two Way Traffic Across One Way Carriageway',
-  'Tunnel',
-  'Restricted Headroom',
-  'Floodways',
-  'Overhead Electric Line',
-  'Divert To Opposite Carriageway',
-  'Left Lane Of Dual Carriageway Closed Inumber Of Lanes May Be Varied As Required',
-  'Sand Dunes',
-  'Sharp Deviation To Left (152 Reversed To Right',
-  'Stop Ahead',
-  'Give Way Ahead',
-  'Give Way',
-  'Stop',
-  'No Entry For All Vehicles',
-  'Closed To All S Except Non-Mechan Nical Lly Prope Lled Vehicles Being Pushed By Pedestrians',
-  'No Entry For Motor Cars',
-  'No Entry For Motorcycles',
-  'No Entry For Cycles And Mopeds',
-  'No Entry For Buses',
-  'No Entry For Goods Vehicles',
-  'No Entry For Trailers Other Than Semitrailers Or Single Axle Trailers',
-  'No Entry For Pedestrians',
-  'No Entry For Animal Drawn Vehicles',
-  'No Entry For Handcarts',
-  'No Entry For Power Driven Agricultural Vehicles',
-  'No Entry For Vehicles With Overali Width Greater Than Limit Shown',
-  'No Entry For Vehicles With Overall Height Greater Than Limit Shown',
-  'No Entry For Vehicles With Gross Weight Exceeding Limit Shown',
-  'No Entry For Vehicles With An Axle Load Exceeding Limit Shown',
-  'No Entry For Vehicles With Overall Length Greater Than Limit Shown Noles',
-  'No Left Turn',
-  'No Right Turn',
-  'No U Turn',
-  'No U Turn',
-  'No Overtaking By All Vehicles',
-  'No Overtaking By Goods Vehicles',
-  '(60)Maximum Speed As Limit Shown',
-  'No Sounding Of Horn',
-  'Customs',
-  'End Of Restriction',
-  '(60) End Of Maximum Speed Limit Shown',
-  'End Of Overtaking Restriction',
-  'No Stopping Except For Loading And Unloading Passengers Or Goods',
-  'No Stopping For Any Reason',
-  'Turn Left',
-  'Turn Right',
-  'Go Ahead Only',
-  'Turn Left Ahead',
-  'Turn Right Ahead',
-  'Roundabout - Give Way To Traffic From Left',
-  'Go Ahead Or Left Only',
-  'Go Ahead Or Right Only /A Go Ahead Or U-Turn Only / Go Left Or Right Only',
-  'Keep Left',
-  'Keep Right',
-  'Pass Either Side',
-  'Meter Zone',
-  'End Of Meter Zone',
-  'Trucks Keep Right(X Heigh=120Mm)',
-  'Minimum Speed As Limit Shown',
-  'Pedestrian Crossing',
-  'Hospital',
-  'Parking',
-  'One Way Street',
-  'No Through Road Straight Ahead',
-  'No Through Road To Right',
-  'Reversed',
-  'No Through Road To Left',
-  'Reversed',
-  'Expressway',
-  'End Of Expressway',
-  'Bus Stop',
-  'First Aid Station',
-  'Breakdown Service',
-  'Telephone / A Emergenct Telephone',
-  'Filling Station',
-  'Refreshment Cafeteria',
-  'Camping Site',
-  'Caravan Site',
-  'Camping/Caravan Site',
-  'Youth Hostel',
-  'Pedestrian Subway',
-  'Kilometer Post Sign',
-  'Trucks Over... Tonne Not To Use The Bridge',
-  'U-Turn Permitted Except By Trucks',
-  'Escape Lane Ahead'
-];
+// const signNameOptions = [
+//   'Left Bend',
+//   'Right Bend',
+//   'Series Of Bends First Left',
+//   'Series Of Bends First Right',
+//   'Steep Descent',
+//   'Steep Ascent',
+//   'Carriageway Narrows (Both Sides)',
+//   'Carriageway Narrows From Left',
+//   'Carriageway Narrows From Right',
+//   'Dual Carriageway Ends',
+//   'Quayside Ahead',
+//   'Uneven Road',
+//   'Speed Hump',
+//   'Dip',
+//   'Slippery Road',
+//   'Loose Gravel',
+//   'Danger Of Falling Rocks (Can Be Reversed)',
+//   'Pedestrian Crossing Ahead',
+//   'Children Crossing Or School',
+//   'Cyclists',
+//   'Animal Crossing',
+//   'Horses Crossing',
+//   'Wild Animals Crossing',
+//   'Road Works Or Obstruction (Temporary Sign)',
+//   'Traffic Signals',
+//   'Low Flying Aircraft',
+//   'Cross Wind',
+//   'Two Way Traffic',
+//   'Hazard/Other Danger (Use With Supplementary Plate)',
+//   'Roundabout',
+//   'Countdown Markers (Use At 100m Centers)',
+//   'Countdown Markers (Use At 100m Centers)',
+//   'Minor Road Merges From Left',
+//   'Minor Road Merges From Right',
+//   'Minor Road On Left',
+//   'Minor Road On Right',
+//   'Cross Roads',
+//   'Junction Road',
+//   'Merge With Major Road From Left',
+//   'Merge With Major Road From Right',
+//   'Staggered Junction',
+//   'Staggered Junction',
+//   'Two Way Traffic Across One Way Carriageway',
+//   'Tunnel',
+//   'Restricted Headroom',
+//   'Floodways',
+//   'Overhead Electric Line',
+//   'Divert To Opposite Carriageway',
+//   'Left Lane Of Dual Carriageway Closed Inumber Of Lanes May Be Varied As Required',
+//   'Sand Dunes',
+//   'Sharp Deviation To Left (152 Reversed To Right',
+//   'Stop Ahead',
+//   'Give Way Ahead',
+//   'Give Way',
+//   'Stop',
+//   'No Entry For All Vehicles',
+//   'Closed To All S Except Non-Mechan Nical Lly Prope Lled Vehicles Being Pushed By Pedestrians',
+//   'No Entry For Motor Cars',
+//   'No Entry For Motorcycles',
+//   'No Entry For Cycles And Mopeds',
+//   'No Entry For Buses',
+//   'No Entry For Goods Vehicles',
+//   'No Entry For Trailers Other Than Semitrailers Or Single Axle Trailers',
+//   'No Entry For Pedestrians',
+//   'No Entry For Animal Drawn Vehicles',
+//   'No Entry For Handcarts',
+//   'No Entry For Power Driven Agricultural Vehicles',
+//   'No Entry For Vehicles With Overali Width Greater Than Limit Shown',
+//   'No Entry For Vehicles With Overall Height Greater Than Limit Shown',
+//   'No Entry For Vehicles With Gross Weight Exceeding Limit Shown',
+//   'No Entry For Vehicles With An Axle Load Exceeding Limit Shown',
+//   'No Entry For Vehicles With Overall Length Greater Than Limit Shown Noles',
+//   'No Left Turn',
+//   'No Right Turn',
+//   'No U Turn',
+//   'No U Turn',
+//   'No Overtaking By All Vehicles',
+//   'No Overtaking By Goods Vehicles',
+//   '(60)Maximum Speed As Limit Shown',
+//   'No Sounding Of Horn',
+//   'Customs',
+//   'End Of Restriction',
+//   '(60) End Of Maximum Speed Limit Shown',
+//   'End Of Overtaking Restriction',
+//   'No Stopping Except For Loading And Unloading Passengers Or Goods',
+//   'No Stopping For Any Reason',
+//   'Turn Left',
+//   'Turn Right',
+//   'Go Ahead Only',
+//   'Turn Left Ahead',
+//   'Turn Right Ahead',
+//   'Roundabout - Give Way To Traffic From Left',
+//   'Go Ahead Or Left Only',
+//   'Go Ahead Or Right Only /A Go Ahead Or U-Turn Only / Go Left Or Right Only',
+//   'Keep Left',
+//   'Keep Right',
+//   'Pass Either Side',
+//   'Meter Zone',
+//   'End Of Meter Zone',
+//   'Trucks Keep Right(X Heigh=120Mm)',
+//   'Minimum Speed As Limit Shown',
+//   'Pedestrian Crossing',
+//   'Hospital',
+//   'Parking',
+//   'One Way Street',
+//   'No Through Road Straight Ahead',
+//   'No Through Road To Right',
+//   'Reversed',
+//   'No Through Road To Left',
+//   'Reversed',
+//   'Expressway',
+//   'End Of Expressway',
+//   'Bus Stop',
+//   'First Aid Station',
+//   'Breakdown Service',
+//   'Telephone / A Emergenct Telephone',
+//   'Filling Station',
+//   'Refreshment Cafeteria',
+//   'Camping Site',
+//   'Caravan Site',
+//   'Camping/Caravan Site',
+//   'Youth Hostel',
+//   'Pedestrian Subway',
+//   'Kilometer Post Sign',
+//   'Trucks Over... Tonne Not To Use The Bridge',
+//   'U-Turn Permitted Except By Trucks',
+//   'Escape Lane Ahead'
+// ];
 const signLocationsFromRoad = ref(['يمين', 'يسار', 'منتصف', 'جزيرة وسطية'])
 
 //
@@ -1254,7 +1261,7 @@ async function initMap() {
   });
 
   await fetchRoadsGeojson().finally(() => {
-    if(roadsGeojson.value && map?.data) {
+    if (roadsGeojson.value && map?.data) {
       map.data.addGeoJson(roadsGeojson.value)
     }
   })
@@ -1274,10 +1281,10 @@ async function initMap() {
 async function fetchRoadsGeojson() {
   await ApiService.get('/api/spa/geojson/roads')
     .then((res) => {
-      if(res.data?.status === 'success') {
+      if (res.data?.status === 'success') {
         roadsGeojson.value = res.data?.data
         console.log('Roads GeoJSON data:\n', roadsGeojson.value);
-        
+
       }
     })
     .catch((err) => {
@@ -1416,6 +1423,31 @@ const submitExport = async () => {
 
 const toggleRecordsSort = () => {
   sortById.value = (sortById.value === 'asc') ? 'desc' : 'asc'
+}
+
+const deleteImage = (image_id: number) => {
+  QSwal.fire('حذف الصورة ؟', 'سيتم حذف هذه الصورة من تفاصيل اللائحة.', 'question')
+    .then(async result => {
+      if (result.isConfirmed) {
+        await ApiService.delete(`/api/spa/signs/detailed/${editActiveSign.value.id}/images/${image_id}`)
+          .then((res: AxiosResponse<BackendResponseData>) => {
+            if (res.data?.status === 'success') {
+              MSwal.fire('تم', 'تم حذف الصورة بنجاح.', 'success')
+              showEditModal.value = false
+            } else {
+              MSwal.fire('رد غير متوقع !', getMessageFromObj(res), 'error')
+            }
+          })
+          .catch((err: AxiosError<BackendResponseData>) => {
+            MSwal.fire('خطأ !', getMessageFromObj(err), 'error')
+          })
+          .finally(async () => {
+            await detailedSignsStore.fetchDetailedSignsPaginated();
+            await loadGoogle();
+            await initMap();
+          })
+      }
+    })
 }
 
 </script>

@@ -198,4 +198,31 @@ class DetailedSignsController extends Controller
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
+
+    public function deleteImage($sign_id, $image_id)
+    {
+        try {
+            $sign = DetailedSign::findOrFail($sign_id);
+            $media = $sign->getMedia('detailed_signs')->find($image_id);
+
+            if (!$media) {
+                return response()->json([
+                    'status' => 'failed',
+                    'data' => 'Image not found or does not belong to this sign.'
+                ], Response::HTTP_BAD_REQUEST);
+            }
+
+            $media->delete();
+
+            return response()->json([
+                'status' => 'success',
+                'data' => DetailedSignResource::make(DetailedSign::findOrFail($sign->id))
+            ], Response::HTTP_OK);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'data' => $e->getMessage()
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
 }

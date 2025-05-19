@@ -41,6 +41,7 @@ export type DetailedSign = {
     photo_url?: string;
     image_url?: string;
     image: Media;
+    images: Media[];
     image_urls: string[];
     gps_accuracy?: string;
 }
