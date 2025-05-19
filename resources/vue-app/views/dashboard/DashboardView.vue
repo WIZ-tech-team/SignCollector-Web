@@ -220,19 +220,19 @@
                   class="border rounded px-2 py-1 bg-gray-100" />
               </div>
               <div class="flex flex-col">
-                <label class="font-medium mb-1">نصف قطر أنبوب اللوحة (مم)</label>
+                <label class="font-medium mb-1">نصف قطر أعمدة اللوحة (مم)</label>
                 <input type="text" :value="activeSign.sign_column_radius_mm" readonly
                   class="border rounded px-2 py-1 bg-gray-100" />
               </div>
               <div class="flex flex-col">
-                <label class="font-medium mb-1">طول الأنبوب (م)</label>
+                <label class="font-medium mb-1">طول الأعمدة (م)</label>
                 <input type="text" :value="activeSign.column_height" readonly
                   class="border rounded px-2 py-1 bg-gray-100" />
               </div>
 
               <!-- 18. Column Colour -->
               <div class="flex flex-col">
-                <label class="font-medium mb-1">لون الأنبوب</label>
+                <label class="font-medium mb-1">لون الأعمدة</label>
                 <input type="text" :value="activeSign.column_colour" readonly
                   class="border rounded px-2 py-1 bg-gray-100" />
               </div>
@@ -494,19 +494,19 @@
                   class="border rounded px-2 py-1" required />
               </div>
               <div class="flex flex-col">
-                <label class="font-medium mb-1">نصف قطر أنبوب اللوحة (مم)</label>
+                <label class="font-medium mb-1">نصف قطر أعمدة اللوحة (مم)</label>
                 <input v-model.number="editActiveSign.sign_column_radius_mm" required type="number" step="any"
                   class="border rounded px-2 py-1" />
               </div>
               <div class="flex flex-col">
-                <label class="font-medium mb-1">طول الأنبوب (م)</label>
+                <label class="font-medium mb-1">طول الأعمدة (م)</label>
                 <input v-model.number="editActiveSign.column_height" required type="number" step="any"
                   class="border rounded px-2 py-1" />
               </div>
 
               <!-- 18. Column Colour -->
               <div class="flex flex-col">
-                <label class="font-medium mb-1">لون الأنبوب</label>
+                <label class="font-medium mb-1">لون الأعمدة</label>
                 <select v-model="editActiveSign.column_colour" required class="border rounded px-2 py-1">
                   <option value="رمادي" :selected="editActiveSign.column_colour === 'رمادي'">رمادي</option>
                   <option value="أبيض وأسود" :selected="editActiveSign.column_colour === 'أبيض وأسود'">أبيض وأسود
