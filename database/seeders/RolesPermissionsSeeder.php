@@ -86,7 +86,14 @@ class RolesPermissionsSeeder extends Seeder
                 'resore user',
                 'show user',
                 'list users',
-                'export users'
+                'export users',
+                // Detailed Signs
+                'access detailed signs',
+                'update detailed sign',
+                'delete detailed sign',
+                'export detailed signs',
+                'show detailed sign',
+                'list detailed signs'
             ]);
         // Collector Role
         Role::create(['name' => 'Collector'])
