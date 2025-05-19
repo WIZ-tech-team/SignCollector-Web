@@ -315,10 +315,12 @@ class DetailedSignsSeeder extends Seeder
 
         foreach ($rows as $data) {
             $sign = DetailedSign::create($data);
-            $path = storage_path("app/seed_images/{$data['id']}.png");
+            $path = public_path("storage/test_image.png");
             if (file_exists($path)) {
-                $sign
-                    ->addMedia($path)
+                $sign->addMedia($path)
+                    ->preservingOriginal()
+                    ->toMediaCollection('detailed_signs');
+                $sign->addMedia($path)
                     ->preservingOriginal()
                     ->toMediaCollection('detailed_signs');
             }
