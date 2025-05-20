@@ -1,5 +1,5 @@
 <template>
-    <form @submit.prevent="onSubmit" class="flex h-[75vh] overflow-auto w-[75vw] m-4">
+    <form @submit.prevent="onSubmit" class="flex h-[75vh] overflow-auto m-4">
         <div class="overflow-auto h-[90%] w-full">
 
             <CollabsableCard title="التفاصيل العامة" additional-classes="shadow-none">
@@ -10,12 +10,12 @@
                             <label class="font-medium mb-1">
                                 {{ field.label }}
                             </label>
-                            <select v-model="detailsModel[field.key as keyof DetailedSign]" :required="field.required"
+                            <select v-model="detailsModel[field.key as keyof SignsGroup]" :required="field.required"
                                 :readonly="field.readonly || !isEdit" :disabled="field.readonly || !isEdit"
                                 class="border rounded px-2 py-1 disabled:bg-gray-50 ring-0 outline-none">
                                 <option disabled value="">— اختر من القائمة —</option>
                                 <option v-for="opt in field.options" :key="opt" :value="opt"
-                                    :selected="detailsModel[field.key as keyof DetailedSign] === opt">
+                                    :selected="detailsModel[field.key as keyof SignsGroup] === opt">
                                     {{ opt }}
                                 </option>
                             </select>
@@ -26,7 +26,7 @@
                             <label class="font-medium mb-1">
                                 {{ field.label }}
                             </label>
-                            <textarea rows="3" v-model="(detailsModel[field.key as keyof DetailedSign] as string)"
+                            <textarea rows="3" v-model="(detailsModel[field.key as keyof SignsGroup] as string)"
                                 :required="field.required" :readonly="field.readonly || !isEdit"
                                 class="border rounded px-2 py-1 read-only:bg-gray-50 ring-0 outline-none"></textarea>
                         </div>
@@ -36,7 +36,7 @@
                             <label class="font-medium mb-1">
                                 {{ field.label }}
                             </label>
-                            <input :type="field.type" :value="detailsModel[field.key as keyof DetailedSign]"
+                            <input :type="field.type" :value="detailsModel[field.key as keyof SignsGroup]"
                                 :required="field.required" :readonly="field.readonly || !isEdit"
                                 class="border rounded px-2 py-1 read-only:bg-gray-50 ring-0 outline-none" />
                         </div>
@@ -111,6 +111,8 @@ import { computed, onBeforeMount, onMounted, onUpdated, PropType, ref, toRefs, w
 import optionsJson from '@/assets/json/detailed_sign_options.json'
 import signsJson from '@/assets/json/signs_updated.json'
 import CollabsableCard from '@/components/cards/CollabsableCard.vue';
+import { SignInfo } from '@/core/types/data/SignInfo';
+import { SignsGroup } from '@/core/types/data/SignsGroup';
 
 const props = defineProps({
     isEdit: {
@@ -119,7 +121,7 @@ const props = defineProps({
         default: false
     },
     detailedSign: {
-        type: Object as PropType<DetailedSign>,
+        type: Object as PropType<SignsGroup>,
         required: true
     }
 })
@@ -155,7 +157,11 @@ const { isEdit, detailedSign } = toRefs(props)
 // }
 
 onBeforeMount(() => {
-    detailsModel.value = { ...props.detailedSign }
+    detailsModel.value = { ...detailedSign.value }
+})
+
+watch(() => detailedSign.value, () => {
+    detailsModel.value = { ...detailedSign.value }
 })
 
 onMounted(() => {
@@ -176,23 +182,23 @@ onUpdated(() => {
     })
 })
 
-type SignInfo = {
-    sign_name: string;
-    sign_code: string;
-    sign_code_gcc: string;
-    sign_type: string;
-    sign_shape: string;
-    sign_length: string;
-    sign_width: string;
-    sign_radius: string;
-    sign_color: string;
-    sign_content_shape_description: string;
-    sign_content_arabic_text: string;
-    sign_content_english_text: string;
-    sign_condition: string;
-}
+// type SignInfo = {
+//     sign_name: string;
+//     sign_code: string;
+//     sign_code_gcc: string;
+//     sign_type: string;
+//     sign_shape: string;
+//     sign_length: string;
+//     sign_width: string;
+//     sign_radius: string;
+//     sign_color: string;
+//     sign_content_shape_description: string;
+//     sign_content_arabic_text: string;
+//     sign_content_english_text: string;
+//     sign_condition: string;
+// }
 
-const detailsModel = ref<DetailedSign>({} as DetailedSign)
+const detailsModel = ref<SignsGroup>({} as SignsGroup)
 const signsInfoModel = ref<SignInfo[]>([])
 
 const signsCount = computed<number>(() => {
@@ -568,9 +574,9 @@ watch(() => detailsModel.value.signs_count, () => {
                     sign_code_gcc: "",
                     sign_type: "",
                     sign_shape: "",
-                    sign_length: "",
-                    sign_width: "",
-                    sign_radius: "",
+                    sign_length: 0,
+                    sign_width: 0,
+                    sign_radius: 0,
                     sign_color: "",
                     sign_content_shape_description: "",
                     sign_content_arabic_text: "",

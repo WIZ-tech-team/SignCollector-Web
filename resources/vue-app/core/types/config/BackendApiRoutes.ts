@@ -1,3 +1,5 @@
+import { string } from "yup"
+
 // This type used to ensure the validation of back-end API routes
 export type BackendApiRoute =
     `/api/spa/admin/auth/login` |
@@ -13,4 +15,5 @@ export type BackendApiRoute =
     `/spa/signs/detailed/${number}` |
     '/api/governorates' |
     '/api/roads' |
-    '/api/spa/geojson/roads'
+    '/api/spa/geojson/roads' |
+    `/api/spa/signs/groups${string}`
