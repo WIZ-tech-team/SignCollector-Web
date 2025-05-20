@@ -3,6 +3,7 @@
 use App\Http\Controllers\Mobile\AuthController;
 use App\Http\Controllers\Mobile\DetailedSignsController;
 use App\Http\Controllers\Mobile\SignsController;
+use App\Http\Controllers\Mobile\SignsGroupsController;
 use App\Http\Controllers\PlacesController;
 use Illuminate\Support\Facades\Route;
 
@@ -27,6 +28,13 @@ Route::prefix('mobile')->group(function () {
         Route::delete('{sign}', 'destroy');
         Route::post('{sign_id}/images', 'addImage');
         Route::delete('{sign_id}/images/{image_id}', 'deleteImage');
+    });
+
+    Route::prefix('signs/groups')->controller(SignsGroupsController::class)->group(function () {
+        Route::get('/', 'index');
+        Route::post('/', 'store');
+        Route::post('{group_id}/images', 'addImage');
+        Route::delete('{group_id}/images/{image_id}', 'deleteImage');
     });
 });
 

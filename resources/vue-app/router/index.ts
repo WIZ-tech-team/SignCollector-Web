@@ -41,6 +41,15 @@ const routes: RouteRecordRaw[] = [
                             permissions: ['access users']
                         }
                     },
+                    {
+                        path: '/test',
+                        name: 'test',
+                        component: () => import("@/views/TestView.vue"),
+                        meta: {
+                            pageTitle: "Test",
+                            auth: true
+                        }
+                    },
                     // {
                     //     path: '/map',
                     //     name: 'map',
