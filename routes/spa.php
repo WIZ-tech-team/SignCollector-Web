@@ -3,6 +3,7 @@
 use App\Http\Controllers\AdminDashboard\AuthController;
 use App\Http\Controllers\AdminDashboard\DetailedSignsController;
 use App\Http\Controllers\AdminDashboard\ExportDetailedSignsController;
+use App\Http\Controllers\AdminDashboard\SignsGroupsController;
 use App\Http\Controllers\AdminDashboard\UsersController;
 use App\Http\Controllers\PlacesController;
 use Illuminate\Support\Facades\Route;
@@ -37,7 +38,7 @@ Route::prefix('signs/detailed')->middleware(['auth:sanctum'])->group(function ()
         Route::post('/export', 'export');
         Route::post('/{id}',  'update');  // ← allow POST+_method=PATCH
         Route::patch('/{id}', 'update');   // ← add this
-        
+
         Route::delete('{sign_id}/images/{image_id}', 'deleteImage');
     });
 
@@ -46,6 +47,13 @@ Route::prefix('signs/detailed')->middleware(['auth:sanctum'])->group(function ()
         Route::post('/kml', 'exportKML');
         Route::post('/shapefile', 'exportShapefile');
     });
+});
+
+Route::prefix('signs/groups')->middleware(['auth:sanctum'])->controller(SignsGroupsController::class)->group(function () {
+    Route::get('/', 'index');
+    Route::post('/{group_id}', 'update');
+    Route::delete('/{group}', 'destroy');
+    Route::delete('{group_id}/images/{image_id}', 'deleteImage');
 });
 
 Route::get('geojson/roads', [PlacesController::class, 'getRoadsGeojson']);

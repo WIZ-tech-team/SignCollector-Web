@@ -1,13 +1,12 @@
 <?php
 
-namespace App\Http\Controllers\Mobile;
+namespace App\Http\Controllers\AdminDashboard;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\SignsGroupResource;
 use App\Models\SignsGroup;
-use App\Models\User;
-use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
@@ -17,38 +16,76 @@ use Symfony\Component\HttpFoundation\Response;
 
 class SignsGroupsController extends Controller
 {
-    /**
-     * List all signs groups.
-     */
-    public function index(Request $request)
+    public function index()
     {
-        $request->validate([
-            'created_by' => 'required|string|exists:users,name'
-        ]);
 
-        $user = User::where('name', $request['created_by'])->first();
+        $user = Auth::user();
+        $query = SignsGroup::query()->with('media');
 
-        $groups = SignsGroupResource::collection(SignsGroup::where('created_by', $user->name)->get());
 
-        return response()->json([
-            'status' => 'success',
-            'data'   => $groups
-        ], Response::HTTP_OK);
+        // 1) eager-load the entire media collection
+        // 1) eager‐load the entire media collection, order by id
+        if ($user->can('access detailed signs')) {
+            if ($user->can('list auth detailed signs')) {
+                $query = $query->where('created_by', $user->name);
+            }
+            $paginator = $query->orderBy('id', 'asc')
+                ->paginate(SignsGroup::count());
+        } else {
+            return response()->json([
+                'status' => 'failed',
+                'data' => 'Permissions denied.'
+            ], Response::HTTP_OK);
+        }
+
+        $paginator = $query->orderBy('id', 'asc')
+            ->paginate(SignsGroup::count());
+
+        // 2) transform each item with the Resource, and carry over status/meta/links
+        return SignsGroupResource::collection($paginator)
+            ->additional(['status' => 'success'])
+            ->response()
+            ->setStatusCode(Response::HTTP_OK);
     }
 
-    public function store(Request $request)
+    public function destroy(SignsGroup $group)
     {
-        // Validation rules
+        try {
+            // If you’re using Spatie MediaLibrary and want to remove files:
+            if (method_exists($group, 'clearMediaCollection')) {
+                $group->clearMediaCollection('signs_groups');
+            }
+
+            // Delete the database record
+            $group->delete();
+
+            return response()->json([
+                'message' => 'Sign deleted successfully.'
+            ], Response::HTTP_OK);
+        } catch (\Throwable $e) {
+            Log::error('Admin delete DetailedSign failed: ' . $e->getMessage());
+            return response()->json([
+                'message' => 'Failed to delete signs group.'
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    public function update(Request $request, $group_id)
+    {
+        // 1) Find the sign or fail
+        $group = SignsGroup::findOrFail($group_id);
+
+        // 2) Validate exactly the same fields as store
         $validator = Validator::make($request->all(), [
 
-            // Road data
+            'gps_accuracy'                   => 'nullable|numeric',
+            'image_location'                 => 'nullable|string|max:255',
+
             'road_classification'            => 'nullable|string|max:255',
             'road_name'                      => 'nullable|string|max:255',
             'road_number'                    => 'nullable|string|max:255',
             'road_type'                      => 'nullable|string|max:255',
             'road_direction'                 => 'nullable|string|max:255',
-
-            // Location
             'latitude'                       => 'required|numeric',
             'longitude'                      => 'required|numeric',
             'gps_accuracy'                   => 'nullable|numeric',
@@ -56,9 +93,7 @@ class SignsGroupsController extends Controller
             'governorate'                    => 'nullable|string|max:255',
             'willayat'                       => 'nullable|string|max:255',
             'village'                        => 'nullable|string|max:255',
-
-            // Chassis detail
-            'signs_count'                    => 'nullable|integer|min:0',
+            'signs_count'                    => 'nullable|integer',
             'columns_description'            => 'nullable|string|max:255',
             'sign_location_from_road'        => 'nullable|string|max:255',
             'sign_base'                      => 'nullable|string|max:255',
@@ -68,16 +103,10 @@ class SignsGroupsController extends Controller
             'column_colour'                  => 'nullable|string|max:255',
             'column_type'                    => 'nullable|string|max:255',
 
-            // Other details
             'comments'                       => 'nullable|string',
             'created_by'                     => 'nullable|string|max:255',
-            'created_at'                     => 'required|date_format:Y-m-d H:i:s',
-
-            // New string fields
             'image_log'                      => 'nullable|string|max:255',
             'image_lar'                      => 'nullable|string|max:255',
-
-            // Multiple image files
             'files'                          => 'nullable|array',
             'files.*'                        => 'file|mimes:jpg,jpeg,png|max:10240',
 
@@ -93,7 +122,7 @@ class SignsGroupsController extends Controller
                     'size:0'
                 ]),
             ],
-            'signs_info.*.sign_name'                      => 'required|string|max:255',
+            'signs_info.*.sign_name'                      => 'required_with:signs_info|string|max:255',
             'signs_info.*.sign_code'                      => 'nullable|string|max:255',
             'signs_info.*.sign_code_gcc'                  => 'nullable|string|max:255',
             'signs_info.*.sign_type'                      => 'nullable|string|max:255',
@@ -108,6 +137,7 @@ class SignsGroupsController extends Controller
             'signs_info.*.sign_content_english_text'      => 'nullable|string|max:255',
             // Other details
             'signs_info.*.sign_condition'                 => 'nullable|string|max:255'
+
         ]);
 
         if ($validator->fails()) {
@@ -118,91 +148,67 @@ class SignsGroupsController extends Controller
         }
 
         DB::beginTransaction();
-
         try {
-            // Create sign record (excluding files[])
-            if (isset($request['created_at'])) {
-                $request['created_at'] = Carbon::createFromFormat(
-                    'Y-m-d H:i:s',
-                    $request['created_at']
-                );
-            }
+            // 3) Update the sign's attributes
+            $group->update($request->except(['files', 'signs_info']));
 
-            $group = SignsGroup::create($request->except('files'));
-
-            // Create related signs info
-            if (isset($request['signs_info']) && count($request['signs_info']) > 0) {
-                $group->signsInfo()->createMany($request['signs_info']);
-            }
-
-            // Attach each uploaded file to the media library
+            // 4) Handle any new file uploads
             if ($request->hasFile('files')) {
+                // Remove old images
+                $group->clearMediaCollection('signs_groups');
+
+                // Attach each uploaded file
                 foreach ($request->file('files') as $file) {
-                    $group->addMedia($file)
+                    $group
+                        ->addMedia($file)
                         ->toMediaCollection('signs_groups');
                 }
+            }
+
+            // 5) Handle related signs info
+            if ($request->has('signs_info')) {
+                $currentSignsNames = collect($request->signs_info)->pluck('sign_name');
+
+                // Delete signs_info not in the request
+                $group->signsInfo()
+                    ->whereNotIn('sign_name', $currentSignsNames)
+                    ->delete();
+
+                // Update or create signsInfo
+                foreach ($request->signs_info as $signInfo) {
+                    $group->signsInfo()->updateOrCreate(
+                        [
+                            'sign_name' => $signInfo['sign_name'],
+                            'signs_group_id' => $group->id
+                        ],
+                        $signInfo
+                    );
+                }
+            } else {
+                $group->signsInfo()->delete();
             }
 
             DB::commit();
 
             return response()->json([
                 'status' => 'success',
-                'data'   => SignsGroupResource::make($group)
-            ], Response::HTTP_CREATED);
+                'data'   => SignsGroupResource::make($group->fresh())
+            ], Response::HTTP_OK);
         } catch (FileCannotBeAdded $e) {
             DB::rollBack();
-            Log::error('Media upload failed: ' . $e->getMessage());
+            Log::error('Media upload failed on update: ' . $e->getMessage());
 
             return response()->json([
                 'status'  => 'error',
-                'message' => 'Failed to save one or more images.',
+                'message' => 'Failed to save one or more images.'
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         } catch (\Exception $e) {
             DB::rollBack();
-            Log::error('Sign creation failed: ' . $e->getMessage());
+            Log::error('Sign update failed: ' . $e->getMessage());
 
             return response()->json([
                 'status'  => 'error',
                 'message' => 'Unexpected error: ' . $e->getMessage(),
-            ], Response::HTTP_INTERNAL_SERVER_ERROR);
-        }
-    }
-
-    public function addImage(Request $request, $group_id)
-    {
-        try {
-
-            $group = SignsGroup::findOrFail($group_id);
-            $request->validate([
-                'image' => 'required|file|mimes:jpg,jpeg,png|max:10240'
-            ]);
-
-            // Check if sign already has 3 images
-            if ($group->getMedia('signs_groups')->count() >= 3) {
-                return response()->json([
-                    'status' => 'failed',
-                    'data' => 'This sign already has 3 related images, delete one atleast before adding new image.'
-                ], Response::HTTP_BAD_REQUEST);
-            }
-
-            if ($request->hasFile('image')) {
-                $group->addMedia($request->file('image'))
-                    ->toMediaCollection('signs_groups');
-
-                return response()->json([
-                    'status' => 'success',
-                    'data' => SignsGroupResource::make(SignsGroup::findOrFail($group->id))
-                ], Response::HTTP_OK);
-            } else {
-                return response()->json([
-                    'status' => 'failed',
-                    'data' => 'No image uploaded.'
-                ], Response::HTTP_BAD_REQUEST);
-            }
-        } catch (\Exception $e) {
-            return response()->json([
-                'status' => 'error',
-                'data' => $e->getMessage()
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
@@ -216,7 +222,7 @@ class SignsGroupsController extends Controller
             if (!$media) {
                 return response()->json([
                     'status' => 'failed',
-                    'data' => 'Image not found or does not belong to this sign.'
+                    'data' => 'Image not found or does not belong to this signs group.'
                 ], Response::HTTP_BAD_REQUEST);
             }
 
@@ -224,7 +230,7 @@ class SignsGroupsController extends Controller
 
             return response()->json([
                 'status' => 'success',
-                'data' => SignsGroupResource::make(SignsGroup::findOrFail($group->id))
+                'data' => SignsGroupResource::make($group->fresh())
             ], Response::HTTP_OK);
         } catch (\Exception $e) {
             return response()->json([
