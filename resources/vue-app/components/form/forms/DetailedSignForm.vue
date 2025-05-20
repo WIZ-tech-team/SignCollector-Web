@@ -12,7 +12,7 @@
                             </label>
                             <select v-model="detailsModel[field.key as keyof DetailedSign]" :required="field.required"
                                 :readonly="field.readonly || !isEdit" :disabled="field.readonly || !isEdit"
-                                class="border rounded px-2 py-1 read-only:bg-gray-50 ring-0 outline-none">
+                                class="border rounded px-2 py-1 disabled:bg-gray-50 ring-0 outline-none">
                                 <option disabled value="">— اختر من القائمة —</option>
                                 <option v-for="opt in field.options" :key="opt" :value="opt"
                                     :selected="detailsModel[field.key as keyof DetailedSign] === opt">
@@ -57,11 +57,10 @@
                                     {{ field.label }}
                                 </label>
                                 <select :id="`input_for_sign_${x}_${field.key}`"
-                                    @change="handleSignNameInputChange(x, field.key)"
                                     v-model="signsInfoModel[x - 1][field.key as keyof SignInfo]"
                                     :required="field.required" :readonly="field.readonly || !isEdit"
                                     :disabled="field.readonly || !isEdit"
-                                    class="border rounded px-2 py-1 read-only:bg-gray-50 ring-0 outline-none">
+                                    class="border rounded px-2 py-1 disabled:bg-gray-50 ring-0 outline-none">
                                     <option disabled value="">— اختر من القائمة —</option>
                                     <option v-for="opt in field.options" :key="opt" :value="opt"
                                         :selected="signsInfoModel[x - 1][field.key as keyof SignInfo] === opt">
@@ -108,7 +107,7 @@
 
 <script setup lang="ts">
 import { DetailedSign } from '@/core/types/data/DetailedSign';
-import { computed, onBeforeMount, PropType, ref, toRefs, watch } from 'vue';
+import { computed, onBeforeMount, onMounted, onUpdated, PropType, ref, toRefs, watch } from 'vue';
 import optionsJson from '@/assets/json/detailed_sign_options.json'
 import signsJson from '@/assets/json/signs_updated.json'
 import CollabsableCard from '@/components/cards/CollabsableCard.vue';
@@ -157,6 +156,24 @@ const { isEdit, detailedSign } = toRefs(props)
 
 onBeforeMount(() => {
     detailsModel.value = { ...props.detailedSign }
+})
+
+onMounted(() => {
+    signsInfoModel.value.forEach((info, index) => {
+        const selectSignElm = document.getElementById(`input_for_sign_${index+1}_sign_name`) as HTMLSelectElement
+        if(selectSignElm) {
+            selectSignElm.addEventListener('change', () => handleSignNameInputChange(index+1, 'sign_name'))
+        }
+    })
+})
+
+onUpdated(() => {
+    signsInfoModel.value.forEach((info, index) => {
+        const selectSignElm = document.getElementById(`input_for_sign_${index+1}_sign_name`) as HTMLSelectElement
+        if(selectSignElm) {
+            selectSignElm.addEventListener('change', () => handleSignNameInputChange(index+1, 'sign_name'))
+        }
+    })
 })
 
 type SignInfo = {
@@ -291,15 +308,6 @@ const detailsFields = ref([
         required: true,
         readonly: false
     },
-    // signs_count
-    {
-        key: 'signs_count',
-        label: 'عدد الاشارات',
-        type: 'select',
-        options: optionsJson.signs_count,
-        required: true,
-        readonly: false
-    },
     // columns_description
     {
         key: 'columns_description',
@@ -407,6 +415,15 @@ const detailsFields = ref([
         options: null,
         required: false,
         readonly: true
+    },
+    // signs_count
+    {
+        key: 'signs_count',
+        label: 'عدد الاشارات',
+        type: 'select',
+        options: optionsJson.signs_count,
+        required: true,
+        readonly: false
     }
 ])
 
@@ -426,7 +443,7 @@ const signFields = ref([
         label: 'اسم الإشارة',
         type: 'text',
         options: null,
-        required: false,
+        required: true,
         readonly: false
     },
     // sign_code
