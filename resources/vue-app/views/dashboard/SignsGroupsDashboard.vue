@@ -32,7 +32,7 @@
                   <th @click.prevent="toggleRecordsSort()" class="p-2 border cursor-pointer">
                     المعرّف &uarr;&darr;
                   </th>
-                  <th class="p-2 border">اسم اللوحة </th>
+                  <th class="p-2 border">المحافظة</th>
                   <th class="p-2 border">الولاية</th>
                   <th class="p-2 border">تاريخ إدخال البيانات</th>
                   <th class="p-2 border">مدخل البيانات</th>
@@ -46,7 +46,7 @@
                   selectedId === sign.id ? 'bg-blue-100' : 'hover:bg-gray-50'
                 ]" class="text-sm">
                   <td class="p-2 border">{{ sign.id }}</td>
-                  <td class="p-2 border">{{ sign.sign_name }}</td>
+                  <td class="p-2 border">{{ sign.governorate }}</td>
                   <td class="p-2 border">{{ sign.willayat }}</td>
                   <td class="p-2 border text-xxs">{{ formatDate(sign.created_at) }}</td>
                   <td class="p-2 border">{{ sign.created_by }}</td>
