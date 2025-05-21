@@ -28,9 +28,11 @@ export type SignsGroup = {
     updated_at: string;
     photo_url?: string;
     image_url?: string;
+    image_log?: string;
+    image_lar?: string;
     image: Media;
     images: Media[];
     image_urls: string[];
     gps_accuracy?: string;
-    signs_info: SignInfo
+    signs_info: SignInfo[];
 }

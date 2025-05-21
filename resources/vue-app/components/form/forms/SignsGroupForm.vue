@@ -36,7 +36,7 @@
                             <label class="font-medium mb-1">
                                 {{ field.label }}
                             </label>
-                            <input :type="field.type" :value="detailsModel[field.key as keyof SignsGroup]"
+                            <input :type="field.type" v-model="detailsModel[field.key as keyof SignsGroup]"
                                 :required="field.required" :readonly="field.readonly || !isEdit"
                                 class="border rounded px-2 py-1 read-only:bg-gray-50 ring-0 outline-none" />
                         </div>
@@ -57,9 +57,10 @@
                                     {{ field.label }}
                                 </label>
                                 <select :id="`input_for_sign_${x}_${field.key}`"
+                                    @change="field.key === 'sign_name' ? handleSignNameInputChange(x) : null"
                                     v-model="signsInfoModel[x - 1][field.key as keyof SignInfo]"
                                     :required="field.required" :readonly="field.readonly || !isEdit"
-                                    :disabled="field.readonly || !isEdit"
+                                    :disabled="field.readonly || !isEdit || signsInfoModel[x - 1]._disabled?.[field.key]"
                                     class="border rounded px-2 py-1 disabled:bg-gray-50 ring-0 outline-none">
                                     <option disabled value="">— اختر من القائمة —</option>
                                     <option v-for="opt in field.options" :key="opt" :value="opt"
@@ -78,6 +79,7 @@
                                 <textarea :id="`input_for_sign_${x}_${field.key}`" rows="3"
                                     v-model="(signsInfoModel[x - 1][field.key as keyof SignInfo] as string)"
                                     :required="field.required" :readonly="field.readonly || !isEdit"
+                                    :disabled="field.readonly || !isEdit || signsInfoModel[x - 1]._disabled?.[field.key]"
                                     class="border rounded px-2 py-1 read-only:bg-gray-50 ring-0 outline-none"></textarea>
                             </div>
 
@@ -87,9 +89,16 @@
                                 <label class="font-medium mb-1">
                                     {{ field.label }}
                                 </label>
-                                <input :id="`input_for_sign_${x}_${field.key}`" :type="field.type"
-                                    :value="signsInfoModel[x - 1][field.key as keyof SignInfo]"
+                                <input v-if="field.type === 'number'" :id="`input_for_sign_${x}_${field.key}`"
+                                    :type="field.type" v-model="signsInfoModel[x - 1][field.key as keyof SignInfo]"
                                     :required="field.required" :readonly="field.readonly || !isEdit"
+                                    :disabled="field.readonly || !isEdit || signsInfoModel[x - 1]._disabled?.[field.key]"
+                                    step="any" min="0"
+                                    class="border rounded px-2 py-1 read-only:bg-gray-50 ring-0 outline-none" />
+                                <input v-else :id="`input_for_sign_${x}_${field.key}`" :type="field.type"
+                                    v-model="signsInfoModel[x - 1][field.key as keyof SignInfo]"
+                                    :required="field.required" :readonly="field.readonly || !isEdit"
+                                    :disabled="field.readonly || !isEdit || signsInfoModel[x - 1]._disabled?.[field.key]"
                                     class="border rounded px-2 py-1 read-only:bg-gray-50 ring-0 outline-none" />
                             </div>
                         </template>
@@ -99,20 +108,27 @@
             </template>
 
             <button v-if="isEdit" type="submit" class="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
-                Save Changes
+                <span v-if="!submitLoading">Save Changes</span>
+                <LoadingSpinner v-else />
             </button>
         </div>
     </form>
 </template>
 
 <script setup lang="ts">
-import { DetailedSign } from '@/core/types/data/DetailedSign';
 import { computed, onBeforeMount, onMounted, onUpdated, PropType, ref, toRefs, watch } from 'vue';
 import optionsJson from '@/assets/json/detailed_sign_options.json'
 import signsJson from '@/assets/json/signs_updated.json'
 import CollabsableCard from '@/components/cards/CollabsableCard.vue';
 import { SignInfo } from '@/core/types/data/SignInfo';
 import { SignsGroup } from '@/core/types/data/SignsGroup';
+import LoadingSpinner from '@/components/form/LoadingSpinner.vue';
+import { MSwal, QSwal } from '@/core/plugins/SweetAlerts2';
+import ApiService from '@/core/services/ApiService';
+import { AxiosError, AxiosResponse } from 'axios';
+import { BackendResponseData } from '@/core/types/config/AxiosCustom';
+import { getMessageFromObj } from '@/assets/ts/swalMethods';
+import { useSignsGroupsStore } from '@/store/stores/signsGroupsStore';
 
 const props = defineProps({
     isEdit: {
@@ -120,13 +136,13 @@ const props = defineProps({
         required: false,
         default: false
     },
-    detailedSign: {
+    signsGroup: {
         type: Object as PropType<SignsGroup>,
         required: true
     }
 })
 
-const { isEdit, detailedSign } = toRefs(props)
+const { isEdit, signsGroup } = toRefs(props)
 
 // type DetailedSignGeneralDetails = {
 //     id: string;
@@ -157,30 +173,48 @@ const { isEdit, detailedSign } = toRefs(props)
 // }
 
 onBeforeMount(() => {
-    detailsModel.value = { ...detailedSign.value }
-})
-
-watch(() => detailedSign.value, () => {
-    detailsModel.value = { ...detailedSign.value }
-})
-
-onMounted(() => {
-    signsInfoModel.value.forEach((info, index) => {
-        const selectSignElm = document.getElementById(`input_for_sign_${index+1}_sign_name`) as HTMLSelectElement
-        if(selectSignElm) {
-            selectSignElm.addEventListener('change', () => handleSignNameInputChange(index+1, 'sign_name'))
+    detailsModel.value = { ...signsGroup.value }
+    signsInfoModel.value = detailsModel.value.signs_info.sort((a,b) => {
+        if(a?.id && b?.id) return a.id - b.id
+    }).map(sign => {
+        return {
+            ...sign,
+            sign_custom_name: sign.sign_name,
+            sign_name: signsJson.find(s => s.Sign_Name === sign.sign_name) ? sign.sign_name : 'غير ذلك'
         }
     })
 })
 
-onUpdated(() => {
-    signsInfoModel.value.forEach((info, index) => {
-        const selectSignElm = document.getElementById(`input_for_sign_${index+1}_sign_name`) as HTMLSelectElement
-        if(selectSignElm) {
-            selectSignElm.addEventListener('change', () => handleSignNameInputChange(index+1, 'sign_name'))
+watch(() => signsGroup.value, () => {
+    detailsModel.value = { ...signsGroup.value }
+    signsInfoModel.value = detailsModel.value.signs_info.sort((a, b) => {
+        if(a?.id && b?.id) return a.id - b.id
+    }).map(sign => {
+        return {
+            ...sign,
+            sign_custom_name: sign.sign_name,
+            sign_name: signsJson.find(s => s.Sign_Name === sign.sign_name) ? sign.sign_name : 'غير ذلك'
         }
     })
 })
+
+// onMounted(() => {
+//     signsInfoModel.value.forEach((info, index) => {
+//         const selectSignElm = document.getElementById(`input_for_sign_${index + 1}_sign_name`) as HTMLSelectElement
+//         if (selectSignElm) {
+//             selectSignElm.addEventListener('change', () => handleSignNameInputChange(index + 1, 'sign_name'))
+//         }
+//     })
+// })
+
+// onUpdated(() => {
+//     signsInfoModel.value.forEach((info, index) => {
+//         const selectSignElm = document.getElementById(`input_for_sign_${index + 1}_sign_name`) as HTMLSelectElement
+//         if (selectSignElm) {
+//             selectSignElm.addEventListener('change', () => handleSignNameInputChange(index + 1, 'sign_name'))
+//         }
+//     })
+// })
 
 // type SignInfo = {
 //     sign_name: string;
@@ -198,8 +232,12 @@ onUpdated(() => {
 //     sign_condition: string;
 // }
 
+// Stores
+const signsGroupsStore = useSignsGroupsStore()
+
 const detailsModel = ref<SignsGroup>({} as SignsGroup)
 const signsInfoModel = ref<SignInfo[]>([])
+const submitLoading = ref<boolean>(false)
 
 const signsCount = computed<number>(() => {
     return signsInfoModel.value.length
@@ -588,82 +626,171 @@ watch(() => detailsModel.value.signs_count, () => {
     }
 })
 
-const handleSignNameInputChange = (order: number, key: string) => {
-    if (key === 'sign_name') {
+// const handleSignNameInputChange = (order: number, key: string) => {
+//     console.log('changed');
 
-        const signCodeInput = document.getElementById(`input_for_sign_${order}_sign_code`) as HTMLInputElement
-        const signCodeGCCInput = document.getElementById(`input_for_sign_${order}_sign_code_gcc`) as HTMLInputElement
-        const signTypeInput = document.getElementById(`input_for_sign_${order}_sign_type`) as HTMLInputElement
-        const signShapeInput = document.getElementById(`input_for_sign_${order}_sign_shape`) as HTMLInputElement
-        const signCustomNameInput = document.getElementById(`input_for_sign_${order}_sign_custom_name`) as HTMLInputElement
-        
-        if (signsInfoModel.value[order - 1].sign_name !== "غير ذلك") {
-            if (signCodeInput) {
-                signCodeInput.value = signsJson.find(s => s.Sign_Name == signsInfoModel.value[order - 1].sign_name)?.Sign_Code_2010 ?? ''
-                signCodeInput.disabled = true
-                // signCodeInput.required = true
-            }
+//     if (key === 'sign_name') {
 
-            if (signCodeGCCInput) {
-                signCodeGCCInput.value = signsJson.find(s => s.Sign_Name == signsInfoModel.value[order - 1].sign_name)?.Sign_Code_GCC ?? ''
-                signCodeGCCInput.disabled = true
-                // signCodeGCCInput.required = true
-            }
+//         const signCodeInput = document.getElementById(`input_for_sign_${order}_sign_code`) as HTMLInputElement
+//         const signCodeGCCInput = document.getElementById(`input_for_sign_${order}_sign_code_gcc`) as HTMLInputElement
+//         const signTypeInput = document.getElementById(`input_for_sign_${order}_sign_type`) as HTMLInputElement
+//         const signShapeInput = document.getElementById(`input_for_sign_${order}_sign_shape`) as HTMLInputElement
+//         const signCustomNameInput = document.getElementById(`input_for_sign_${order}_sign_custom_name`) as HTMLInputElement
 
-            if (signTypeInput) {
-                signTypeInput.value = signsJson.find(s => s.Sign_Name == signsInfoModel.value[order - 1].sign_name)?.Sign_Type ?? ''
-                signTypeInput.disabled = true
-                // signTypeInput.required = true
-            }
+//         if (signsInfoModel.value[order - 1].sign_name !== "غير ذلك") {
+//             if (signCodeInput) {
+//                 signCodeInput.value = signsJson.find(s => s.Sign_Name == signsInfoModel.value[order - 1].sign_name)?.Sign_Code_2010 ?? ''
+//                 signCodeInput.disabled = true
+//                 // signCodeInput.required = true
+//             }
 
-            if (signShapeInput) {
-                signShapeInput.value = signsJson.find(s => s.Sign_Name == signsInfoModel.value[order - 1].sign_name)?.Sign_Shape ?? ''
-                signShapeInput.disabled = true
-                // signShapeInput.required = true
-            }
-            
-            if (signCustomNameInput) {
-                signCustomNameInput.value = signsJson.find(s => s.Sign_Name == signsInfoModel.value[order - 1].sign_name)?.Sign_Name ?? ''
-                signCustomNameInput.disabled = true
-                // signCustomNameInput.required = true
-            }
-        } else {
-            if (signCodeInput) {
-                signCodeInput.value = ''
-                signCodeInput.disabled = false
-                // signCodeInput.required = true
-            }
+//             if (signCodeGCCInput) {
+//                 signCodeGCCInput.value = signsJson.find(s => s.Sign_Name == signsInfoModel.value[order - 1].sign_name)?.Sign_Code_GCC ?? ''
+//                 signCodeGCCInput.disabled = true
+//                 // signCodeGCCInput.required = true
+//             }
 
-            if (signCodeGCCInput) {
-                signCodeGCCInput.value = ''
-                signCodeGCCInput.disabled = false
-                // signCodeGCCInput.required = true
-            }
+//             if (signTypeInput) {
+//                 signTypeInput.value = signsJson.find(s => s.Sign_Name == signsInfoModel.value[order - 1].sign_name)?.Sign_Type ?? ''
+//                 signTypeInput.disabled = true
+//                 // signTypeInput.required = true
+//             }
 
-            if (signTypeInput) {
-                signTypeInput.value = ''
-                signTypeInput.disabled = false
-                // signTypeInput.required = true
-            }
+//             if (signShapeInput) {
+//                 signShapeInput.value = signsJson.find(s => s.Sign_Name == signsInfoModel.value[order - 1].sign_name)?.Sign_Shape ?? ''
+//                 signShapeInput.disabled = true
+//                 // signShapeInput.required = true
+//             }
 
-            if (signShapeInput) {
-                signShapeInput.value = ''
-                signShapeInput.disabled = false
-                // signShapeInput.required = true
+//             if (signCustomNameInput) {
+//                 signCustomNameInput.value = signsJson.find(s => s.Sign_Name == signsInfoModel.value[order - 1].sign_name)?.Sign_Name ?? ''
+//                 signCustomNameInput.disabled = true
+//                 // signCustomNameInput.required = true
+//             }
+//         } else {
+//             if (signCodeInput) {
+//                 signCodeInput.value = ''
+//                 signCodeInput.disabled = false
+//                 // signCodeInput.required = true
+//             }
+
+//             if (signCodeGCCInput) {
+//                 signCodeGCCInput.value = ''
+//                 signCodeGCCInput.disabled = false
+//                 // signCodeGCCInput.required = true
+//             }
+
+//             if (signTypeInput) {
+//                 signTypeInput.value = ''
+//                 signTypeInput.disabled = false
+//                 // signTypeInput.required = true
+//             }
+
+//             if (signShapeInput) {
+//                 signShapeInput.value = ''
+//                 signShapeInput.disabled = false
+//                 // signShapeInput.required = true
+//             }
+
+//             if (signCustomNameInput) {
+//                 signCustomNameInput.value = ''
+//                 signCustomNameInput.disabled = false
+//                 // signCustomNameInput.required = true
+//             }
+//         }
+//     }
+// }
+
+const handleSignNameInputChange = (order: number) => {
+    const currentSign = signsInfoModel.value[order - 1];
+    const selectedSign = signsJson.find(s => s.Sign_Name === currentSign.sign_name);
+
+    if (currentSign.sign_name !== "غير ذلك" && selectedSign) {
+        signsInfoModel.value[order - 1] = {
+            ...currentSign,
+            sign_code: selectedSign.Sign_Code_2010,
+            sign_code_gcc: selectedSign.Sign_Code_GCC,
+            sign_type: selectedSign.Sign_Type,
+            sign_shape: selectedSign.Sign_Shape,
+            sign_custom_name: selectedSign.Sign_Name,
+            // These fields should be disabled when sign_name is selected
+            _disabled: {
+                sign_code: true,
+                sign_code_gcc: true,
+                sign_type: true,
+                sign_shape: true,
+                sign_custom_name: true
             }
-            
-            if (signCustomNameInput) {
-                signCustomNameInput.value = ''
-                signCustomNameInput.disabled = false
-                // signCustomNameInput.required = true
+        };
+    } else {
+        signsInfoModel.value[order - 1] = {
+            ...currentSign,
+            sign_code: "",
+            sign_code_gcc: "",
+            sign_type: "",
+            sign_shape: "",
+            sign_custom_name: "",
+            _disabled: {
+                sign_code: false,
+                sign_code_gcc: false,
+                sign_type: false,
+                sign_shape: false,
+                sign_custom_name: false
             }
-        }
+        };
     }
-}
+};
 
 const onSubmit = () => {
     console.log("Details:\n", detailsModel.value)
     console.log("Signs:\n", signsInfoModel.value)
+
+    submitLoading.value = true
+
+    signsInfoModel.value.forEach(sign => {
+        if (sign.sign_name === 'غير ذلك')
+            sign.sign_name = sign?.sign_custom_name ?? sign.sign_name
+    })
+
+    // To get details excluding som eproperties
+    const { photo_url, image_url, image_log, image_lar, image_urls, images, ...otherDetails } = detailsModel.value
+
+    const data = {
+        ...otherDetails,
+        signs_info: [...signsInfoModel.value.map(sign => {
+            let { created_at, updated_at, _disabled, ...other } = sign
+            return other
+        })]
+    }
+
+    console.log("data:\n", data)
+
+    QSwal.fire('تحديث البيانات ؟', `سيتم تحديث البيانات المتعلقة بمجموعة اللوائح رقم (${data.id})`, 'question')
+        .then(async result => {
+            if (result.isConfirmed) {
+                await ApiService.post(`/api/spa/signs/groups/${data.id}`, data)
+                    .then((res: AxiosResponse<BackendResponseData>) => {
+                        if (res.data.status === 'success')
+                            MSwal.fire('تم', 'تم تحديث المجموعة بنجاح.', 'success')
+                        else
+                            MSwal.fire('رد غير متوقع !', getMessageFromObj(res), 'warning')
+                    })
+                    .catch((err: AxiosError<BackendResponseData>) => {
+                        MSwal.fire('خطأ غير متوقع !', getMessageFromObj(err), 'error')
+                    })
+                    .finally(async () => {
+                        await signsGroupsStore.fetchSignsGroupsPaginated(1)
+                        signsInfoModel.value = signsInfoModel.value.map(sign => {
+                            return {
+                                ...sign,
+                                sign_name: signsJson.find(s => s.Sign_Name === sign.sign_name) ? sign.sign_name : 'غير ذلك'
+                            }
+                        })
+                        submitLoading.value = false
+                    })
+            }
+        })
+
 }
 
 /**

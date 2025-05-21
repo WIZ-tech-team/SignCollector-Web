@@ -19,7 +19,7 @@
             </div>
 
             <!-- Export Action -->
-            <template v-if="authStore.canUser('export detailed signs')">
+            <template v-if="authStore.canUser('export detailed signs') && false">
               <SignsExport></SignsExport>
             </template>
 
