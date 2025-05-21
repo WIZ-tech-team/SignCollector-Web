@@ -22,7 +22,7 @@ const routes: RouteRecordRaw[] = [
                     {
                         path: '/dashboard',
                         name: 'dashboard',
-                        component: () => import("@/views/dashboard/SignsGroupsDashboard.vue"),
+                        component: () => import("@/views/dashboard/DashboardView.vue"),
                         meta: {
                             pageTitle: "Dashboard",
                             auth: true,
@@ -44,7 +44,7 @@ const routes: RouteRecordRaw[] = [
                     {
                         path: '/test',
                         name: 'test',
-                        component: () => import("@/views/TestView.vue"),
+                        component: () => import("@/views/dashboard/SignsGroupsDashboard.vue"),
                         meta: {
                             pageTitle: "Test",
                             auth: true
