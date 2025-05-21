@@ -3,6 +3,7 @@ import { Media } from "@/core/types/data/Media";
 export type SignInfo = {
     id?: number;
     sign_name: string;
+    sign_custom_name?: string;
     sign_code: string;
     sign_code_gcc: string;
     sign_type: string;
@@ -17,4 +18,5 @@ export type SignInfo = {
     sign_condition: string;
     created_at?: string;
     updated_at?: string;
+    _disabled?: Record<string, boolean>;
 }

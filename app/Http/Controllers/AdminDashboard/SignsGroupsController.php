@@ -123,6 +123,7 @@ class SignsGroupsController extends Controller
                 ]),
             ],
             'signs_info.*.sign_name'                      => 'required_with:signs_info|string|max:255',
+            'signs_info.*.sign_custom_name'               => 'required_with:signs_info|string|max:255',
             'signs_info.*.sign_code'                      => 'nullable|string|max:255',
             'signs_info.*.sign_code_gcc'                  => 'nullable|string|max:255',
             'signs_info.*.sign_type'                      => 'nullable|string|max:255',
@@ -167,6 +168,11 @@ class SignsGroupsController extends Controller
 
             // 5) Handle related signs info
             if ($request->has('signs_info')) {
+                
+                // Sets the sign name, in case of free sign name
+                // When the sign_name is chosen, the sign_custom_name will have the same value in the front
+                $request['sign_name'] = $request['sign_custom_name'];
+
                 $currentSignsNames = collect($request->signs_info)->pluck('sign_name');
 
                 // Delete signs_info not in the request
