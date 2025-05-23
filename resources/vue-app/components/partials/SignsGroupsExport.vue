@@ -36,6 +36,28 @@
                         </div>
                     </ColumnInputGroup>
 
+                    <ColumnInputGroup v-if="exportModel.type === 'excel'" name="excel_data_type_filter" :show-error="true"
+                        label="نوع البيانات لملف الإكسل" container-classes="">
+                        <div class="flex gap-4">
+                            <div class="flex gap-2 items-center px-2 py-1 border rounded-md">
+                                <Field id="excel_data_type_filter" name="excel_data_type_filter" type="radio"
+                                    value="signs" v-model="exportModel.excel_data_type" class="">
+                                </Field>
+                                <label for="excel_data_type_filter" class="text-lg font-semibold text-nowrap">
+                                    بيانات اللوائح
+                                </label>
+                            </div>
+                            <div class="flex gap-2 items-center px-2 py-1 border rounded-md">
+                                <Field id="excel_data_type_filter" name="excel_data_type_filter" type="radio"
+                                    value="groups" v-model="exportModel.excel_data_type" class="">
+                                </Field>
+                                <label for="excel_data_type_filter" class="text-lg font-semibold text-nowrap">
+                                    بيانات مجموعات اللوائح
+                                </label>
+                            </div>
+                        </div>
+                    </ColumnInputGroup>
+
                     <ColumnInputGroup name="options_filter" :show-error="true" label="الفلترة" container-classes="">
                         <div class="flex gap-4">
                             <div class="flex gap-2 items-center px-2 py-1 border rounded-md">
@@ -174,13 +196,15 @@ type ExportOptions = {
     governorate: string;
     willayat: string;
     road: string;
+    excel_data_type: 'signs' | 'groups' | '';
 }
 
 const exportModel = ref<ExportOptions>({
     type: '',
     governorate: 'all',
     willayat: 'all',
-    road: 'all'
+    road: 'all',
+    excel_data_type: ''
 })
 
 const chooseRoad = ref<boolean>(false)
@@ -233,6 +257,7 @@ const exportToExcel = async () => {
     formData.append('governorate', exportModel.value.governorate)
     formData.append('willayat', exportModel.value.willayat)
     formData.append('road', exportModel.value.road)
+    formData.append('data_type', exportModel.value.excel_data_type)
 
     ApiService.setHeader(authStore.token as string, 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
     await ApiService.post(`/api/spa/signs/groups/export/excel`, formData, {
