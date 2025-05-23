@@ -28,7 +28,15 @@ class SignsGroupsController extends Controller
 
         $user = User::where('name', $request['created_by'])->first();
 
-        $groups = SignsGroupResource::collection(SignsGroup::where('created_by', $user->name)->get());
+        $groups = null;
+
+        if ($user->hasAllPermissions(['access detailed signs', 'list detailed signs'])) {
+            if ($user->can('list auth detailed signs')) {
+                $groups = SignsGroupResource::collection(SignsGroup::where('created_by', $user->name)->with('signsInfo')->get());
+            } else {
+                $groups = SignsGroupResource::collection(SignsGroup::with('signsInfo')->get());
+            }
+        }
 
         return response()->json([
             'status' => 'success',
