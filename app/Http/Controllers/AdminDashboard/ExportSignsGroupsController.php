@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\AdminDashboard;
 
+use App\Exports\GroupsSignsInfoExport;
 use App\Exports\SignsGroupsExport;
 use App\Http\Controllers\Controller;
 use App\Models\Governorate;
@@ -25,18 +26,34 @@ class ExportSignsGroupsController extends Controller
         $request->validate([
             'governorate' => 'string',
             'willayat' => 'string',
-            'road' => 'string'
+            'road' => 'string',
+            'data_type' => 'required|string'
         ]);
 
         $gov = Governorate::where('name_ar', $request['governorate'])->first();
         $willayat = Willayat::where('name_ar', $request['willayat'])->first();
         $road = Road::where('name', $request['road'])->first();
 
-        return Excel::download(
-            new SignsGroupsExport($gov, $willayat, $road),
-            'Signs_' . today()->format('Y-m-d') . '.xlsx', // Ensure extension here
-            ExcelExcel::XLSX
-        );
+        if (isset($request['data_type'])) {
+            if ($request['data_type'] === 'signs') {
+                return Excel::download(
+                    new GroupsSignsInfoExport($gov, $willayat, $road),
+                    'Signs_' . today()->format('Y-m-d') . '.xlsx', // Ensure extension here
+                    ExcelExcel::XLSX
+                );
+            } else if ($request['data_type'] === 'groups') {
+                return Excel::download(
+                    new SignsGroupsExport($gov, $willayat, $road),
+                    'Signs_Groups_' . today()->format('Y-m-d') . '.xlsx', // Ensure extension here
+                    ExcelExcel::XLSX
+                );
+            }
+        } else {
+            return response()->json([
+                'status' => 'success',
+                'data' => 'You should specify the exported data type.'
+            ], Response::HTTP_BAD_REQUEST);
+        }
     }
 
     public function exportKML(Request $request)
@@ -364,7 +381,7 @@ class ExportSignsGroupsController extends Controller
 
                 if ($groupSignsCount < $signsInfoMaxLength) {
                     $i = $groupSignsCount;
-                    for ($i = $groupSignsCount+1; $i <= $signsInfoMaxLength; $i++) {
+                    for ($i = $groupSignsCount + 1; $i <= $signsInfoMaxLength; $i++) {
                         $point->setData('name' . $i, '--');
                         $point->setData('code' . $i, '--');
                         $point->setData('codeGcc' . $i, '--');

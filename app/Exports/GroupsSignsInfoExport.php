@@ -13,7 +13,7 @@ use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
 use Symfony\Component\HttpFoundation\Response;
 
-class SignsGroupsExport implements FromCollection, WithHeadings, WithMapping
+class GroupsSignsInfoExport implements FromCollection, WithHeadings, WithMapping
 {
 
     private Governorate|null $governorate;
@@ -59,40 +59,53 @@ class SignsGroupsExport implements FromCollection, WithHeadings, WithMapping
         } elseif ($this->road) {
             $groups = $query->where('road_name', $this->road->name)->get()->pluck('id');
         } else {
-            $groups = $query->get();
+            $groups = $query->get()->pluck('id');
         }
 
-        return $groups;
+        return SignInfo::whereIn('signs_group_id', $groups)->with('group')->get();
 
     }
 
-    public function map($group): array
+    public function map($sign): array
     {
         return [
-            $group->id,
-            $group->road_classification,
-            $group->road_name,
-            $group->road_number,
-            $group->road_type,
-            $group->road_direction,
-            $group->latitude,
-            $group->longitude,
-            $group->governorate,
-            $group->willayat,
-            $group->village,
-            $group->signs_count,
-            $group->columns_description,
-            $group->sign_location_from_road,
-            $group->sign_base,
-            $group->distance_from_road_edge_meter,
-            $group->sign_column_radius_mm,
-            $group->column_height,
-            $group->column_colour,
-            $group->column_type,
-            $group->comments,
-            $group->created_by,
-            $group->created_at,
-            $group->updated_at
+            $sign->group->id,
+            $sign->group->road_classification,
+            $sign->group->road_name,
+            $sign->group->road_number,
+            $sign->group->road_type,
+            $sign->group->road_direction,
+            $sign->group->latitude,
+            $sign->group->longitude,
+            $sign->group->governorate,
+            $sign->group->willayat,
+            $sign->group->village,
+            $sign->group->signs_count,
+            $sign->group->columns_description,
+            $sign->group->sign_location_from_road,
+            $sign->group->sign_base,
+            $sign->group->distance_from_road_edge_meter,
+            $sign->group->sign_column_radius_mm,
+            $sign->group->column_height,
+            $sign->group->column_colour,
+            $sign->group->column_type,
+            $sign->group->comments,
+            $sign->group->created_by,
+            $sign->group->created_at,
+            $sign->group->updated_at,
+            $sign->sign_name,
+            $sign->sign_code,
+            $sign->sign_code_gcc,
+            $sign->sign_type,
+            $sign->sign_shape,
+            $sign->sign_length,
+            $sign->sign_width,
+            $sign->sign_radius,
+            $sign->sign_color,
+            $sign->sign_content_shape_description,
+            $sign->sign_content_arabic_text,
+            $sign->sign_content_english_text,
+            $sign->sign_condition
         ];
     }
 
@@ -122,7 +135,20 @@ class SignsGroupsExport implements FromCollection, WithHeadings, WithMapping
             'تعليقات',
             'أنشئ بواسطة',
             'تاريخ الإنشاء',
-            'تاريخ التحديث'
+            'تاريخ التحديث',
+            'اسم الإشارة',
+            'كود الإشارة',
+            'كود الإشارة',
+            'نوع الإشارة',
+            'شكل الإشارة',
+            'طول الإشارة',
+            'عرض الإشارة',
+            'نصف قطر الإشارة',
+            'لون الإشارة',
+            'وصف شكل محتوى الإشارة',
+            'وصف الأشارة بالعربية',
+            'وصف الإشارة بالإنجليزية',
+            'حالة الإشارة'
         ];
     }
 }
