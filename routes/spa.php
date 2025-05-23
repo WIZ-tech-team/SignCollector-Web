@@ -3,6 +3,7 @@
 use App\Http\Controllers\AdminDashboard\AuthController;
 use App\Http\Controllers\AdminDashboard\DetailedSignsController;
 use App\Http\Controllers\AdminDashboard\ExportDetailedSignsController;
+use App\Http\Controllers\AdminDashboard\ExportSignsGroupsController;
 use App\Http\Controllers\AdminDashboard\SignsGroupsController;
 use App\Http\Controllers\AdminDashboard\UsersController;
 use App\Http\Controllers\PlacesController;
@@ -49,11 +50,19 @@ Route::prefix('signs/detailed')->middleware(['auth:sanctum'])->group(function ()
     });
 });
 
-Route::prefix('signs/groups')->middleware(['auth:sanctum'])->controller(SignsGroupsController::class)->group(function () {
-    Route::get('/', 'index');
-    Route::post('/{group_id}', 'update');
-    Route::delete('/{group}', 'destroy');
-    Route::delete('{group_id}/images/{image_id}', 'deleteImage');
+Route::prefix('signs/groups')->middleware(['auth:sanctum'])->group(function () {
+    Route::controller(SignsGroupsController::class)->group(function () {
+        Route::get('/', 'index');
+        Route::post('/{group_id}', 'update');
+        Route::delete('/{group}', 'destroy');
+        Route::delete('{group_id}/images/{image_id}', 'deleteImage');
+    });
+    
+    Route::prefix('export')->controller(ExportSignsGroupsController::class)->group(function () {
+        Route::post('/excel', 'exportExcel');
+        Route::post('/kml', 'exportKML');
+        Route::post('/shapefile', 'exportShapefile');
+    });
 });
 
 Route::get('geojson/roads', [PlacesController::class, 'getRoadsGeojson']);

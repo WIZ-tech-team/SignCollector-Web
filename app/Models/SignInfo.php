@@ -22,4 +22,9 @@ class SignInfo extends Model
         'sign_content_english_text',
         'sign_condition'
     ];
+
+    public function group()
+    {
+        return $this->belongsTo(SignsGroup::class, 'signs_group_id');
+    }
 }

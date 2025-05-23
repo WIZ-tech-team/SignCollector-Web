@@ -19,8 +19,8 @@
             </div>
 
             <!-- Export Action -->
-            <template v-if="authStore.canUser('export detailed signs') && false">
-              <SignsExport></SignsExport>
+            <template v-if="authStore.canUser('export detailed signs')">
+              <SignsGroupsExport></SignsGroupsExport>
             </template>
 
           </div>
@@ -275,9 +275,9 @@ import { AxiosError, AxiosResponse } from 'axios';
 import { BackendResponseData } from '@/core/types/config/AxiosCustom';
 import { getMessageFromObj } from '@/assets/ts/swalMethods';
 import SolidHeroIcon from '@/components/icons/SolidHeroIcon.vue';
-import SignsExport from '@/components/partials/SignsExport.vue';
 import SignsGroupForm from '@/components/form/forms/SignsGroupForm.vue';
 import { SignsGroup } from '@/core/types/data/SignsGroup';
+import SignsGroupsExport from '@/components/partials/SignsGroupsExport.vue';
 
 // index of the currently displayed sign in signsPaginated.data
 const modalIndex = ref<number | null>(null);
