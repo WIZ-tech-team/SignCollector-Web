@@ -36,7 +36,11 @@
                             <label class="font-medium mb-1">
                                 {{ field.label }}
                             </label>
-                            <input :type="field.type" v-model="detailsModel[field.key as keyof SignsGroup]"
+                            <input v-if="field.type === 'number'" :type="field.type"
+                                v-model="detailsModel[field.key as keyof SignsGroup]" :required="field.required"
+                                :readonly="field.readonly || !isEdit" step="any" min="0"
+                                class="border rounded px-2 py-1 read-only:bg-gray-50 ring-0 outline-none" />
+                            <input v-else :type="field.type" v-model="detailsModel[field.key as keyof SignsGroup]"
                                 :required="field.required" :readonly="field.readonly || !isEdit"
                                 class="border rounded px-2 py-1 read-only:bg-gray-50 ring-0 outline-none" />
                         </div>
@@ -174,8 +178,8 @@ const { isEdit, signsGroup } = toRefs(props)
 
 onBeforeMount(() => {
     detailsModel.value = { ...signsGroup.value }
-    signsInfoModel.value = detailsModel.value.signs_info.sort((a,b) => {
-        if(a?.id && b?.id) return a.id - b.id
+    signsInfoModel.value = detailsModel.value.signs_info.sort((a, b) => {
+        if (a?.id && b?.id) return a.id - b.id
     }).map(sign => {
         return {
             ...sign,
@@ -188,7 +192,7 @@ onBeforeMount(() => {
 watch(() => signsGroup.value, () => {
     detailsModel.value = { ...signsGroup.value }
     signsInfoModel.value = detailsModel.value.signs_info.sort((a, b) => {
-        if(a?.id && b?.id) return a.id - b.id
+        if (a?.id && b?.id) return a.id - b.id
     }).map(sign => {
         return {
             ...sign,
