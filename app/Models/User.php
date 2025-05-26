@@ -31,7 +31,8 @@ class User extends Authenticatable implements HasMedia
         'phone',
         'phone_verified_at',
         'type',
-        'mobile_id'
+        'mobile_id',
+        'crypt_password'
     ];
 
     /**

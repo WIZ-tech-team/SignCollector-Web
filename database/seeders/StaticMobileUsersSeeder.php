@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\User;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
 
@@ -29,6 +30,7 @@ class StaticMobileUsersSeeder extends Seeder
                 'name'       => 'qais',
                 'email'      => 'qais@example.com',
                 'password'   => Hash::make('12345678'),
+                'crypt_password'   => Crypt::encrypt('12345678'),
                 'type'       => 'Admin',
                 'created_at' => now(),
                 'updated_at' => now(),
@@ -37,6 +39,7 @@ class StaticMobileUsersSeeder extends Seeder
                 'name'       => 'thuraiya',
                 'email'      => 'thuraiya@example.com',
                 'password'   => Hash::make('12345678'),
+                'crypt_password'   => Crypt::encrypt('12345678'),
                 'type'       => 'Admin',
                 'created_at' => now(),
                 'updated_at' => now(),
@@ -45,6 +48,7 @@ class StaticMobileUsersSeeder extends Seeder
                 'name'       => 'maryam',
                 'email'      => 'maryam@example.com',
                 'password'   => Hash::make('12345678'),
+                'crypt_password'   => Crypt::encrypt('12345678'),
                 'type'       => 'Admin',
                 'created_at' => now(),
                 'updated_at' => now(),
@@ -53,6 +57,7 @@ class StaticMobileUsersSeeder extends Seeder
                 'name'       => 'naif',
                 'email'      => 'naif@example.com',
                 'password'   => Hash::make('12345678'),
+                'crypt_password'   => Crypt::encrypt('12345678'),
                 'type'       => 'Admin',
                 'created_at' => now(),
                 'updated_at' => now(),

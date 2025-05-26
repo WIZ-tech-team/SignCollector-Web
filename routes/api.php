@@ -4,7 +4,9 @@ use App\Http\Controllers\Mobile\AuthController;
 use App\Http\Controllers\Mobile\DetailedSignsController;
 use App\Http\Controllers\Mobile\SignsController;
 use App\Http\Controllers\Mobile\SignsGroupsController;
+use App\Http\Controllers\Mobile\UsersController;
 use App\Http\Controllers\PlacesController;
+use App\Models\User;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('mobile')->group(function () {
@@ -36,6 +38,8 @@ Route::prefix('mobile')->group(function () {
         Route::post('{group_id}/images', 'addImage');
         Route::delete('{group_id}/images/{image_id}', 'deleteImage');
     });
+
+    Route::get('users', [UsersController::class, 'index']);
 });
 
 Route::get('/governorates', [PlacesController::class, 'governoratesList']);
