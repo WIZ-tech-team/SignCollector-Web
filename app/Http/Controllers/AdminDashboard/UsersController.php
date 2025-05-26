@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Rules\MatchOldUserPasswordRule;
 use App\Rules\UserTypeRule;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Validator;
 use Maatwebsite\Excel\Excel as ExcelExcel;
 use Maatwebsite\Excel\Facades\Excel;
@@ -119,12 +120,15 @@ class UsersController extends Controller
 
             if ($validator->passes()) {
 
+                $request['crypt_password'] = Crypt::encrypt($request['password']);
+
                 $user = User::create($request->only(
                     'name',
                     'email',
                     'phone',
                     'type',
-                    'password'
+                    'password',
+                    'crypt_password'
                 ));
 
                 $user->syncRoles($request['role']);
@@ -197,12 +201,17 @@ class UsersController extends Controller
 
             if ($validator->passes()) {
 
+                if(isset($request['password'])) {
+                    $request['crypt_password'] = Crypt::encrypt($request['password']);
+                }
+
                 $user->update($request->only(
                     'name',
                     'email',
                     'phone',
                     'type',
-                    'password'
+                    'password',
+                    'crypt_password'
                 ));
 
                 $user->syncRoles($request['role']);
