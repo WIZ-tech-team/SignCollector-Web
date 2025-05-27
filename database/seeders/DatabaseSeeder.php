@@ -17,7 +17,7 @@ class DatabaseSeeder extends Seeder
     {
 
         // Roles-Permissions Seed
-        // $this->call(RolesPermissionsSeeder::class);
+        $this->call(RolesPermissionsSeeder::class);
 
         // Users Seed
         User::whereIn('email', ['super@example.test', 'admin@example.test', 'user@example.test', 'user@example.com'])->forceDelete();
