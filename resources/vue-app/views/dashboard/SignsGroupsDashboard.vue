@@ -283,12 +283,7 @@ import SignsGroupsExport from '@/components/partials/SignsGroupsExport.vue';
 const modalIndex = ref<number | null>(null);
 const editModalIndex = ref<number | null>(null);
 
-const mandatoryFields = ref([
-  'sign_name',
-  'sign_code',
-  'sign_code_gcc',
-  'sign_type',
-  'sign_shape',
+const groupMandatoryFields = ref([
   'road_direction',
   'signs_count',
   'columns_description',
@@ -298,7 +293,15 @@ const mandatoryFields = ref([
   'sign_column_radius_mm',
   'column_height',
   'column_colour',
-  'column_type',
+  'column_type'
+])
+
+const signMandatoryFields = ref([
+  'sign_name',
+  'sign_code',
+  'sign_code_gcc',
+  'sign_type',
+  'sign_shape',
   'sign_condition',
   'sign_color'
 ])
@@ -502,7 +505,7 @@ async function onDelete(sign: SignsGroup) {
 // COMPLETENESS CHECK
 //
 function isComplete(sign: SignsGroup): boolean {
-  return mandatoryFields.value.every(key => {
+  return groupMandatoryFields.value.every(key => {
     // Handle both direct and nested properties
     const value = (key as string).split('.').reduce((o: any, k) => o?.[k], sign);
 
