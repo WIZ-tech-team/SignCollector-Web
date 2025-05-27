@@ -7,7 +7,7 @@
                     <template v-for="field in detailsFields">
                         <!-- Select -->
                         <div v-if="field.type === 'select'" class="flex flex-col border-r-4 pr-1">
-                            <label class="font-medium mb-1">
+                            <label class="font-medium mb-1" :class="{ 'required-field': (field.required && isEdit) }">
                                 {{ field.label }}
                             </label>
                             <select v-model="detailsModel[field.key as keyof SignsGroup]" :required="field.required"
@@ -23,7 +23,7 @@
 
                         <!-- Textarea -->
                         <div v-else-if="field.type === 'textarea'" class="flex flex-col border-r-4 pr-1">
-                            <label class="font-medium mb-1">
+                            <label class="font-medium mb-1" :class="{ 'required-field': (field.required && isEdit) }">
                                 {{ field.label }}
                             </label>
                             <textarea rows="3" v-model="(detailsModel[field.key as keyof SignsGroup] as string)"
@@ -33,7 +33,7 @@
 
                         <!-- Input -->
                         <div v-else class="flex flex-col border-r-4 pr-1">
-                            <label class="font-medium mb-1">
+                            <label class="font-medium mb-1" :class="{ 'required-field': (field.required && isEdit) }">
                                 {{ field.label }}
                             </label>
                             <input v-if="field.type === 'number'" :type="field.type"
@@ -49,7 +49,7 @@
             </CollabsableCard>
 
             <template v-for="x in signsCount">
-                <CollabsableCard v-if="signsInfoModel[x - 1]" :title="`معلومات الإشارة رقم (${x})`"
+                <CollabsableCard v-if="signsInfoModel[x - 1]" :title="`معلومات اللوحة رقم (${x})`"
                     additional-classes="shadow-none">
 
                     <div class="flex flex-col gap-4">
@@ -57,7 +57,7 @@
                             <!-- Select -->
                             <div v-if="field.type === 'select'" :id="`input_block_for_sign_${x}_${field.key}`"
                                 class="flex flex-col border-r-4 pr-1">
-                                <label class="font-medium mb-1">
+                                <label class="font-medium mb-1" :class="{ 'required-field': (field.required && isEdit) }">
                                     {{ field.label }}
                                 </label>
                                 <select :id="`input_for_sign_${x}_${field.key}`"
@@ -77,7 +77,7 @@
                             <!-- Textarea -->
                             <div v-else-if="field.type === 'textarea'" :id="`input_block_for_sign_${x}_${field.key}`"
                                 class="flex flex-col border-r-4 pr-1">
-                                <label class="font-medium mb-1">
+                                <label class="font-medium mb-1" :class="{ 'required-field': (field.required && isEdit) }">
                                     {{ field.label }}
                                 </label>
                                 <textarea :id="`input_for_sign_${x}_${field.key}`" rows="3"
@@ -89,8 +89,9 @@
 
                             <!-- Input -->
                             <div v-else :id="`input_block_for_sign_${x}_${field.key}`"
-                                class="flex flex-col border-r-4 pr-1">
-                                <label class="font-medium mb-1">
+                                class="flex flex-col border-r-4 pr-1"
+                                :class="{ 'hidden': signsInfoModel[x - 1]?._hidden?.[field.key] }">
+                                <label class="font-medium mb-1" :class="{ 'required-field': (field.required && isEdit) }">
                                     {{ field.label }}
                                 </label>
                                 <input v-if="field.type === 'number'" :id="`input_for_sign_${x}_${field.key}`"
@@ -260,7 +261,7 @@ const detailsFields = ref([
     // gps_accuracy
     {
         key: 'gps_accuracy',
-        label: 'دقة الجي بي اس',
+        label: 'دقة الجي بي أس',
         type: 'text',
         options: null,
         required: false,
@@ -269,7 +270,7 @@ const detailsFields = ref([
     // latitude
     {
         key: 'latitude',
-        label: 'دائرة عرض',
+        label: 'دائرة العرض',
         type: 'number',
         options: null,
         required: true,
@@ -278,7 +279,7 @@ const detailsFields = ref([
     // longitude
     {
         key: 'longitude',
-        label: 'خط طول',
+        label: 'خط الطول',
         type: 'number',
         options: null,
         required: true,
@@ -368,7 +369,7 @@ const detailsFields = ref([
     // sign_location_from_road
     {
         key: 'sign_location_from_road',
-        label: 'الموقع من الطريق',
+        label: 'موقع اللوحة من الطريق',
         type: 'select',
         options: optionsJson.sign_location_from_road,
         required: true,
@@ -377,7 +378,7 @@ const detailsFields = ref([
     // sign_base
     {
         key: 'sign_base',
-        label: 'قاعدة الإشارة',
+        label: 'قاعدة اللوحة',
         type: 'select',
         options: optionsJson.sign_base,
         required: true,
@@ -386,7 +387,7 @@ const detailsFields = ref([
     // distance_from_road_edge_meter
     {
         key: 'distance_from_road_edge_meter',
-        label: 'المسافة من حافة الطريق بالمتر',
+        label: 'المسافة من نهاية كتف  الطريق حتى اللوحة (م)',
         type: 'number',
         options: null,
         required: true,
@@ -395,7 +396,7 @@ const detailsFields = ref([
     // sign_column_radius_mm
     {
         key: 'sign_column_radius_mm',
-        label: 'نصف قطر الإشارة بالميلي',
+        label: 'نصف قطر أنبوب اللوحة (مم)',
         type: 'number',
         options: null,
         required: true,
@@ -422,7 +423,7 @@ const detailsFields = ref([
     // column_type
     {
         key: 'column_type',
-        label: 'نوع العمود',
+        label: 'نوع الأعمدة',
         type: 'select',
         options: optionsJson.column_type,
         required: true,
@@ -431,7 +432,7 @@ const detailsFields = ref([
     // comments
     {
         key: 'comments',
-        label: 'تعليقات',
+        label: 'ملاحظات أخرى',
         type: 'textarea',
         options: null,
         required: false,
@@ -440,7 +441,7 @@ const detailsFields = ref([
     // created_by
     {
         key: 'created_by',
-        label: 'أنشئ بواسطة',
+        label: 'مدخل البيانات',
         type: 'text',
         options: null,
         required: false,
@@ -449,7 +450,7 @@ const detailsFields = ref([
     // created_at
     {
         key: 'created_at',
-        label: 'تاريخ الإضافة',
+        label: 'تاريخ إدخال البيانات',
         type: 'text',
         options: null,
         required: false,
@@ -458,7 +459,7 @@ const detailsFields = ref([
     // updated_at
     {
         key: 'updated_at',
-        label: 'وقت التحديث',
+        label: 'تاريخ تحديث البيانات',
         type: 'text',
         options: null,
         required: false,
@@ -467,7 +468,7 @@ const detailsFields = ref([
     // signs_count
     {
         key: 'signs_count',
-        label: 'عدد الاشارات',
+        label: 'عدد (تسلسل) اللوحات',
         type: 'select',
         options: optionsJson.signs_count,
         required: true,
@@ -479,7 +480,7 @@ const signFields = ref([
     // sign_name
     {
         key: 'sign_name',
-        label: 'الإشارة',
+        label: 'اللوحة',
         type: 'select',
         options: signsJson.map(sign => sign.Sign_Name),
         required: true,
@@ -488,7 +489,7 @@ const signFields = ref([
     // sign_custom_name
     {
         key: 'sign_custom_name',
-        label: 'اسم الإشارة',
+        label: 'اسم اللوحة',
         type: 'text',
         options: null,
         required: true,
@@ -497,7 +498,7 @@ const signFields = ref([
     // sign_code
     {
         key: 'sign_code',
-        label: 'كود الإشارة (2010)',
+        label: 'الرمز (2010)',
         type: 'string',
         options: null,
         required: false,
@@ -506,7 +507,7 @@ const signFields = ref([
     // sign_code_gcc
     {
         key: 'sign_code_gcc',
-        label: 'كود الإشارة (GCC)',
+        label: 'الرمز (GCC)',
         type: 'string',
         options: null,
         required: false,
@@ -515,7 +516,7 @@ const signFields = ref([
     // sign_type
     {
         key: 'sign_type',
-        label: 'نوع الإشارة',
+        label: 'نوعية للوحة',
         type: 'string',
         options: null,
         required: false,
@@ -524,7 +525,7 @@ const signFields = ref([
     // sign_shape
     {
         key: 'sign_shape',
-        label: 'شكل الإشارة',
+        label: 'الشكل',
         type: 'string',
         options: null,
         required: false,
@@ -533,7 +534,7 @@ const signFields = ref([
     // sign_length
     {
         key: 'sign_length',
-        label: 'طول الإشارة',
+        label: 'طول اللوحة (م)',
         type: 'number',
         options: null,
         required: false,
@@ -542,7 +543,7 @@ const signFields = ref([
     // sign_width
     {
         key: 'sign_width',
-        label: 'عرض الإشارة',
+        label: 'عرض اللوحة (م)',
         type: 'number',
         options: null,
         required: false,
@@ -551,7 +552,7 @@ const signFields = ref([
     // sign_radius
     {
         key: 'sign_radius',
-        label: 'نصف قطر الإشارة',
+        label: 'نصف قطر اللوحة (مم)',
         type: 'number',
         options: null,
         required: false,
@@ -560,7 +561,7 @@ const signFields = ref([
     // sign_color
     {
         key: 'sign_color',
-        label: 'لون الإشارة',
+        label: 'لون الخلفية',
         type: 'select',
         options: optionsJson.sign_color,
         required: true,
@@ -569,7 +570,7 @@ const signFields = ref([
     // sign_content_shape_description
     {
         key: 'sign_content_shape_description',
-        label: 'وصف شكل محتوى الإشارة',
+        label: '(المحتوى) الشكل المرسوم',
         type: 'text',
         options: null,
         required: false,
@@ -578,7 +579,7 @@ const signFields = ref([
     // sign_content_arabic_text
     {
         key: 'sign_content_arabic_text',
-        label: 'وصف الأشارة بالعربية',
+        label: '(المحتوى) المكتوب بالعربي',
         type: 'text',
         options: null,
         required: false,
@@ -587,7 +588,7 @@ const signFields = ref([
     // sign_content_english_text
     {
         key: 'sign_content_english_text',
-        label: 'وصف الإشارة بالإنجليزية',
+        label: '(المحتوى) المكتوب بالإنجليزي',
         type: 'text',
         options: null,
         required: false,
@@ -596,7 +597,7 @@ const signFields = ref([
     // sign_condition
     {
         key: 'sign_condition',
-        label: 'حالة الإشارة',
+        label: 'حالة اللوحة',
         type: 'select',
         options: optionsJson.sign_condition,
         required: true,
@@ -724,6 +725,9 @@ const handleSignNameInputChange = (order: number) => {
                 sign_type: true,
                 sign_shape: true,
                 sign_custom_name: true
+            },
+            _hidden: {
+                sign_custom_name: true
             }
         };
     } else {
@@ -739,6 +743,9 @@ const handleSignNameInputChange = (order: number) => {
                 sign_code_gcc: false,
                 sign_type: false,
                 sign_shape: false,
+                sign_custom_name: false
+            },
+            _hidden: {
                 sign_custom_name: false
             }
         };
@@ -790,9 +797,12 @@ const onSubmit = () => {
                                 sign_name: signsJson.find(s => s.Sign_Name === sign.sign_name) ? sign.sign_name : 'غير ذلك'
                             }
                         })
-                        submitLoading.value = false
                     })
+            } else {
+                submitLoading.value = false
             }
+        }).finally(() => {
+            submitLoading.value = false
         })
 
 }
@@ -845,3 +855,10 @@ const onSubmit = () => {
     },
  */
 </script>
+
+<style scoped>
+.required-field::after {
+    content: " *";
+    color: red;
+}
+</style>

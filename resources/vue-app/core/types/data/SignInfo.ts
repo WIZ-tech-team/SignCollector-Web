@@ -19,4 +19,5 @@ export type SignInfo = {
     created_at?: string;
     updated_at?: string;
     _disabled?: Record<string, boolean>;
+    _hidden?: Record<string, boolean>;
 }

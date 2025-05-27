@@ -171,7 +171,7 @@ class SignsGroupsController extends Controller
                 
                 // Sets the sign name, in case of free sign name
                 // When the sign_name is chosen, the sign_custom_name will have the same value in the front
-                $request['sign_name'] = $request['sign_custom_name'];
+                // $request['sign_name'] = $request['sign_custom_name'];
 
                 $currentSignsNames = collect($request->signs_info)->pluck('sign_name');
 
@@ -184,8 +184,7 @@ class SignsGroupsController extends Controller
                 foreach ($request->signs_info as $signInfo) {
                     $group->signsInfo()->updateOrCreate(
                         [
-                            'sign_name' => $signInfo['sign_name'],
-                            'signs_group_id' => $group->id
+                            'id' => $signInfo['id']
                         ],
                         $signInfo
                     );
