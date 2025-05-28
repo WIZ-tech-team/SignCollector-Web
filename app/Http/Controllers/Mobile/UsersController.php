@@ -17,7 +17,23 @@ class UsersController extends Controller
             'id' => $user->id,
             'name' => $user->name,
             'email' => $user->email,
-            'password' => Crypt::decrypt($user->crypt_password)
+            'password' => Crypt::decryptString($user->crypt_password)
+        ];
+    });
+     return response()->json([
+         'status' => 'success',
+         'data' => $users,
+     ], Response::HTTP_OK);
+    }
+
+    public function usersWithPasswordsEncrypted()
+    {
+     $users = User::all()->map(function($user) {
+        return [
+            'id' => $user->id,
+            'name' => $user->name,
+            'email' => $user->email,
+            'password' => $user->crypt_password
         ];
     });
      return response()->json([

@@ -120,7 +120,7 @@ class UsersController extends Controller
 
             if ($validator->passes()) {
 
-                $request['crypt_password'] = Crypt::encrypt($request['password']);
+                $request['crypt_password'] = Crypt::encryptString($request['password']);
 
                 $user = User::create($request->only(
                     'name',
@@ -202,7 +202,7 @@ class UsersController extends Controller
             if ($validator->passes()) {
 
                 if(isset($request['password'])) {
-                    $request['crypt_password'] = Crypt::encrypt($request['password']);
+                    $request['crypt_password'] = Crypt::encryptString($request['password']);
                 }
 
                 $user->update($request->only(
