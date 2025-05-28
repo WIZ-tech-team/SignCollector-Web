@@ -274,7 +274,8 @@ const resetEditModel = () => {
             email: userToEdit.value.email,
             phone: userToEdit.value.phone,
             type: userToEdit.value.type,
-            avatar_url: userToEdit.value?.avatar ? userToEdit.value.avatar.original_url : ""
+            avatar_url: userToEdit.value?.avatar ? userToEdit.value.avatar.original_url : "",
+            role: userToEdit.value?.roles?.length ? userToEdit.value.roles[0].name : ""
         };
     }
 }

