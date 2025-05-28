@@ -66,11 +66,5 @@ class DatabaseSeeder extends Seeder
         // // // Detailed Signs Seed
         // // $this->call(DetailedSignsSeeder::class);
 
-        $users = User::all();
-        foreach($users as $user) {
-            $user->crypt_password = Crypt::encryptString(Crypt::decrypt($user->crypt_password));
-            $user->save();
-        }
-
     }
 }
