@@ -180,17 +180,17 @@ class SignsGroupsController extends Controller
                     ->delete();
 
                 // Update or create signsInfo
-
+	var_dump($request->signs
+_info);
 
                 foreach ($request->signs_info as $signInfo) {
-	
-if (isset($signInfo['id'])) {
-    $group->signsInfo()->updateOrCreate(['id' => $signInfo['id']], $signInfo);
-} else {
-    // Handle the case where 'id' is not present
-    $group->signsInfo()->create($signInfo); // Create a new record if no ID
-}
-		    
+
+		    $group->signsInfo()->updateOrCreate(
+                        [
+                            'id' => $signInfo['id']
+                        ],
+                        $signInfo
+                    );
                 }
             } else {
    		 error_log("=== DEBUG: No signs_info or not array ===");
