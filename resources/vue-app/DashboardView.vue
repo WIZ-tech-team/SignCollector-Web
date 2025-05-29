@@ -42,7 +42,7 @@
 </td>
                 <td class="p-2 border">
                   <div class="flex justify-center space-x-2">
-                    <button @click.stop="openModal(sign)" title="Show">
+                    <button @click.stop="openModal(sign)" title="عرض">
                       <!-- eye icon -->
                       <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-600 hover:text-green-800" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -51,14 +51,14 @@
                               d="M2.458 12C3.732 7.943 7.522 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.478 0-8.268-2.943-9.542-7z" />
                       </svg>
                     </button>
-                    <button @click.stop="openEditModal(sign)" title="Edit">
+                    <button @click.stop="openEditModal(sign)" title="تعديل">
                       <!-- pencil icon -->
                       <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-yellow-600 hover:text-yellow-800" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                               d="M11 5H6a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2v-5M16.5 3.5l4 4L11 17l-4 1 1-4 9.5-9.5z" />
                       </svg>
                     </button>
-                    <button @click.stop="onDelete(sign)" title="Delete">
+                    <button @click.stop="onDelete(sign)" title="حذف">
                       <!-- trash icon -->
                       <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-red-600 hover:text-red-800" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"

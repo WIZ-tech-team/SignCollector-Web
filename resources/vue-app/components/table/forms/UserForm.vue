@@ -7,7 +7,7 @@
                 <span v-if="isEditForm" class="font-normal text-lg">تحديث حساب المستخدم</span>
                 <span v-else class="font-normal text-lg">انشاء حساب جديد</span>
             </div>
-            <button type="button" @click.prevent="onReturnArrowClick" title="back"
+            <button type="button" @click.prevent="onReturnArrowClick" title="رجوع"
                 class="group cursor-pointer p-1 rounded-md hover:bg-light-primary">
                 <ArrowLeftIcon class="w-6 h-6 text-primary"></ArrowLeftIcon>
             </button>

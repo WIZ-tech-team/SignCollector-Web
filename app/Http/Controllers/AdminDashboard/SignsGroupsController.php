@@ -168,35 +168,40 @@ class SignsGroupsController extends Controller
 
             // 5) Handle related signs info
             if ($request->has('signs_info')) {
+
                 // Sets the sign name, in case of free sign name
                 // When the sign_name is chosen, the sign_custom_name will have the same value in the front
                 // $request['sign_name'] = $request['sign_custom_name'];
 
-                $currentSignsNames = collect($request->signs_info)->pluck('sign_name');
+                // $currentSignsNames = collect($request->signs_info)->pluck('sign_name');
+
+                // // Delete signs_info not in the request
+                // $group->signsInfo()
+                //     ->whereNotIn('sign_name', $currentSignsNames)
+                //     ->delete();
+
+                $currentSignsIds = collect($request->signs_info)->pluck('id');
 
                 // Delete signs_info not in the request
                 $group->signsInfo()
-                    ->whereNotIn('sign_name', $currentSignsNames)
+                    ->whereNotIn('id', $currentSignsIds)
                     ->delete();
 
                 // Update or create signsInfo
-
-
                 foreach ($request->signs_info as $signInfo) {
-	
-if (isset($signInfo['id'])) {
-    $group->signsInfo()->updateOrCreate(['id' => $signInfo['id']], $signInfo);
-} else {
-    // Handle the case where 'id' is not present
-    $group->signsInfo()->create($signInfo); // Create a new record if no ID
-}
-		    
+
+                    if (isset($signInfo['id'])) {
+                        $group->signsInfo()->updateOrCreate(
+                            [
+                                'id' => $signInfo['id']
+                            ],
+                            $signInfo
+                        );
+                    } else {
+                        $group->signsInfo()->create($signInfo);
+                    }
                 }
             } else {
-   		 error_log("=== DEBUG: No signs_info or not array ===");
-   		 error_log("Has signs_info: " . ($request->has('signs_info') ? 'YES' : 'NO'));
-		    error_log("Is array: " . (is_array($request->signs_info) ? 'YES' : 'NO'));
-
                 $group->signsInfo()->delete();
             }
 

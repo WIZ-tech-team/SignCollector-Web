@@ -43,19 +43,19 @@
             <td v-if="allowActions.allow" class="px-6 py-4 whitespace-nowrap">
               <div class="px-2 py-1 flex flex-wrap gap-3">
                 <button v-if="showEdit" type="button"
-                  @click.prevent="onEdit(datum)" title="edit"
+                  @click.prevent="onEdit(datum)" title="تعديل"
                   class="p-2 rounded-md bg-warning hover:bg-active-warning cursor-pointer">
                   <SolidHeroIcon name="PencilIcon" classes="w-4 h-4 text-light-warning" />
                 </button>
-                <button v-if="showArchive" type="button" @click.prevent="onArchive(datum)" title="archive"
+                <button v-if="showArchive" type="button" @click.prevent="onArchive(datum)" title="أرشفة"
                   class="p-2 rounded-md bg-primary hover:bg-active-primary cursor-pointer">
                   <SolidHeroIcon name="ArchiveBoxArrowDownIcon" classes="w-4 h-4 text-light-primary" />
                 </button>
-                <button v-if="showRestore" type="button" @click.prevent="onRestore(datum)" title="unarchive"
+                <button v-if="showRestore" type="button" @click.prevent="onRestore(datum)" title="استرجاع"
                   class="p-2 rounded-md bg-success hover:bg-active-success cursor-pointer">
                   <SolidHeroIcon name="ArrowUpCircleIcon" classes="w-4 h-4 text-light-success" />
                 </button>
-                <button v-if="showDelete" type="button" @click.prevent="onDelete(datum)" title="delete"
+                <button v-if="showDelete" type="button" @click.prevent="onDelete(datum)" title="حذف"
                   class="p-2 rounded-md bg-danger hover:bg-active-danger cursor-pointer">
                   <SolidHeroIcon name="TrashIcon" classes="w-4 h-4 text-light-danger" />
                 </button>
